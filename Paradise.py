@@ -22,9 +22,7 @@ class Spam:
         self.msg_stopped = 0
         self.no_words = ["nigga", "negro", "nigger", "negraccio", "frocio", "ritardato",
                    "down", "frociazzo", "retarded", "faggot", "fag"]
-    
-    
-    
+
     def check_black_list(self, id):
         black_list = json.load(open("blacklist.json"))
         if id in black_list:
