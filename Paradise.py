@@ -20,9 +20,8 @@ class Spam:
     def __init__(self):
         self.no_spam = {}
         self.msg_stopped = 0
-        self.no_words = ["nigga", "negro", "nigger", "negraccio", "frocio", "ritardato",
-                   "down", "frociazzo", "retarded", "faggot", "fag"]
-
+        self.no_words = json.load(open("no_words.json"))["no_words"]
+        
     def check_black_list(self, id):
         black_list = json.load(open("blacklist.json"))
         if id in black_list:
@@ -164,6 +163,22 @@ Do not interrupt long messages! 🇬🇧
         
     await bot.process_commands(msg)
     
+    
+
+@bot.command()
+async def Embed(ctx, description, image):
+    data = json.load(open(database))[ctx.guild.name]
+
+    if not "announcementsChannel" in data:
+        await ctx.send(f"set a announcements channel, {data['prefix']}setAnnouncementsChannel")
+        return
+    
+    channel = discord.utils.get(ctx.guild.text_channels, name=data["announcementsChannel"])
+    
+    embed = discord.Embed(description=description, timestamp=datetime.datetime.utcnow())
+    embed.set_image(url=image)
+    
+    await channel.send(embed=embed)
 
     
 @bot.command()
@@ -219,6 +234,47 @@ async def removeChannel(ctx):
         await ctx.send("you don't have a channel")
     
 
+
+@bot.command()
+async def setAnnouncementsChannel(ctx, name_channel):
+    if filter_no_spam.check_black_list(str(ctx.message.author.id)):
+        await ctx.reply("you are banned")
+        return
+    
+    data = json.load(open(database))
+    with open(database, 'w') as db:
+        data[ctx.guild.name]["announcementsChannel"] = name_channel
+        json.dump(data, db)
+        
+    channel = discord.utils.get(ctx.guild.text_channels, name=name_channel)
+    
+    if channel is None:
+        await ctx.guild.create_text_channel(name_channel)
+        
+    await ctx.send("channel was set")
+    
+    
+@bot.command()
+async def removeAnnouncementsChannel(ctx):
+    if filter_no_spam.check_black_list(str(ctx.message.author.id)):
+        await ctx.reply("you are banned")
+        return
+    
+    data = json.load(open(database))
+    if "announcementsChannel" in data[ctx.guild.name]:
+        with open(database, 'w') as db:
+            name_channel = data[ctx.guild.name]["announcementsChannel"]
+            del data[ctx.guild.name]["announcementsChannel"]
+            json.dump(data, db)
+            
+        await ctx.send("channel was delete")
+        
+        channel = discord.utils.get(ctx.guild.text_channels, name=name_channel)
+        await channel.delete()
+    else:
+        await ctx.send("you don't have a channel")
+    
+    
 @bot.command()
 async def setPrefixVC(ctx, prefixVC):
     if filter_no_spam.check_black_list(str(ctx.message.author.id)):
@@ -350,6 +406,50 @@ async def removeBlackList(ctx, id):
         else:
             await ctx.reply("user not found")
             return
+    else:
+        await ctx.reply("you don't have permissions to use this command")
+        
+
+@bot.command()
+async def addNoWords(ctx, *, words):
+    if ctx.message.author.id == 533014724569333770:
+        words = words.replace("\n", " ")
+        print(words)
+        words = words.split(" ")
+
+        no_words = json.load(open("no_words.json"))
+        with open("no_words.json", 'w') as nw:
+            for word in words:
+                no_words["no_words"].append(word)
+                
+            json.dump(no_words, nw)
+            await ctx.reply("word/words added")
+        filter_no_spam.no_words = json.load(open("no_words.json"))["no_words"]
+    else:
+        await ctx.reply("you don't have permissions to use this command")
+        
+        
+@bot.command()
+async def removeNoWords(ctx, *, words):
+    def check(word, no_words):
+        if word in no_words["no_words"]:
+            return True
+        return False
+    
+    
+    if ctx.message.author.id == 533014724569333770:
+        no_words = json.load(open("no_words.json"))
+        words = words.replace("\n", " ")
+        words = words.split(" ")
+        
+        with open("no_words.json", 'w') as nw:
+            for word in words:
+                if check(word, no_words):
+                    no_words["no_words"].remove(word)
+                    
+            json.dump(no_words, nw)
+            await ctx.reply("word/words removed")
+        filter_no_spam.no_words = json.load(open("no_words.json"))["no_words"]
     else:
         await ctx.reply("you don't have permissions to use this command")
         
