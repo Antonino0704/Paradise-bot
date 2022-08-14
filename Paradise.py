@@ -355,7 +355,6 @@ async def removeBlackList(ctx, id):
 async def addNoWords(ctx, *, words):
     if ctx.message.author.id == 533014724569333770:
         words = words.replace("\n", " ")
-        print(words)
         words = words.split(" ")
 
         no_words = json.load(open("no_words.json"))
