@@ -1,1 +1,1 @@
-{"Paradise!": {"prefix": "$", "lang": "it", "spam": "no", "prefixVC": "-"}, "Bot tester": {"prefix": "$", "lang": "it", "spam": "no", "channel": "bot-vc", "announcementsChannel": "ciao"}}
+{"Paradise!": {"prefix": "$", "lang": "it", "spam": "no", "prefixVC": "-"}, "Bot tester": {"prefix": "$", "lang": "it", "spam": "yes", "channel": "bot-vc"}}
