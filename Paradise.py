@@ -78,6 +78,8 @@ async def on_message(msg):
                                               source=r"/home/raspberry/Desktop/discord_bot/songs/"+ msg.guild.name +".mp3"))
             
             filter_no_spam.msg_stopped = len(msg.content)
+            ctx = await bot.get_context(msg)
+            await utils.catch(ctx)
                    
         except AttributeError:
             await msg.channel.send("you are not connected to a voice channel", reference=msg)
@@ -104,6 +106,33 @@ Do not interrupt long messages! 🇬🇧
         
     await bot.process_commands(msg)
     
+    
+    
+@bot.event
+async def on_raw_reaction_add(payload):
+    if bot.get_user(payload.user_id) == bot.user or str(payload.emoji) != "<:robux:1010974169552404551>":
+        return
+    
+    def write():
+        data = json.load(open("pokedex.json"))
+        id = str(payload.user_id)
+        if id in data:
+            data[id] = data[id]+1
+        else:
+            data[id] = 1
+            
+        with open("pokedex.json", "w")as pd:
+            json.dump(data, pd)
+    
+    async def points():
+        channel = bot.get_channel(payload.channel_id)
+        msg = await channel.fetch_message(payload.message_id)
+        if msg.content == "<:robux:1010974169552404551> oh a wild robux appeared, you put the reaction to win it!!" and msg.author == bot.user:
+            await msg.clear_reactions()
+            await msg.edit(content=f"<@{payload.user_id}> you win")
+            write()
+            
+    await points()
     
 
 @bot.command()
@@ -311,8 +340,18 @@ async def spam(ctx, spam):
 
 @bot.command()
 async def info(ctx):
+    data = json.load(open("pokedex.json"))
+    id_s = str(ctx.message.author.id)
+    if id_s in data:
+        await ctx.reply(f'''{ctx.message.author.name}
+
+robux: {data[id_s]}
+warns: {filter_no_spam.checkWarns(str(ctx.message.author.id))}/5''')
+        return
+        
     await ctx.reply(f'''{ctx.message.author.name}
 
+robux: 0
 warns: {filter_no_spam.checkWarns(str(ctx.message.author.id))}/5''')
     
     
