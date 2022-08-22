@@ -4,6 +4,7 @@ from gtts import gTTS
 from dotenv import load_dotenv
 from lib.spam_lib import Spam
 from lib.utils import Utils
+from lib.robux import Robux
 import discord.utils
 import json
 import os
@@ -12,7 +13,12 @@ import datetime
             
 load_dotenv()
 token = os.environ["token"]
-database = 'database.json'
+
+#data files
+database = 'jsonFile/database.json'
+no_words_db = 'jsonFile/no_words.json'
+blacklist_db = 'jsonFile/blacklist.json'
+pokedex_db = 'jsonFile/pokedex.json'
 
 intents = discord.Intents.default()
 intents.members = True
@@ -20,6 +26,7 @@ intents.presences = True
 
 utils = Utils()
 filter_no_spam = Spam()
+robux = Robux()
 
 bot = commands.Bot(command_prefix=(utils.get_prefix), intents=intents)
 
@@ -56,7 +63,7 @@ async def on_message(msg):
     async def speak(msg):
         ctx = await bot.get_context(msg)
         
-        if await utils.is_ban(ctx, filter_no_spam):
+        if await utils.is_ban(ctx, filter_no_spam, robux):
             return
             
         try:
@@ -79,7 +86,7 @@ async def on_message(msg):
                                               source=r"/home/raspberry/Desktop/discord_bot/songs/"+ msg.guild.name +".mp3"))
             
             filter_no_spam.msg_stopped = len(msg.content)
-            await utils.catch(ctx)
+            await robux.catch(ctx)
                    
         except AttributeError:
             await msg.channel.send("you are not connected to a voice channel", reference=msg)
@@ -112,34 +119,25 @@ Do not interrupt long messages! 🇬🇧
 async def on_raw_reaction_add(payload):
     if bot.get_user(payload.user_id) == bot.user or str(payload.emoji) != "<:robux:1010974169552404551>":
         return
-    
-    if await utils.is_ban(ctx, filter_no_spam):
-        return
-    
-    def write():
-        data = json.load(open("pokedex.json"))
-        id = str(payload.user_id)
-        if not id in data:
-            data[id] = 0
-        data[id]+=1
-            
-        with open("pokedex.json", "w")as pd:
-            json.dump(data, pd)
-    
+ 
     async def points():
         channel = bot.get_channel(payload.channel_id)
         msg = await channel.fetch_message(payload.message_id)
+        ctx = await bot.get_context(msg)
         if msg.content == "<:robux:1010974169552404551> oh a wild robux appeared, you put the reaction to win it!!" and msg.author == bot.user:
+            if await utils.is_ban(ctx, filter_no_spam, robux):
+                return
+            
             await msg.clear_reactions()
             await msg.edit(content=f"<@{payload.user_id}> you win")
-            write()
+            await robux.robux(ctx, str(payload.user_id), 1)
             
     await points()
     
 
 @bot.command()
 async def Embed(ctx, description, image):
-    if await utils.is_ban(ctx, filter_no_spam):
+    if await utils.is_ban(ctx, filter_no_spam, robux):
         return
         
     data = json.load(open(database))[ctx.guild.name]
@@ -158,7 +156,7 @@ async def Embed(ctx, description, image):
     
 @bot.command()
 async def changePrefix(ctx, new_prefix):
-    if await utils.is_ban(ctx, filter_no_spam):
+    if await utils.is_ban(ctx, filter_no_spam, robux):
         return
     
     data = json.load(open(database))
@@ -170,7 +168,7 @@ async def changePrefix(ctx, new_prefix):
     
 @bot.command()
 async def setChannel(ctx, name_channel):
-    if await utils.is_ban(ctx, filter_no_spam):
+    if await utils.is_ban(ctx, filter_no_spam, robux):
         return
     
     data = json.load(open(database))
@@ -188,7 +186,7 @@ async def setChannel(ctx, name_channel):
     
 @bot.command()
 async def removeChannel(ctx):
-    if await utils.is_ban(ctx, filter_no_spam):
+    if await utils.is_ban(ctx, filter_no_spam, robux):
         return
     
     data = json.load(open(database))
@@ -209,7 +207,7 @@ async def removeChannel(ctx):
 
 @bot.command()
 async def setAnnouncementsChannel(ctx, name_channel):
-    if await utils.is_ban(ctx, filter_no_spam):
+    if await utils.is_ban(ctx, filter_no_spam, robux):
         return
     
     data = json.load(open(database))
@@ -227,7 +225,7 @@ async def setAnnouncementsChannel(ctx, name_channel):
     
 @bot.command()
 async def removeAnnouncementsChannel(ctx):
-    if await utils.is_ban(ctx, filter_no_spam):
+    if await utils.is_ban(ctx, filter_no_spam, robux):
         return
     
     data = json.load(open(database))
@@ -247,7 +245,7 @@ async def removeAnnouncementsChannel(ctx):
     
 @bot.command()
 async def setPrefixVC(ctx, prefixVC):
-    if await utils.is_ban(ctx, filter_no_spam):
+    if await utils.is_ban(ctx, filter_no_spam, robux):
         return
     
     data = json.load(open(database))
@@ -260,7 +258,7 @@ async def setPrefixVC(ctx, prefixVC):
 
 @bot.command()
 async def removePrefixVC(ctx):
-    if await utils.is_ban(ctx, filter_no_spam):
+    if await utils.is_ban(ctx, filter_no_spam, robux):
         return
     
     data = json.load(open(database))
@@ -276,7 +274,7 @@ async def removePrefixVC(ctx):
 
 @bot.command()
 async def setLang(ctx, new_lang):
-    if await utils.is_ban(ctx, filter_no_spam):
+    if await utils.is_ban(ctx, filter_no_spam, robux):
         return
     
     data = json.load(open(database))
@@ -289,14 +287,14 @@ async def setLang(ctx, new_lang):
 
 @bot.command()
 async def helpLang(ctx):
-    if await utils.is_ban(ctx, filter_no_spam):
+    if await utils.is_ban(ctx, filter_no_spam, robux):
         return
     await ctx.send("all languages code: https://developers.google.com/admin-sdk/directory/v1/languages")
     
     
 @bot.command()
 async def left(ctx):
-    if await utils.is_ban(ctx, filter_no_spam):
+    if await utils.is_ban(ctx, filter_no_spam, robux):
         return
     try:
         voice = ctx.guild.voice_client
@@ -308,7 +306,7 @@ async def left(ctx):
 
 @bot.command()
 async def stop(ctx):
-    if await utils.is_ban(ctx, filter_no_spam):
+    if await utils.is_ban(ctx, filter_no_spam, robux):
         return
     voice = discord.utils.get(bot.voice_clients, guild=ctx.guild)
     voice.stop()
@@ -316,7 +314,7 @@ async def stop(ctx):
 
 @bot.command()
 async def spam(ctx, spam):
-    if await utils.is_ban(ctx, filter_no_spam):
+    if await utils.is_ban(ctx, filter_no_spam, robux):
         return
     
     if spam != "yes" and spam != "no":
@@ -333,12 +331,12 @@ async def spam(ctx, spam):
 
 @bot.command()
 async def info(ctx):
-    data = json.load(open("pokedex.json"))
+    pokedex = json.load(open(pokedex_db))
     id_s = str(ctx.message.author.id)
-    if id_s in data:
+    if id_s in pokedex:
         await ctx.reply(f'''{ctx.message.author.name}
 
-<:robux:1010974169552404551>: {data[id_s]}
+<:robux:1010974169552404551>: {pokedex[id_s]}
 warns: {filter_no_spam.checkWarns(str(ctx.message.author.id))}/5''')
         return
         
@@ -360,40 +358,26 @@ Change bot activity: <:robux:1010974169552404551> 10 <:4596froggyarrow:101129613
     
 @bot.command()
 async def Rban(ctx):
-    def check(id, black_list):
-        if id in black_list:
-            return True
-        return False
-    
-    data = json.load(open("pokedex.json"))
+    pokedex = json.load(open(pokedex_db))
     id = str(ctx.message.author.id)
     price = 40
     
-    if id in data and data[id] >= price:
-        black_list = json.load(open("blacklist.json"))
-        if check(id, black_list):
-            with open("blacklist.json", 'w') as bl:
-                del black_list[id]
-                json.dump(black_list, bl)
-                await ctx.reply("user removed of blacklist")
-                await utils.payment(ctx, id, data, price)
-                
-        else:
-            await ctx.reply("user not found")
-            return
+    if id in pokedex and pokedex[id] >= price:
+        await filter_no_spam.remove_black_list(ctx, id)
+        await robux.payment(ctx, id, pokedex, price)
     else:
         await ctx.reply(f"<@{id}> doesn't have enough <:robux:1010974169552404551>")
         
 
 @bot.command()
 async def ChangeActivity(ctx, game):
-    data = json.load(open("pokedex.json"))
+    pokedex = json.load(open(pokedex_db))
     id = str(ctx.message.author.id)
     price = 10
     game = filter_no_spam.censured(ctx.message.author.id, game)
-    if id in data and data[id] >= price:
+    if id in pokedex and pokedex[id] >= price:
         await bot.change_presence(activity=discord.Game(name=game))
-        await utils.payment(ctx, id, data, price)
+        await robux.payment(ctx, id, pokedex, price)
     else:
         await ctx.reply(f"<@{id}> doesn't have enough <:robux:1010974169552404551>")
     
@@ -402,33 +386,15 @@ async def ChangeActivity(ctx, game):
 @bot.command()
 async def blackList(ctx, id):
     if ctx.message.author.id == 533014724569333770:
-        black_list = json.load(open("blacklist.json"))
-        with open("blacklist.json", 'w') as bl:
-            black_list[id] = datetime.datetime.now().strftime("%d-%b-%Y (%H:%M:%S.%f)")
-            json.dump(black_list, bl)
-            await ctx.reply("user added of blacklist")
+        await filter_no_spam.add_black_list(ctx, id)
     else:
         await ctx.reply("you don't have permissions to use this command")
         
 
 @bot.command()
 async def removeBlackList(ctx, id):
-    def check(id, black_list):
-        if id in black_list:
-            return True
-        return False
-    
-    
     if ctx.message.author.id == 533014724569333770:
-        black_list = json.load(open("blacklist.json"))
-        if check(id, black_list):
-            with open("blacklist.json", 'w') as bl:
-                del black_list[id]
-                json.dump(black_list, bl)
-                await ctx.reply("user removed of blacklist")
-        else:
-            await ctx.reply("user not found")
-            return
+        await filter_no_spam.remove_black_list(ctx, id)
     else:
         await ctx.reply("you don't have permissions to use this command")
         
@@ -438,60 +404,26 @@ async def addNoWords(ctx, *, words):
     if ctx.message.author.id == 533014724569333770:
         words = words.replace("\n", " ")
         words = words.split(" ")
-
-        no_words = json.load(open("no_words.json"))
-        with open("no_words.json", 'w') as nw:
-            for word in words:
-                no_words["no_words"].append(word)
-                
-            json.dump(no_words, nw)
-            await ctx.reply("word/words added")
-        filter_no_spam.no_words = json.load(open("no_words.json"))["no_words"]
+        await filter_no_spam.add_no_words(ctx,words)
     else:
         await ctx.reply("you don't have permissions to use this command")
         
         
 @bot.command()
 async def removeNoWords(ctx, *, words):
-    def check(word, no_words):
-        if word in no_words["no_words"]:
-            return True
-        return False
-    
-    
     if ctx.message.author.id == 533014724569333770:
-        no_words = json.load(open("no_words.json"))
         words = words.replace("\n", " ")
         words = words.split(" ")
-        
-        with open("no_words.json", 'w') as nw:
-            for word in words:
-                if check(word, no_words):
-                    no_words["no_words"].remove(word)
-                    
-            json.dump(no_words, nw)
-            await ctx.reply("word/words removed")
-        filter_no_spam.no_words = json.load(open("no_words.json"))["no_words"]
+        await filter_no_spam.remove_no_words(ctx, words)
     else:
         await ctx.reply("you don't have permissions to use this command")
         
         
 @bot.command()
-async def robux(ctx, id, robux_number):
+async def money(ctx, id, robux_number):
     if ctx.message.author.id == 533014724569333770:
         robux_number = int(robux_number)
-        data = json.load(open("pokedex.json"))
-        if not id in data:
-            data[id] = 0
-            
-        if robux_number < 0 and data[id] <= -robux_number:
-            await ctx.reply(f"<@{id}> doesn't have enough <:robux:1010974169552404551>")
-            return
-            
-        with open("pokedex.json", 'w') as pd:
-            data[id] += robux_number   
-            json.dump(data, pd)
-            await ctx.reply(f"{robux_number} <:robux:1010974169552404551> added to <@{id}>")
+        await robux.robux(ctx, id, robux_number)
     else:
         await ctx.reply("you don't have permissions to use this command")
         

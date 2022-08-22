@@ -3,17 +3,66 @@ import datetime
 
 class Spam:
     def __init__(self):
+        self.data_files()
         self.no_spam = {}
         self.msg_stopped = 0
-        self.no_words = json.load(open("no_words.json"))["no_words"]
+        self.no_words = json.load(open(self.no_words_db))["no_words"]
+        
+    def data_files(self):
+        self.no_words_db = 'jsonFile/no_words.json'
+        self.blacklist_db = 'jsonFile/blacklist.json'
+        
+    async def add_black_list(self, ctx, id):
+         black_list = json.load(open(self.blacklist_db))
+         with open(self.blacklist_db, 'w') as bl:
+             black_list[id] = datetime.datetime.now().strftime("%d-%b-%Y (%H:%M:%S.%f)")
+             json.dump(black_list, bl)
+             await ctx.reply("user added of blacklist")
+             
+    async def remove_black_list(self, ctx, id):
+        black_list = json.load(open(self.blacklist_db))
+        if self.check(id, black_list):
+            with open(self.blacklist_db, 'w') as bl:
+                del black_list[id]
+                json.dump(black_list, bl)
+                await ctx.reply("user removed of blacklist")
+        else:
+            await ctx.reply("user not found")
+            return
+        
+    async def add_no_words(self, ctx, words):
+        no_words = json.load(open(self.no_words_db))
+        with open(self.no_words_db, 'w') as nw:
+            for word in words:
+                no_words["no_words"].append(word)
+                
+            json.dump(no_words, nw)
+            await ctx.reply("word/words added")
+        self.no_words = json.load(open(self.no_words_db))["no_words"]
+        
+    async def remove_no_words(self, ctx, words):
+        no_words = json.load(open(self.no_words_db))
+        with open(self.no_words_db, 'w') as nw:
+            for word in words:
+                if self.check(word, no_words["no_words"]):
+                    no_words["no_words"].remove(word)
+                    
+            json.dump(no_words, nw)
+            await ctx.reply("word/words removed")
+        self.no_words = json.load(open(self.no_words_db))["no_words"]
+        
+    def check(self, id, lst):
+        if id in lst:
+            return True
+        return False
         
     def check_black_list(self, id):
-        black_list = json.load(open("blacklist.json"))
+        black_list = json.load(open(self.blacklist_db))
         if id in black_list:
             diff = datetime.datetime.now() - datetime.datetime.strptime(black_list[id], "%d-%b-%Y (%H:%M:%S.%f)")
             
             if diff.total_seconds() / 60 > 180:
-                with open("blacklist.json", 'w') as bl:
+                with open(self.blacklist_db, 'w') as bl:
                     del black_list[id]
                     json.dump(black_list, bl)
                 return False
@@ -33,8 +82,8 @@ class Spam:
             self.no_spam[id][1] = datetime.datetime.now()
             
         if self.no_spam[id][0] >= 5:
-            black_list = json.load(open("blacklist.json"))
-            with open("blacklist.json", 'w') as bl:
+            black_list = json.load(open(self.blacklist_db))
+            with open(self.blacklist_db, 'w') as bl:
                 black_list[id] = datetime.datetime.now().strftime("%d-%b-%Y (%H:%M:%S.%f)")
                 json.dump(black_list, bl)
                 del self.no_spam[id]
