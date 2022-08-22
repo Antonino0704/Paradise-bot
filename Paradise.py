@@ -54,8 +54,9 @@ async def on_message(msg):
         return        
             
     async def speak(msg):
-        if filter_no_spam.check_black_list(str(msg.author.id)):
-            await msg.channel.send("you are banned", reference=msg)
+        ctx = await bot.get_context(msg)
+        
+        if await utils.is_ban(ctx, filter_no_spam):
             return
             
         try:
@@ -78,7 +79,6 @@ async def on_message(msg):
                                               source=r"/home/raspberry/Desktop/discord_bot/songs/"+ msg.guild.name +".mp3"))
             
             filter_no_spam.msg_stopped = len(msg.content)
-            ctx = await bot.get_context(msg)
             await utils.catch(ctx)
                    
         except AttributeError:
@@ -113,13 +113,15 @@ async def on_raw_reaction_add(payload):
     if bot.get_user(payload.user_id) == bot.user or str(payload.emoji) != "<:robux:1010974169552404551>":
         return
     
+    if await utils.is_ban(ctx, filter_no_spam):
+        return
+    
     def write():
         data = json.load(open("pokedex.json"))
         id = str(payload.user_id)
-        if id in data:
-            data[id] = data[id]+1
-        else:
-            data[id] = 1
+        if not id in data:
+            data[id] = 0
+        data[id]+=1
             
         with open("pokedex.json", "w")as pd:
             json.dump(data, pd)
@@ -137,6 +139,9 @@ async def on_raw_reaction_add(payload):
 
 @bot.command()
 async def Embed(ctx, description, image):
+    if await utils.is_ban(ctx, filter_no_spam):
+        return
+        
     data = json.load(open(database))[ctx.guild.name]
 
     if not "announcementsChannel" in data:
@@ -153,8 +158,7 @@ async def Embed(ctx, description, image):
     
 @bot.command()
 async def changePrefix(ctx, new_prefix):
-    if filter_no_spam.check_black_list(str(ctx.message.author.id)):
-        await ctx.reply("you are banned")
+    if await utils.is_ban(ctx, filter_no_spam):
         return
     
     data = json.load(open(database))
@@ -166,8 +170,7 @@ async def changePrefix(ctx, new_prefix):
     
 @bot.command()
 async def setChannel(ctx, name_channel):
-    if filter_no_spam.check_black_list(str(ctx.message.author.id)):
-        await ctx.reply("you are banned")
+    if await utils.is_ban(ctx, filter_no_spam):
         return
     
     data = json.load(open(database))
@@ -185,8 +188,7 @@ async def setChannel(ctx, name_channel):
     
 @bot.command()
 async def removeChannel(ctx):
-    if filter_no_spam.check_black_list(str(ctx.message.author.id)):
-        await ctx.reply("you are banned")
+    if await utils.is_ban(ctx, filter_no_spam):
         return
     
     data = json.load(open(database))
@@ -207,8 +209,7 @@ async def removeChannel(ctx):
 
 @bot.command()
 async def setAnnouncementsChannel(ctx, name_channel):
-    if filter_no_spam.check_black_list(str(ctx.message.author.id)):
-        await ctx.reply("you are banned")
+    if await utils.is_ban(ctx, filter_no_spam):
         return
     
     data = json.load(open(database))
@@ -226,8 +227,7 @@ async def setAnnouncementsChannel(ctx, name_channel):
     
 @bot.command()
 async def removeAnnouncementsChannel(ctx):
-    if filter_no_spam.check_black_list(str(ctx.message.author.id)):
-        await ctx.reply("you are banned")
+    if await utils.is_ban(ctx, filter_no_spam):
         return
     
     data = json.load(open(database))
@@ -247,8 +247,7 @@ async def removeAnnouncementsChannel(ctx):
     
 @bot.command()
 async def setPrefixVC(ctx, prefixVC):
-    if filter_no_spam.check_black_list(str(ctx.message.author.id)):
-        await ctx.reply("you are banned")
+    if await utils.is_ban(ctx, filter_no_spam):
         return
     
     data = json.load(open(database))
@@ -261,8 +260,7 @@ async def setPrefixVC(ctx, prefixVC):
 
 @bot.command()
 async def removePrefixVC(ctx):
-    if filter_no_spam.check_black_list(str(ctx.message.author.id)):
-        await ctx.reply("you are banned")
+    if await utils.is_ban(ctx, filter_no_spam):
         return
     
     data = json.load(open(database))
@@ -278,8 +276,7 @@ async def removePrefixVC(ctx):
 
 @bot.command()
 async def setLang(ctx, new_lang):
-    if filter_no_spam.check_black_list(str(ctx.message.author.id)):
-        await ctx.reply("you are banned")
+    if await utils.is_ban(ctx, filter_no_spam):
         return
     
     data = json.load(open(database))
@@ -292,16 +289,14 @@ async def setLang(ctx, new_lang):
 
 @bot.command()
 async def helpLang(ctx):
-    if filter_no_spam.check_black_list(str(ctx.message.author.id)):
-        await ctx.reply("you are banned")
+    if await utils.is_ban(ctx, filter_no_spam):
         return
     await ctx.send("all languages code: https://developers.google.com/admin-sdk/directory/v1/languages")
     
     
 @bot.command()
 async def left(ctx):
-    if filter_no_spam.check_black_list(str(ctx.message.author.id)):
-        await ctx.reply("you are banned")
+    if await utils.is_ban(ctx, filter_no_spam):
         return
     try:
         voice = ctx.guild.voice_client
@@ -313,8 +308,7 @@ async def left(ctx):
 
 @bot.command()
 async def stop(ctx):
-    if filter_no_spam.check_black_list(str(ctx.message.author.id)):
-        await ctx.reply("you are banned")
+    if await utils.is_ban(ctx, filter_no_spam):
         return
     voice = discord.utils.get(bot.voice_clients, guild=ctx.guild)
     voice.stop()
@@ -322,8 +316,7 @@ async def stop(ctx):
 
 @bot.command()
 async def spam(ctx, spam):
-    if filter_no_spam.check_black_list(str(ctx.message.author.id)):
-        await ctx.reply("you are banned")
+    if await utils.is_ban(ctx, filter_no_spam):
         return
     
     if spam != "yes" and spam != "no":
@@ -345,14 +338,63 @@ async def info(ctx):
     if id_s in data:
         await ctx.reply(f'''{ctx.message.author.name}
 
-robux: {data[id_s]}
+<:robux:1010974169552404551>: {data[id_s]}
 warns: {filter_no_spam.checkWarns(str(ctx.message.author.id))}/5''')
         return
         
     await ctx.reply(f'''{ctx.message.author.name}
 
-robux: 0
+<:robux:1010974169552404551>: 0
 warns: {filter_no_spam.checkWarns(str(ctx.message.author.id))}/5''')
+    
+
+#shop
+@bot.command()
+async def shop(ctx):
+    prefix = json.load(open(database))[ctx.guild.name]["prefix"]
+    await ctx.reply(f'''{ctx.message.author.name} welcome at shop
+
+Remove ban: <:robux:1010974169552404551> 40 <:4596froggyarrow:1011296133131292692> {prefix}Rban
+Change bot activity: <:robux:1010974169552404551> 10 <:4596froggyarrow:1011296133131292692> {prefix}ChangeActivity yourGame
+''')
+    
+@bot.command()
+async def Rban(ctx):
+    def check(id, black_list):
+        if id in black_list:
+            return True
+        return False
+    
+    data = json.load(open("pokedex.json"))
+    id = str(ctx.message.author.id)
+    price = 40
+    
+    if id in data and data[id] >= price:
+        black_list = json.load(open("blacklist.json"))
+        if check(id, black_list):
+            with open("blacklist.json", 'w') as bl:
+                del black_list[id]
+                json.dump(black_list, bl)
+                await ctx.reply("user removed of blacklist")
+                await utils.payment(ctx, id, data, price)
+                
+        else:
+            await ctx.reply("user not found")
+            return
+    else:
+        await ctx.reply(f"<@{id}> doesn't have enough <:robux:1010974169552404551>")
+        
+
+@bot.command()
+async def ChangeActivity(ctx, game):
+    data = json.load(open("pokedex.json"))
+    id = str(ctx.message.author.id)
+    price = 10
+    if id in data and data[id] >= price:
+        await bot.change_presence(activity=discord.Game(name=game))
+        await utils.payment(ctx, id, data, price)
+    else:
+        await ctx.reply(f"<@{id}> doesn't have enough <:robux:1010974169552404551>")
     
     
 #admin
@@ -431,6 +473,27 @@ async def removeNoWords(ctx, *, words):
         filter_no_spam.no_words = json.load(open("no_words.json"))["no_words"]
     else:
         await ctx.reply("you don't have permissions to use this command")
+        
+        
+@bot.command()
+async def robux(ctx, id, robux_number):
+    if ctx.message.author.id == 533014724569333770:
+        robux_number = int(robux_number)
+        data = json.load(open("pokedex.json"))
+        if not id in data:
+            data[id] = 0
+            
+        if robux_number < 0 and data[id] <= -robux_number:
+            await ctx.reply(f"<@{id}> doesn't have enough <:robux:1010974169552404551>")
+            return
+            
+        with open("pokedex.json", 'w') as pd:
+            data[id] += robux_number   
+            json.dump(data, pd)
+            await ctx.reply(f"{robux_number} <:robux:1010974169552404551> added to <@{id}>")
+    else:
+        await ctx.reply("you don't have permissions to use this command")
+        
         
 
 bot.run(token)
