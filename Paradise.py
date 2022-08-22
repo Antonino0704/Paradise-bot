@@ -390,6 +390,7 @@ async def ChangeActivity(ctx, game):
     data = json.load(open("pokedex.json"))
     id = str(ctx.message.author.id)
     price = 10
+    game = filter_no_spam.censured(ctx.message.author.id, game)
     if id in data and data[id] >= price:
         await bot.change_presence(activity=discord.Game(name=game))
         await utils.payment(ctx, id, data, price)
