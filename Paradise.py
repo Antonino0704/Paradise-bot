@@ -1,14 +1,22 @@
 from discord import *
 from discord.ext import commands
+import discord.utils
+
 from gtts import gTTS
 from dotenv import load_dotenv
-from lib.spam_lib import Spam
-from lib.utils import Utils
-from lib.robux import Robux
-import discord.utils
 import json
 import os
 import datetime
+
+from lib.utils import Utils
+from lib.spam_lib import Spam
+from lib.robux import Robux
+
+from lib.cog.admin import Admin
+from lib.cog.initSettings import InitSettings
+from lib.cog.shop import Shop
+from lib.cog.info import Info
+from lib.cog.managerVC import ManagerVC
 
             
 load_dotenv()
@@ -137,6 +145,8 @@ async def on_raw_reaction_add(payload):
 
 @bot.command()
 async def Embed(ctx, description, image):
+    """send embed on Announcements Channel"""
+
     if await utils.is_ban(ctx, filter_no_spam, robux):
         return
         
@@ -154,278 +164,13 @@ async def Embed(ctx, description, image):
     await channel.send(embed=embed)
 
     
-@bot.command()
-async def changePrefix(ctx, new_prefix):
-    if await utils.is_ban(ctx, filter_no_spam, robux):
-        return
-    
-    data = json.load(open(database))
-    with open(database, 'w') as db:
-        data[ctx.guild.name]["prefix"] = new_prefix
-        json.dump(data, db)
-        
-    await ctx.send("new prefix was set")
-    
-@bot.command()
-async def setChannel(ctx, name_channel):
-    if await utils.is_ban(ctx, filter_no_spam, robux):
-        return
-    
-    data = json.load(open(database))
-    with open(database, 'w') as db:
-        data[ctx.guild.name]["channel"] = name_channel
-        json.dump(data, db)
-        
-    channel = discord.utils.get(ctx.guild.text_channels, name=name_channel)
-    
-    if channel is None:
-        await ctx.guild.create_text_channel(name_channel)
-        
-    await ctx.send("channel was set")
-    
-    
-@bot.command()
-async def removeChannel(ctx):
-    if await utils.is_ban(ctx, filter_no_spam, robux):
-        return
-    
-    data = json.load(open(database))
-    if "channel" in data[ctx.guild.name]:
-        with open(database, 'w') as db:
-            name_channel = data[ctx.guild.name]["channel"]
-            del data[ctx.guild.name]["channel"]
-            json.dump(data, db)
-            
-        await ctx.send("channel was delete")
-        
-        channel = discord.utils.get(ctx.guild.text_channels, name=name_channel)
-        await channel.delete()
-    else:
-        await ctx.send("you don't have a channel")
-    
 
-
-@bot.command()
-async def setAnnouncementsChannel(ctx, name_channel):
-    if await utils.is_ban(ctx, filter_no_spam, robux):
-        return
-    
-    data = json.load(open(database))
-    with open(database, 'w') as db:
-        data[ctx.guild.name]["announcementsChannel"] = name_channel
-        json.dump(data, db)
-        
-    channel = discord.utils.get(ctx.guild.text_channels, name=name_channel)
-    
-    if channel is None:
-        await ctx.guild.create_text_channel(name_channel)
-        
-    await ctx.send("channel was set")
-    
-    
-@bot.command()
-async def removeAnnouncementsChannel(ctx):
-    if await utils.is_ban(ctx, filter_no_spam, robux):
-        return
-    
-    data = json.load(open(database))
-    if "announcementsChannel" in data[ctx.guild.name]:
-        with open(database, 'w') as db:
-            name_channel = data[ctx.guild.name]["announcementsChannel"]
-            del data[ctx.guild.name]["announcementsChannel"]
-            json.dump(data, db)
-            
-        await ctx.send("channel was delete")
-        
-        channel = discord.utils.get(ctx.guild.text_channels, name=name_channel)
-        await channel.delete()
-    else:
-        await ctx.send("you don't have a channel")
-    
-    
-@bot.command()
-async def setPrefixVC(ctx, prefixVC):
-    if await utils.is_ban(ctx, filter_no_spam, robux):
-        return
-    
-    data = json.load(open(database))
-    with open(database, 'w') as db:
-        data[ctx.guild.name]["prefixVC"] = prefixVC
-        json.dump(data, db)
-        
-    await ctx.send("prefix vocal was set")
-    
-
-@bot.command()
-async def removePrefixVC(ctx):
-    if await utils.is_ban(ctx, filter_no_spam, robux):
-        return
-    
-    data = json.load(open(database))
-    if "prefixVC" in data[ctx.guild.name]:
-        with open(database, 'w') as db:
-            del data[ctx.guild.name]["prefixVC"]
-            json.dump(data, db)
-            
-        await ctx.send("prefix vocal was delete")
-    else:
-        await ctx.send("you don't have a channel")
-    
-
-@bot.command()
-async def setLang(ctx, new_lang):
-    if await utils.is_ban(ctx, filter_no_spam, robux):
-        return
-    
-    data = json.load(open(database))
-    with open(database, 'w') as db:
-        data[ctx.guild.name]["lang"] = new_lang
-        json.dump(data, db)
-        
-    await ctx.send("new lang was set")
-    
-
-@bot.command()
-async def helpLang(ctx):
-    if await utils.is_ban(ctx, filter_no_spam, robux):
-        return
-    await ctx.send("all languages code: https://developers.google.com/admin-sdk/directory/v1/languages")
-    
-    
-@bot.command()
-async def left(ctx):
-    if await utils.is_ban(ctx, filter_no_spam, robux):
-        return
-    try:
-        voice = ctx.guild.voice_client
-        await voice.disconnect()
-    except:
-        await ctx.reply("you are not connected to a voice channel")
-        
-        
-
-@bot.command()
-async def stop(ctx):
-    if await utils.is_ban(ctx, filter_no_spam, robux):
-        return
-    voice = discord.utils.get(bot.voice_clients, guild=ctx.guild)
-    voice.stop()
-    
-
-@bot.command()
-async def spam(ctx, spam):
-    if await utils.is_ban(ctx, filter_no_spam, robux):
-        return
-    
-    if spam != "yes" and spam != "no":
-        await ctx.reply("use only yes or no")
-        return
-    
-    data = json.load(open(database))
-    with open(database, 'w') as db:
-        data[ctx.guild.name]["spam"] = spam
-        json.dump(data, db)
-        
-    await ctx.send("spam set")
-    
-
-@bot.command()
-async def info(ctx):
-    pokedex = json.load(open(pokedex_db))
-    id_s = str(ctx.message.author.id)
-    if id_s in pokedex:
-        await ctx.reply(f'''{ctx.message.author.name}
-
-<:robux:1010974169552404551>: {pokedex[id_s]}
-warns: {filter_no_spam.checkWarns(str(ctx.message.author.id))}/5''')
-        return
-        
-    await ctx.reply(f'''{ctx.message.author.name}
-
-<:robux:1010974169552404551>: 0
-warns: {filter_no_spam.checkWarns(str(ctx.message.author.id))}/5''')
-    
-
-#shop
-@bot.command()
-async def shop(ctx):
-    prefix = json.load(open(database))[ctx.guild.name]["prefix"]
-    await ctx.reply(f'''{ctx.message.author.name} welcome at shop
-
-Remove ban: <:robux:1010974169552404551> 40 <:4596froggyarrow:1011296133131292692> {prefix}Rban
-Change bot activity: <:robux:1010974169552404551> 10 <:4596froggyarrow:1011296133131292692> {prefix}ChangeActivity yourGame
-''')
-    
-@bot.command()
-async def Rban(ctx):
-    pokedex = json.load(open(pokedex_db))
-    id = str(ctx.message.author.id)
-    price = 40
-    
-    if id in pokedex and pokedex[id] >= price:
-        await filter_no_spam.remove_black_list(ctx, id)
-        await robux.payment(ctx, id, pokedex, price)
-    else:
-        await ctx.reply(f"<@{id}> doesn't have enough <:robux:1010974169552404551>")
-        
-
-@bot.command()
-async def ChangeActivity(ctx, game):
-    pokedex = json.load(open(pokedex_db))
-    id = str(ctx.message.author.id)
-    price = 10
-    game = filter_no_spam.censured(ctx.message.author.id, game)
-    if id in pokedex and pokedex[id] >= price:
-        await bot.change_presence(activity=discord.Game(name=game))
-        await robux.payment(ctx, id, pokedex, price)
-    else:
-        await ctx.reply(f"<@{id}> doesn't have enough <:robux:1010974169552404551>")
-    
-    
-#admin
-@bot.command()
-async def blackList(ctx, id):
-    if ctx.message.author.id == 533014724569333770:
-        await filter_no_spam.add_black_list(ctx, id)
-    else:
-        await ctx.reply("you don't have permissions to use this command")
-        
-
-@bot.command()
-async def removeBlackList(ctx, id):
-    if ctx.message.author.id == 533014724569333770:
-        await filter_no_spam.remove_black_list(ctx, id)
-    else:
-        await ctx.reply("you don't have permissions to use this command")
-        
-
-@bot.command()
-async def addNoWords(ctx, *, words):
-    if ctx.message.author.id == 533014724569333770:
-        words = words.replace("\n", " ")
-        words = words.split(" ")
-        await filter_no_spam.add_no_words(ctx,words)
-    else:
-        await ctx.reply("you don't have permissions to use this command")
-        
-        
-@bot.command()
-async def removeNoWords(ctx, *, words):
-    if ctx.message.author.id == 533014724569333770:
-        words = words.replace("\n", " ")
-        words = words.split(" ")
-        await filter_no_spam.remove_no_words(ctx, words)
-    else:
-        await ctx.reply("you don't have permissions to use this command")
-        
-        
-@bot.command()
-async def money(ctx, id, robux_number):
-    if ctx.message.author.id == 533014724569333770:
-        robux_number = int(robux_number)
-        await robux.robux(ctx, id, robux_number)
-    else:
-        await ctx.reply("you don't have permissions to use this command")
+#cog
+bot.add_cog(Admin(bot, filter_no_spam, robux))
+bot.add_cog(InitSettings(bot, utils, filter_no_spam, robux, database))
+bot.add_cog(Shop(bot, filter_no_spam, robux, database, pokedex_db))
+bot.add_cog(Info(bot, utils, filter_no_spam, robux, pokedex_db))
+bot.add_cog(ManagerVC(bot, utils, filter_no_spam, robux, database))
         
         
 
