@@ -11,6 +11,7 @@ import datetime
 from lib.utils import Utils
 from lib.spam_lib import Spam
 from lib.robux import Robux
+from lib.inventory import Inventory
 
 from lib.cog.admin import Admin
 from lib.cog.initSettings import InitSettings
@@ -27,6 +28,7 @@ database = 'jsonFile/database.json'
 no_words_db = 'jsonFile/no_words.json'
 blacklist_db = 'jsonFile/blacklist.json'
 pokedex_db = 'jsonFile/pokedex.json'
+inventory_db = 'jsonFile/inventory.json'
 
 intents = discord.Intents.default()
 intents.members = True
@@ -35,6 +37,7 @@ intents.presences = True
 utils = Utils()
 filter_no_spam = Spam()
 robux = Robux()
+inventory = Inventory()
 
 bot = commands.Bot(command_prefix=(utils.get_prefix), intents=intents)
 
@@ -162,17 +165,13 @@ async def Embed(ctx, description, image):
     embed.set_image(url=image)
     
     await channel.send(embed=embed)
-
     
 
 #cog
-bot.add_cog(Admin(bot, filter_no_spam, robux))
+bot.add_cog(Admin(bot, filter_no_spam, robux, inventory))
 bot.add_cog(InitSettings(bot, utils, filter_no_spam, robux, database))
-bot.add_cog(Shop(bot, filter_no_spam, robux, database, pokedex_db))
-bot.add_cog(Info(bot, utils, filter_no_spam, robux, pokedex_db))
+bot.add_cog(Shop(bot, filter_no_spam, robux, inventory, database, pokedex_db, inventory_db))
+bot.add_cog(Info(bot, utils, filter_no_spam, robux, pokedex_db, inventory_db))
 bot.add_cog(ManagerVC(bot, utils, filter_no_spam, robux, database))
         
-        
-
 bot.run(token)
-

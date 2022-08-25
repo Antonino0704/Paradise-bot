@@ -15,11 +15,13 @@ class InitSettings(commands.Cog, name="Initializing bot settings"):
         self.robux = robux
         self.database = database
 
+
+    @commands.has_permissions(manage_guild=True)
     @commands.command()
     async def changePrefix(self, ctx, new_prefix):
         """change prefix of bot"""
 
-        if await self.self.utils.is_ban(ctx, self.filter_no_spam, self.robux):
+        if await self.utils.is_ban(ctx, self.filter_no_spam, self.robux):
             return
         
         data = json.load(open(self.database))
@@ -29,6 +31,8 @@ class InitSettings(commands.Cog, name="Initializing bot settings"):
             
         await ctx.send("new prefix was set")
         
+
+    @commands.has_permissions(manage_guild=True)
     @commands.command()
     async def setChannel(self, ctx, name_channel):
         """set the channel in which all messages are read by the bot"""
@@ -48,7 +52,8 @@ class InitSettings(commands.Cog, name="Initializing bot settings"):
             
         await ctx.send("channel was set")
         
-        
+
+    @commands.has_permissions(manage_guild=True)
     @commands.command()
     async def removeChannel(self, ctx):
         """remove the channel in which all messages are read by the bot"""
@@ -71,7 +76,7 @@ class InitSettings(commands.Cog, name="Initializing bot settings"):
             await ctx.send("you don't have a channel")
         
 
-
+    @commands.has_permissions(manage_guild=True)
     @commands.command()
     async def setAnnouncementsChannel(self, ctx, name_channel):
         """set the channel in which the embed command send"""
@@ -91,7 +96,8 @@ class InitSettings(commands.Cog, name="Initializing bot settings"):
             
         await ctx.send("channel was set")
         
-        
+    
+    @commands.has_permissions(manage_guild=True)
     @commands.command()
     async def removeAnnouncementsChannel(self, ctx):
         """remove the channel in which the embed command send"""
@@ -113,7 +119,8 @@ class InitSettings(commands.Cog, name="Initializing bot settings"):
         else:
             await ctx.send("you don't have a channel")
         
-        
+    
+    @commands.has_permissions(manage_guild=True)
     @commands.command()
     async def setPrefixVC(self, ctx, prefixVC):
         """set the prefix for message read by the bot"""
@@ -129,6 +136,7 @@ class InitSettings(commands.Cog, name="Initializing bot settings"):
         await ctx.send("prefix vocal was set")
         
 
+    @commands.has_permissions(manage_guild=True)
     @commands.command()
     async def removePrefixVC(self, ctx):
         """remove the prefix for message read by the bot"""
