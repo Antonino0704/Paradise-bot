@@ -1,4 +1,4 @@
-# Paradise server official bot
+# Paradise server's official bot
 
     A bot whose main function is to speak instead of someone who can't speak
 
