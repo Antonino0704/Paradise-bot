@@ -39,11 +39,17 @@ filter_no_spam = Spam()
 robux = Robux()
 inventory = Inventory()
 
+queue = {}
+
 bot = commands.Bot(command_prefix=(utils.get_prefix), intents=intents)
 
 @bot.event
 async def on_ready():
     print("I'm ready")
+    for guild in bot.guilds:
+        queue[guild.name] = {}
+        queue[guild.name]["content"] = []
+        queue[guild.name]["status"] = False
 
 @bot.event
 async def on_guild_join(guild):
@@ -63,69 +69,9 @@ async def on_guild_update(before, after):
         with open(database, 'w') as db:
             data[after.name]= data[before.name]
             del data[before.name]
-            json.dump(data, db)
-        
+            json.dump(data, db)  
 
-@bot.event
-async def on_message(msg):
-    if msg.author == bot.user:
-        return        
-            
-    async def speak(msg):
-        ctx = await bot.get_context(msg)
-        
-        if await utils.is_ban(ctx, filter_no_spam, robux):
-            return
-            
-        try:
-            if(os.path.exists(msg.guild.name + ".mp3")):
-                os.remove(msg.guild.name+ ".mp3")
-                
-            if data["spam"] == "no":
-                msg.content = filter_no_spam.censured(msg.author.id, msg.content)
-                
-            path = f"/home/raspberry/Desktop/discord_bot/songs/{msg.guild.name}.mp3"
-            tts = gTTS(msg.content, lang=data["lang"])
-            tts.save(f"songs/{msg.guild.name}.mp3")
-                
 
-            if not msg.guild.voice_client in bot.voice_clients:
-                channel = msg.author.voice.channel
-                await channel.connect()
-            voice = discord.utils.get(bot.voice_clients, guild=msg.guild)
-            voice.play(discord.FFmpegPCMAudio(executable="/usr/bin/ffmpeg",
-                                              source=r"/home/raspberry/Desktop/discord_bot/songs/"+ msg.guild.name +".mp3"))
-            
-            filter_no_spam.msg_stopped = len(msg.content)
-            await robux.catch(ctx)
-                   
-        except AttributeError:
-            await msg.channel.send("you are not connected to a voice channel", reference=msg)
-        except ClientException:
-            if data["spam"] == "no" and filter_no_spam.msg_stopped > 64:
-                filter_no_spam.count_black_list(str(msg.author.id))
-                await msg.channel.send('''Non interrompere i messaggi lunghi! 🇮🇹
-Do not interrupt long messages! 🇬🇧
-+1 Warn.''', reference=msg)
-            #await msg.channel.send("Oh, no! something went wrong try again in a while", reference=msg)
-        except ValueError:
-            await msg.channel.send("language you have selected doesn't exist, please change it", reference=msg)
-            
-    data = json.load(open(database))[msg.guild.name]
-    if msg.content[0] != data["prefix"]:
-
-        if "prefixVC" in data:
-            if msg.content[0] == data["prefixVC"]:
-                await speak(msg)
-                return
-        if "channel" in data: 
-            if msg.channel.name == data["channel"]:
-                await speak(msg)
-        
-    await bot.process_commands(msg)
-    
-    
-    
 @bot.event
 async def on_raw_reaction_add(payload):
     if bot.get_user(payload.user_id) == bot.user or str(payload.emoji) != "<:robux:1010974169552404551>":
@@ -172,6 +118,6 @@ bot.add_cog(Admin(bot, filter_no_spam, robux, inventory))
 bot.add_cog(InitSettings(bot, utils, filter_no_spam, robux, database))
 bot.add_cog(Shop(bot, filter_no_spam, robux, inventory, database, pokedex_db, inventory_db))
 bot.add_cog(Info(bot, utils, filter_no_spam, robux, pokedex_db, inventory_db))
-bot.add_cog(ManagerVC(bot, utils, filter_no_spam, robux, database))
-        
+bot.add_cog(ManagerVC(bot, utils, filter_no_spam, robux, database, queue))
+
 bot.run(token)

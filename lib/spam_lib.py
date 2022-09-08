@@ -5,7 +5,7 @@ class Spam:
     def __init__(self):
         self.data_files()
         self.no_spam = {}
-        self.msg_stopped = 0
+        #self.msg_stopped = 0
         self.no_words = json.load(open(self.no_words_db))["no_words"]
         
     def data_files(self):
@@ -70,6 +70,7 @@ class Spam:
         
         return False
     
+    @DeprecationWarning
     def count_black_list(self, id):
         if not id in self.no_spam:
             self.no_spam[id] = [0, datetime.datetime.now()]
@@ -97,8 +98,7 @@ class Spam:
         
         return 0
     
-    def censured(self, id, msg):
-        if id != 533014724569333770:
-            for word in self.no_words:
-                msg = msg.replace(word, "*")
+    def censured(self, msg):
+        for word in self.no_words:
+            msg = msg.replace(word, "*")
         return msg
