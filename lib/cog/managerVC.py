@@ -20,6 +20,26 @@ class ManagerVC(commands.Cog, name="Manager commands for bot's speech synthesis"
         self.robux = robux
         self.database = database
         self.queue = queue
+        
+    
+    @commands.Cog.listener()
+    async def on_voice_state_update(self, member, before, after):
+        
+        if not member.id == self.bot.user.id:
+            return
+
+        elif before.channel is None:
+            voice = after.channel.guild.voice_client
+            time = 0
+            while True:
+                await asyncio.sleep(1)
+                time = time + 1
+                if voice.is_playing() and not voice.is_paused():
+                    time = 0
+                if time == 600:
+                    await voice.disconnect()
+                if not voice.is_connected():
+                    break
 
     @commands.Cog.listener()
     async def on_message(self, msg):
@@ -60,9 +80,10 @@ class ManagerVC(commands.Cog, name="Manager commands for bot's speech synthesis"
                 if(os.path.exists(msg.guild.name + ".mp3")):
                     os.remove(msg.guild.name+ ".mp3")
                         
-                path = "C:/Users/asus/OneDrive/Desktop/Nuova cartella (2)/Paradise-bot/songs/"
+                path = "/home/raspberry/Desktop/discord_bot/songs/"
 
-                if self.queue[msg.guild.name]["content"][0][:25] != "-https://www.youtube.com/":
+                
+                if self.queue[msg.guild.name]["content"][0][1:25] != "https://www.youtube.com/" and self.queue[msg.guild.name]["content"][0][1:24] != "ttps://www.youtube.com/":
                     if data["spam"] == "no":
                         self.queue[msg.guild.name]["content"][0] = self.filter_no_spam.censured(self.queue[msg.guild.name]["content"][0])
 
@@ -71,7 +92,7 @@ class ManagerVC(commands.Cog, name="Manager commands for bot's speech synthesis"
 
                 else:
                     YouTube(self.queue[msg.guild.name]["content"][0]).streams.filter(only_audio=True).first().download(path,
-                                                                                    filename=msg.guild.name + ".mp3")
+                                                                                                                        filename=msg.guild.name + ".mp3")
                         
                 if not msg.guild.voice_client in self.bot.voice_clients:
                     channel = msg.author.voice.channel
@@ -79,7 +100,7 @@ class ManagerVC(commands.Cog, name="Manager commands for bot's speech synthesis"
                     
                 voice = discord.utils.get(self.bot.voice_clients, guild=msg.guild)
                 self.queue[msg.guild.name]["status"] = True
-                voice.play(discord.FFmpegPCMAudio(executable="E:/Programmi/ffmpeg-2022-02-17-git-2812508086-essentials_build/bin/ffmpeg.exe",
+                voice.play(discord.FFmpegPCMAudio(executable="/usr/bin/ffmpeg",
                                                   source=path + msg.guild.name +".mp3"),
                                                   after= lambda e: self.finish(msg))
 
@@ -88,9 +109,11 @@ class ManagerVC(commands.Cog, name="Manager commands for bot's speech synthesis"
 
             except AttributeError:
                 await msg.channel.send("you are not connected to a voice channel", reference=msg)
+                self.finish(msg)
         
             except ValueError:
                 await msg.channel.send("language you have selected doesn't exist, please change it", reference=msg)
+                self.finish(msg)
 
             except RegexMatchError:
                 await msg.channel.send("video not found", reference=msg)
