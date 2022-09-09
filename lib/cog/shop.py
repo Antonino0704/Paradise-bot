@@ -95,7 +95,7 @@ class Shop(commands.Cog, name="Shop"):
         pokedex = json.load(open(self.pokedex_db))
         id = str(ctx.message.author.id)
         price = 10
-        game = self.filter_no_spam.censured(ctx.message.author.id, game)
+        game = self.filter_no_spam.censured(game)
         if id in pokedex and pokedex[id] >= price:
             await self.bot.change_presence(activity=discord.Game(name=game))
             await self.robux.payment(ctx, id, pokedex, price)

@@ -20,15 +20,7 @@ class ManagerVC(commands.Cog, name="Manager commands for bot's speech synthesis"
         self.robux = robux
         self.database = database
         self.queue = queue
-        
-        
-    async def disconnection_for_inactivity(self, guild, n):
-        try:
-            channel = guild.text_channels[n]
-            await channel.send("disconection for inactivity")
-        except:
-            return await self.disconnection_for_inactivity(guild, n+1)
-    
+
     @commands.Cog.listener()
     async def on_voice_state_update(self, member, before, after):
         
@@ -45,7 +37,7 @@ class ManagerVC(commands.Cog, name="Manager commands for bot's speech synthesis"
                     time = 0
                 if time == 600:
                     await voice.disconnect()
-                    self.disconnection_for_inactivity(after.channel.guild, 0)
+                    await self.utils.disconnection_for_inactivity(after.channel.guild, 0)
                 if not voice.is_connected():
                     break
 

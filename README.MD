@@ -2,7 +2,7 @@
 
     A bot whose main function is to speak instead of someone who can't speak
 
-    It also has other features like a dummy system of game coins or sending embed messages
+    It also has other features like a dummy system of game coins, sending embed messages or play music
 
     Default prefix = $
 
@@ -16,6 +16,14 @@
     https://discord.com/api/oauth2/authorize?client_id=1004801168674926643&permissions=412622519376&scope=bot
 
     after $help for learn all commands
+    
+# News
+    the bot can play music
+    the bot has a queue
+    the bot disconects after 10 minutes
+    
+# Bugs
+    if you find a bug contact me on discord: Hikki#0666
 
 # Author
     Antonino Buscarino

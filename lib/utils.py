@@ -23,3 +23,10 @@ class Utils:
             await ctx.reply("you are banned")
             return True
         return False
+    
+    async def disconnection_for_inactivity(self, guild, n):
+        try:
+            channel = guild.text_channels[n]
+            await channel.send("disconection for inactivity")
+        except:
+            return await self.disconnection_for_inactivity(guild, n+1)
