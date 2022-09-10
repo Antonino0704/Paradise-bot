@@ -2,6 +2,7 @@ import discord
 from discord.ext import commands
 
 import json
+from json.decoder import JSONDecodeError
 import os
 from gtts import gTTS
 import asyncio
@@ -46,15 +47,18 @@ class ManagerVC(commands.Cog, name="Manager commands for bot's speech synthesis"
         if msg.author == self.bot.user:
             return   
         
-        data = json.load(open(self.database))[msg.guild.name]
-        if msg.content[0] != data["prefix"]:
-            if "prefixVC" in data:
-                if msg.content[0] == data["prefixVC"]:
-                    await self.prefixMethods(msg)
-                    return
-            if "channel" in data: 
-                if msg.channel.name == data["channel"]:
-                    await self.prefixMethods(msg)
+        try:
+            data = json.load(open(self.database))[msg.guild.name]
+            if msg.content[0] != data["prefix"]:
+                if "prefixVC" in data:
+                    if msg.content[0] == data["prefixVC"]:
+                        await self.prefixMethods(msg)
+                        return
+                if "channel" in data: 
+                    if msg.channel.name == data["channel"]:
+                        await self.prefixMethods(msg)
+        except (IndexError, JSONDecodeError):
+            pass
 
     
     async def prefixMethods(self, msg):
@@ -123,6 +127,18 @@ class ManagerVC(commands.Cog, name="Manager commands for bot's speech synthesis"
     @commands.command()
     async def left(self, ctx):
         """the bot left channel"""
+
+        if await self.utils.is_ban(ctx, self.filter_no_spam, self.robux):
+            return
+        try:
+            voice = ctx.guild.voice_client
+            await voice.disconnect()
+        except:
+            await ctx.reply("you are not connected to a voice channel")
+
+    @commands.command()
+    async def leave(self, ctx):
+        """alternative command for left, the bot leave channel"""
 
         if await self.utils.is_ban(ctx, self.filter_no_spam, self.robux):
             return

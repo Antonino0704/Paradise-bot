@@ -12,12 +12,14 @@ from lib.utils import Utils
 from lib.spam_lib import Spam
 from lib.robux import Robux
 from lib.inventory import Inventory
+from lib.jobs import *
 
 from lib.cog.admin import Admin
 from lib.cog.initSettings import InitSettings
 from lib.cog.shop import Shop
 from lib.cog.info import Info
 from lib.cog.managerVC import ManagerVC
+from lib.cog.work import Work
 
             
 load_dotenv()
@@ -119,5 +121,6 @@ bot.add_cog(InitSettings(bot, utils, filter_no_spam, robux, database))
 bot.add_cog(Shop(bot, filter_no_spam, robux, inventory, database, pokedex_db, inventory_db))
 bot.add_cog(Info(bot, utils, filter_no_spam, robux, pokedex_db, inventory_db))
 bot.add_cog(ManagerVC(bot, utils, filter_no_spam, robux, database, queue))
+bot.add_cog(Work(bot, utils, filter_no_spam, robux))
 
 bot.run(token)
