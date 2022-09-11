@@ -271,7 +271,7 @@ class Shop(commands.Cog, name="Shop"):
             channel = self.bot.get_channel(payload.channel_id)
             msg = await channel.fetch_message(payload.message_id)
             ctx = await self.bot.get_context(msg)
-            if msg.content[22:] == "gives a <:robux:1010974169552404551>, you put the reaction to win it!!" and msg.author == self.bot.user:
+            if msg.content[22:] == "drops a <:robux:1010974169552404551>, you put the reaction to win it!!" and msg.author == self.bot.user:
                 await self.bank(ctx, payload, msg)
             
             if msg.content[22:] == "sale a <a:catto:1012052395435499550>, you put the reaction to buy it <:robux:1010974169552404551> 3!!" and msg.author == self.bot.user:
@@ -284,7 +284,7 @@ class Shop(commands.Cog, name="Shop"):
         async def is_banker():
             job = json.load(open(self.jobs_db))
             if str(payload.user_id) in job["banker"]:
-                await ctx.send(f"<@{payload.user_id}> you are a banker, you can't get this robux")
+                await ctx.send(f"<@{payload.user_id}>, you are a banker, you can't get this robux")
                 return True
             return False
 
@@ -307,7 +307,7 @@ class Shop(commands.Cog, name="Shop"):
         async def is_petSeller():
             job = json.load(open(self.jobs_db))
             if str(payload.user_id) in job["petSeller"]:
-                await ctx.send(f"<@{payload.user_id}> you are a pet seller, you can't get this cat")
+                await ctx.send(f"<@{payload.user_id}>, you are a pet seller, you can't get this cat")
                 return True
             return False
 
@@ -337,5 +337,5 @@ class Shop(commands.Cog, name="Shop"):
         if await payment():
             old_msg = msg.content
             await msg.clear_reactions()
-            await msg.edit(content=f"<@{payload.user_id}> you buy it")
+            await msg.edit(content=f"<@{payload.user_id}> bought it")
             await payment_seller(old_msg)

@@ -21,7 +21,15 @@ class Work(commands.Cog, name="Jobs"):
 
     @commands.command()
     async def makeRequest(self, ctx, work_type):
-        #missing description and is ban
+        """you get a job, work type: criminal, banker, petSeller
+
+            required:
+            criminal: >10 and <50 robux
+            banker: >= 50 robux
+            pet seller: 1 cat"""
+
+        if await self.utils.is_ban(ctx, self.filter_no_spam, self.robux):
+            return
 
         pokedex = json.load(open(self.pokedex_db))
         inventory = json.load(open(self.inventory_db))
@@ -45,7 +53,7 @@ class Work(commands.Cog, name="Jobs"):
 
     @commands.command()
     async def resignation(self, ctx):
-        #missing description
+        """you lose your current job"""
         
         id = str(ctx.message.author.id)
         if self.criminal.check_worker(id):
@@ -63,7 +71,15 @@ class Work(commands.Cog, name="Jobs"):
 
     @commands.command()
     async def steal(self, ctx, mention_victim):
-        #missing description and is ban
+        """you can to steal with 10% of probability the 10% of user's assets 
+
+        if the user has houses, -5 for all old house and -10 for all modern house, the result will be your salary
+        
+        you can use the command every 30 seconds + the salary in seconds (ex. 3 robux are 3 seconds)
+        """
+
+        if await self.utils.is_ban(ctx, self.filter_no_spam, self.robux):
+            return
 
         mention_victim = self.utils.mention_replace(mention_victim)
         id = str(ctx.message.author.id)
@@ -74,7 +90,12 @@ class Work(commands.Cog, name="Jobs"):
 
     @commands.command()
     async def printRobux(self, ctx):
-        #missing description and is ban
+        """you can to drop a robux, who puts reaction it gets 1 robux, while the banker gets 2 robux
+        
+        you can use the command every 10 minutes"""
+
+        if await self.utils.is_ban(ctx, self.filter_no_spam, self.robux):
+            return
         
         id = str(ctx.message.author.id)
         if self.banker.check_worker(id):
@@ -84,7 +105,15 @@ class Work(commands.Cog, name="Jobs"):
 
     @commands.command()
     async def saleCat(self, ctx):
-        #missing description and is ban
+        """you can to sale a cat, who puts the reaction pays 3 robux for a cat, while pet seller gets 3 robux
+        
+        the salary will multiply for each cat
+        if you go over 9 robux will be applicate the taxs, wallet's power is applicable
+
+        you can use the command every 5 minutes"""
+
+        if await self.utils.is_ban(ctx, self.filter_no_spam, self.robux):
+            return
         
         id = str(ctx.message.author.id)
         if self.petSeller.check_worker(id):

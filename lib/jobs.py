@@ -28,7 +28,7 @@ class Jobs:
             with open(self.jobs_db, "w") as jbd:
                 job[self.work][id] = 1
                 json.dump(job, jbd)
-            return f"the {self.work} job is yours"
+            return f"the {self.work} job is your"
         return f"already you have a job"
 
     def remove_worker(self, id):
@@ -103,7 +103,7 @@ class PetSeller(Jobs):
         self.work = "petSeller"
 
     async def working(self, ctx):
-        #await asyncio.sleep(600)
+        await asyncio.sleep(300)
         msg = await ctx.send(f"<@{ctx.message.author.id}> sale a <a:catto:1012052395435499550>, you put the reaction to buy it <:robux:1010974169552404551> 3!!")
         await msg.add_reaction("<a:catto:1012052395435499550>")
     

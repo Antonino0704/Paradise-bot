@@ -107,7 +107,7 @@ class Admin(commands.Cog, name="Owner bot only"):
 
     @commands.command()
     async def getListRobux(self, ctx):
-        #missing description
+        """send the list of users who have the robux"""
 
         if ctx.message.author.id == 533014724569333770:
             pokedex = json.load(open(self.pokedex_db))
