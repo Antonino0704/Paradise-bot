@@ -18,9 +18,25 @@
     after $help for learn all commands
     
 # News
-    the bot can play music
-    the bot has a queue
-    the bot disconects after 10 minutes
+    fix internal bugs
+    leave command (it's likes left command)
+    Jobs (criminal, banker, pet seller)
+
+    remember to use your prefix
+
+    $help makeRequest
+    $help resignation 
+    $help printRobux
+    $help steal
+    $help saleCat
+
+    now the setChannel  and removeChannel commands alert you when they don't have permission
+
+    now the setAnnouncementsChannel and removeAnnouncementsChannel commands alert you when they don't have permission
+
+    now the addRoleForSale and removeRoleForSale commands can manage the roles
+
+    now the share  command accept mention role
     
 # Bugs
     if you find a bug contact me on discord: Hikki#0666
