@@ -44,14 +44,14 @@ class Robux:
         return number
                     
     async def catch(self, ctx):
-         number = random.randint(1, 1000)
-         for i in self.probably:
-             if number == i:
-                 msg = await ctx.send("<:robux:1010974169552404551> oh a wild robux appeared, you put the reaction to win it!!")
-                 await msg.add_reaction("<:robux:1010974169552404551>")
+        number = random.randint(1, 1000)
+        for i in self.probably:
+            if number == i:
+                msg = await ctx.send("<:robux:1010974169552404551> oh a wild robux appeared, you put the reaction to win it!!")
+                await msg.add_reaction("<:robux:1010974169552404551>")
                  
     async def payment(self, ctx, id, pokedex, price):
-         with open(self.pokedex_db, 'w') as pd:
+        with open(self.pokedex_db, 'w') as pd:
             pokedex[id] -= price   
             json.dump(pokedex, pd)
             await ctx.reply(f"payment success -{price} <:robux:1010974169552404551> added to <@{id}>")

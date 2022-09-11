@@ -1,7 +1,9 @@
+from turtle import title
 import discord
 from discord.ext import commands
 
 import datetime
+import json
 
 from lib.spam_lib import Spam
 from lib.robux import Robux
@@ -9,11 +11,12 @@ from lib.inventory import Inventory
 
 
 class Admin(commands.Cog, name="Owner bot only"):
-    def __init__(self, bot, filter_no_spam, robux, inventory):
+    def __init__(self, bot, filter_no_spam, robux, pokedex_db, inventory):
         self.bot = bot
         self.filter_no_spam = filter_no_spam
         self.robux = robux
         self.inventory = inventory
+        self.pokedex_db = pokedex_db
 
     
     @commands.command()
@@ -100,3 +103,29 @@ class Admin(commands.Cog, name="Owner bot only"):
             await self.inventory.buy_object(ctx, id, type_object, number)
         else:
             await ctx.reply("you don't have permissions to use this command")
+
+
+    @commands.command()
+    async def getListRobux(self, ctx):
+        #missing description
+
+        if ctx.message.author.id == 533014724569333770:
+            pokedex = json.load(open(self.pokedex_db))
+            description = ""
+            for index in range(len(pokedex)):
+                k = list(pokedex.keys())
+                v = list(pokedex.values())
+                if index != 0:
+                    description += f"<@{k[index]}> : <:robux:1010974169552404551> {v[index]}\n"
+
+                if len(description) > 3000 and len(description) < 4096:
+                    embed = discord.Embed(title="List robux", description=description)
+                    await ctx.send(embed=embed)
+                    description = ""
+
+            if description != None:
+                embed = discord.Embed(title="List robux", description=description)
+                await ctx.send(embed=embed)
+        else:
+            await ctx.reply("you don't have permissions to use this command")
+        

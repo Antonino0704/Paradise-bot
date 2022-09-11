@@ -117,7 +117,8 @@ async def Embed(ctx, description, image):
     
 
 #cog
-bot.add_cog(Admin(bot, filter_no_spam, robux, inventory))
+bot.add_cog(Admin(bot, filter_no_spam, robux, pokedex_db, 
+                inventory))
 
 bot.add_cog(InitSettings(bot, utils, filter_no_spam, robux, 
             database))
@@ -127,11 +128,12 @@ bot.add_cog(Shop(bot, utils, filter_no_spam, robux,
                 jobs_db))
 
 bot.add_cog(Info(bot, utils, filter_no_spam, robux, 
-                pokedex_db, inventory_db))
+                pokedex_db, inventory_db, jobs_db))
 
 bot.add_cog(ManagerVC(bot, utils, filter_no_spam, robux, 
                     database, queue))
                     
-bot.add_cog(Work(bot, utils, filter_no_spam, robux))
+bot.add_cog(Work(bot, utils, filter_no_spam, robux,
+            pokedex_db, inventory_db))
 
 bot.run(token)

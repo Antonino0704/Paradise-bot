@@ -1,48 +1,47 @@
+import json
 import discord
 from discord.ext import commands
 
 from lib.utils import Utils
 from lib.spam_lib import Spam
 from lib.robux import Robux
-from lib.jobs import Criminal, Banker
+from lib.jobs import Criminal, Banker, PetSeller
 
 class Work(commands.Cog, name="Jobs"):
-    def __init__(self, bot, utils, filter_no_spam, robux):
+    def __init__(self, bot, utils, filter_no_spam, robux, pokedex_db, inventory_db):
         self.bot = bot
         self.utils = utils
         self.filter_no_spam = filter_no_spam
         self.robux = robux
+        self.pokedex_db = pokedex_db
+        self.inventory_db = inventory_db
         self.criminal = Criminal()
         self.banker = Banker()
-
-
-    @commands.command()
-    async def myJob(self, ctx):
-        #missing description
-
-        id = str(ctx.message.author.id)
-
-        if self.criminal.check_worker(id):
-            await ctx.reply("you are a criminal")
-        
-        elif self.banker.check_worker(id):
-            await ctx.reply("you are a banker")
-        
-        else:
-            await ctx.reply("you don't have a job")
+        self.petSeller = PetSeller()
 
     @commands.command()
     async def makeRequest(self, ctx, work_type):
         #missing description and is ban
 
-        if work_type == "criminal":
-            await ctx.reply(self.criminal.add_worker(str(ctx.message.author.id)))
+        pokedex = json.load(open(self.pokedex_db))
+        inventory = json.load(open(self.inventory_db))
+        id = str(ctx.message.author.id)
 
-        elif work_type == "banker":
-            await ctx.reply(self.banker.add_worker(str(ctx.message.author.id)))
+        if id in pokedex:
+            if work_type == "criminal" and pokedex[id] >= 10 and pokedex[id] < 50:
+                await ctx.reply(self.criminal.add_worker(id))
+                return
 
-        else:
-            await ctx.reply("work type doesn't exist")
+            elif work_type == "banker" and pokedex[id] >= 50:
+                await ctx.reply(self.banker.add_worker(str(ctx.message.author.id)))
+                return
+
+        if id in inventory:
+            if work_type == "petSeller" and "cat" in inventory[id]:
+                await ctx.reply(self.petSeller.add_worker(str(ctx.message.author.id)))
+                return
+
+        await ctx.reply("work type doesn't exist or you don't have required")
 
     @commands.command()
     async def resignation(self, ctx):
@@ -54,6 +53,9 @@ class Work(commands.Cog, name="Jobs"):
 
         elif self.banker.check_worker(id):
             await ctx.reply(self.banker.remove_worker(id))
+
+        elif self.petSeller.check_worker(id):
+            await ctx.reply(self.petSeller.remove_worker(id))
 
         else:
             await ctx.reply("you don't have a job")
@@ -79,3 +81,13 @@ class Work(commands.Cog, name="Jobs"):
             await self.banker.working(ctx)
         else:
             await ctx.reply("you aren't a banker")
+
+    @commands.command()
+    async def saleCat(self, ctx):
+        #missing description and is ban
+        
+        id = str(ctx.message.author.id)
+        if self.petSeller.check_worker(id):
+            await self.petSeller.working(ctx)
+        else:
+            await ctx.reply("you aren't a pet seller")

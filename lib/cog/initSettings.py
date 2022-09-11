@@ -37,20 +37,23 @@ class InitSettings(commands.Cog, name="Initializing bot settings"):
     async def setChannel(self, ctx, name_channel):
         """set the channel in which all messages are read by the bot"""
 
-        if await self.utils.is_ban(ctx, self.filter_no_spam, self.robux):
-            return
-        
-        data = json.load(open(self.database))
-        with open(self.database, 'w') as db:
-            data[ctx.guild.name]["channel"] = name_channel
-            json.dump(data, db)
-            
         channel = discord.utils.get(ctx.guild.text_channels, name=name_channel)
         
-        if channel is None:
-            await ctx.guild.create_text_channel(name_channel)
+        try:
+            if channel is None:
+                await ctx.guild.create_text_channel(name_channel)
+
+            if await self.utils.is_ban(ctx, self.filter_no_spam, self.robux):
+                return
             
-        await ctx.send("channel was set")
+            data = json.load(open(self.database))
+            with open(self.database, 'w') as db:
+                data[ctx.guild.name]["channel"] = name_channel
+                json.dump(data, db)
+                               
+            await ctx.send("channel was set")
+        except Exception as e:
+            await ctx.reply(e)
         
 
     @commands.has_permissions(manage_guild=True)
@@ -63,15 +66,23 @@ class InitSettings(commands.Cog, name="Initializing bot settings"):
         
         data = json.load(open(self.database))
         if "channel" in data[ctx.guild.name]:
-            with open(self.database, 'w') as db:
+            try:
                 name_channel = data[ctx.guild.name]["channel"]
-                del data[ctx.guild.name]["channel"]
-                json.dump(data, db)
-                
-            await ctx.send("channel was delete")
+                channel = discord.utils.get(ctx.guild.text_channels, name=name_channel)
+
+                if channel is None:
+                    await ctx.reply("the channel doesn't exist")
+                    return
+                await channel.delete()
+
+                with open(self.database, 'w') as db:
+                    del data[ctx.guild.name]["channel"]
+                    json.dump(data, db)
+                    
+                await ctx.send("channel was delete")
+            except Exception as e:
+                await ctx.reply(e)
             
-            channel = discord.utils.get(ctx.guild.text_channels, name=name_channel)
-            await channel.delete()
         else:
             await ctx.send("you don't have a channel")
         
@@ -81,20 +92,23 @@ class InitSettings(commands.Cog, name="Initializing bot settings"):
     async def setAnnouncementsChannel(self, ctx, name_channel):
         """set the channel in which the embed command send"""
 
-        if await self.utils.is_ban(ctx, self.filter_no_spam, self.robux):
-            return
-        
-        data = json.load(open(self.database))
-        with open(self.database, 'w') as db:
-            data[ctx.guild.name]["announcementsChannel"] = name_channel
-            json.dump(data, db)
-            
         channel = discord.utils.get(ctx.guild.text_channels, name=name_channel)
-        
-        if channel is None:
-            await ctx.guild.create_text_channel(name_channel)
+
+        try:
+            if channel is None:
+                await ctx.guild.create_text_channel(name_channel)
+
+            if await self.utils.is_ban(ctx, self.filter_no_spam, self.robux):
+                return
             
-        await ctx.send("channel was set")
+            data = json.load(open(self.database))
+            with open(self.database, 'w') as db:
+                data[ctx.guild.name]["announcementsChannel"] = name_channel
+                json.dump(data, db)
+                
+            await ctx.send("channel was set")
+        except Exception as e:
+                await ctx.reply(e)
         
     
     @commands.has_permissions(manage_guild=True)
@@ -107,15 +121,23 @@ class InitSettings(commands.Cog, name="Initializing bot settings"):
         
         data = json.load(open(self.database))
         if "announcementsChannel" in data[ctx.guild.name]:
-            with open(self.database, 'w') as db:
+            try:
                 name_channel = data[ctx.guild.name]["announcementsChannel"]
-                del data[ctx.guild.name]["announcementsChannel"]
-                json.dump(data, db)
-                
-            await ctx.send("channel was delete")
+                channel = discord.utils.get(ctx.guild.text_channels, name=name_channel)
+
+                if channel is None:
+                    await ctx.reply("the channel doesn't exist")
+                    return
+                await channel.delete()
+
+                with open(self.database, 'w') as db:
+                    del data[ctx.guild.name]["announcementsChannel"]
+                    json.dump(data, db)
+                    
+                await ctx.send("channel was delete")
+            except Exception as e:
+                await ctx.reply(e)
             
-            channel = discord.utils.get(ctx.guild.text_channels, name=name_channel)
-            await channel.delete()
         else:
             await ctx.send("you don't have a channel")
         

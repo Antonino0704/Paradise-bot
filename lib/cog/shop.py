@@ -179,37 +179,59 @@ class Shop(commands.Cog, name="Shop"):
     #roles
     @commands.has_permissions(manage_guild=True)
     @commands.command()
-    async def addRoleForSale(self, ctx, role_id, price):
+    async def addRoleForSale(self, ctx, name_role, price, hex_color="0x00ff00"):
         """add role for sale, the bot must have permissions to add the role and for every purchase a commission equal to 10% 
             with an approximation of an amount equal to or greater than 10 robux to borne by owner"""
         
-        data = json.load(open(self.database))
-        if not "roleSale" in data[ctx.guild.name]:
-            data[ctx.guild.name]["roleSale"] = {}
+        try:
+            role = discord.utils.get(ctx.guild.roles, name=name_role)
+            
+            if role is None:
+                role = await ctx.guild.create_role(name=name_role, colour=int(hex_color, 16))
 
-        with open(self.database, 'w') as db:
-            data[ctx.guild.name]["roleSale"][role_id] = int(price)
-            json.dump(data, db)
+            data = json.load(open(self.database))
+            if not "roleSale" in data[ctx.guild.name]:
+                data[ctx.guild.name]["roleSale"] = {}
                 
-            await ctx.reply(f"role added for <:robux:1010974169552404551> {price}")
+            with open(self.database, 'w') as db:
+                data[ctx.guild.name]["roleSale"][str(role.id)] = int(price)
+                json.dump(data, db)
+                    
+                await ctx.reply(f"role added for <:robux:1010974169552404551> {price}")
+        except Exception as e:
+            print("ss")
+            await ctx.reply(e)
 
 
     @commands.command()
     @commands.has_permissions(manage_guild=True)
-    async def removeRoleForSale(self, ctx, role_id):
+    async def removeRoleForSale(self, ctx, name_role):
         """remove role for sale"""
+
+        role = discord.utils.get(ctx.guild.roles, name=name_role)
+        if role is None:
+            await ctx.reply("the role doesn't exist")
+            return
+        role_id = str(role.id)
         
         data = json.load(open(self.database))
         if "roleSale" in data[ctx.guild.name] and role_id in data[ctx.guild.name]["roleSale"]:
-            with open(self.database, 'w') as db:
-                del data[ctx.guild.name]["roleSale"][role_id]
-                if len(data[ctx.guild.name]["roleSale"]) == 0:
-                    del data[ctx.guild.name]["roleSale"]
-                json.dump(data, db)
-                    
-                await ctx.reply(f"the role <@&{role_id}> has been removed")
+            try:
+                await role.delete()
+
+                with open(self.database, 'w') as db:
+                    del data[ctx.guild.name]["roleSale"][role_id]
+                    if len(data[ctx.guild.name]["roleSale"]) == 0:
+                        del data[ctx.guild.name]["roleSale"]
+                    json.dump(data, db)
+                        
+                    await ctx.reply(f"the role has been removed")
+                    return
+            except Exception as e:
+                await ctx.reply(e)
                 return
-        await ctx.reply("the role does not exist or has not been added to the roles for sale")
+
+        await ctx.reply("the role has not been added to the roles for sale")
 
 
     @commands.command()
@@ -242,7 +264,7 @@ class Shop(commands.Cog, name="Shop"):
     #event
     @commands.Cog.listener()
     async def on_raw_reaction_add(self, payload):
-        if self.bot.get_user(payload.user_id) == self.bot.user or str(payload.emoji) != "<:robux:1010974169552404551>":
+        if self.bot.get_user(payload.user_id) == self.bot.user or str(payload.emoji) != "<:robux:1010974169552404551>" and str(payload.emoji) != "<a:catto:1012052395435499550>":
             return
     
         async def points():
@@ -251,6 +273,9 @@ class Shop(commands.Cog, name="Shop"):
             ctx = await self.bot.get_context(msg)
             if msg.content[22:] == "gives a <:robux:1010974169552404551>, you put the reaction to win it!!" and msg.author == self.bot.user:
                 await self.bank(ctx, payload, msg)
+            
+            if msg.content[22:] == "sale a <a:catto:1012052395435499550>, you put the reaction to buy it <:robux:1010974169552404551> 3!!" and msg.author == self.bot.user:
+                await self.petSell(ctx, payload, msg)
                 
         await points()
 
@@ -277,3 +302,40 @@ class Shop(commands.Cog, name="Shop"):
         await msg.edit(content=f"<@{payload.user_id}> you win")
         await self.robux.robux(ctx, str(payload.user_id), 1)
         await payment(old_msg)
+
+    async def petSell(self, ctx, payload, msg):
+        async def is_petSeller():
+            job = json.load(open(self.jobs_db))
+            if str(payload.user_id) in job["petSeller"]:
+                await ctx.send(f"<@{payload.user_id}> you are a pet seller, you can't get this cat")
+                return True
+            return False
+
+        async def payment():
+            pokedex = json.load(open(self.pokedex_db))
+            id = str(payload.user_id)
+            if id in pokedex and pokedex[id] >= 3:
+                await self.robux.payment(ctx, str(payload.user_id), pokedex, 3)
+                return True
+            await ctx.reply(f"<@{id}> doesn't have enough <:robux:1010974169552404551>")
+            return False
+
+        async def payment_seller(old_msg):
+            job = json.load(open(self.jobs_db))
+            inventory = json.load(open(self.inventory_db))
+            old_msg = self.utils.mention_replace(old_msg[:21])
+            if old_msg in job["petSeller"]:
+                price = 3 * inventory[old_msg]["cat"]
+                price -= int((price/100*10))
+                price += self.is_wallet(old_msg, 3 * inventory[old_msg]["cat"])
+                
+                await self.robux.robux(ctx, old_msg, price)
+
+        if await self.utils.is_ban(ctx, self.filter_no_spam, self.robux) or await is_petSeller():
+            return
+
+        if await payment():
+            old_msg = msg.content
+            await msg.clear_reactions()
+            await msg.edit(content=f"<@{payload.user_id}> you buy it")
+            await payment_seller(old_msg)

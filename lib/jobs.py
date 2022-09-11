@@ -93,5 +93,17 @@ class Banker(Jobs):
 
     async def working(self, ctx):
         await asyncio.sleep(600)
-        msg = await ctx.send(f"<@{ctx.message.author.id}> gives a <:robux:1010974169552404551>, you put the reaction to win it!!")
+        msg = await ctx.send(f"<@{ctx.message.author.id}> drops a <:robux:1010974169552404551>, you put the reaction to win it!!")
         await msg.add_reaction("<:robux:1010974169552404551>")
+
+
+class PetSeller(Jobs):
+    def __init__(self):
+        super().__init__()
+        self.work = "petSeller"
+
+    async def working(self, ctx):
+        #await asyncio.sleep(600)
+        msg = await ctx.send(f"<@{ctx.message.author.id}> sale a <a:catto:1012052395435499550>, you put the reaction to buy it <:robux:1010974169552404551> 3!!")
+        await msg.add_reaction("<a:catto:1012052395435499550>")
+    
