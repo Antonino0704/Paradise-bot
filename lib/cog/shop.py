@@ -1,4 +1,3 @@
-from turtle import title
 import discord
 from discord.ext import commands
 
@@ -9,14 +8,16 @@ from lib.robux import Robux
 from lib.inventory import Inventory
 
 class Shop(commands.Cog, name="Shop"):
-    def __init__(self, bot, filter_no_spam, robux, inventory, database, pokedex_db, inventory_db):
+    def __init__(self, bot, utils, filter_no_spam, robux, inventory, database, pokedex_db, inventory_db, jobs_db):
         self.bot = bot
+        self.utils = utils
         self.filter_no_spam = filter_no_spam
         self.robux = robux
         self.inventory = inventory
         self.database = database
         self.pokedex_db = pokedex_db
         self.inventory_db = inventory_db
+        self.jobs_db = jobs_db
 
     @commands.command()
     async def shop(self, ctx):
@@ -56,9 +57,11 @@ class Shop(commands.Cog, name="Shop"):
 
 
     @commands.command()
-    async def share(self, ctx, receiver_id, robux_number):
+    async def share(self, ctx, mention_role, robux_number):
         """you can share your robux with your friends, the sender will pay a commission equal to 10% 
             with an approximation of an amount equal to or greater than 10 robux"""
+
+        mention_role = self.utils.mention_replace(mention_role)
 
         pokedex = json.load(open(self.pokedex_db))
         id = str(ctx.message.author.id)
@@ -67,7 +70,7 @@ class Shop(commands.Cog, name="Shop"):
         price -= self.is_wallet(id, robux_number)
 
         if id in pokedex and pokedex[id] >= price:
-            await self.robux.robux(ctx, receiver_id, robux_number)
+            await self.robux.robux(ctx, mention_role, robux_number)
             await self.robux.robux(ctx, id, -price)
         else:
             await ctx.reply(f"<@{id}> doesn't have enough <:robux:1010974169552404551>")
@@ -114,8 +117,10 @@ class Shop(commands.Cog, name="Shop"):
         if id in pokedex and pokedex[id] >= price:
             await self.inventory.buy_object(ctx, id, "cat", 1)
             await self.robux.payment(ctx, id, pokedex, price)
+            return True
         else:
             await ctx.reply(f"<@{id}> doesn't have enough <:robux:1010974169552404551>")
+            return False
 
 
     @commands.command()
@@ -129,8 +134,10 @@ class Shop(commands.Cog, name="Shop"):
         if id in pokedex and pokedex[id] >= price:
             await self.inventory.buy_object(ctx, id, "old_house", 1)
             await self.robux.payment(ctx, id, pokedex, price)
+            return True
         else:
             await ctx.reply(f"<@{id}> doesn't have enough <:robux:1010974169552404551>")
+            return False
 
     @commands.command()
     async def BuyModernHouse(self, ctx):
@@ -143,8 +150,10 @@ class Shop(commands.Cog, name="Shop"):
         if id in pokedex and pokedex[id] >= price:
             await self.inventory.buy_object(ctx, id, "modern_house", 1)
             await self.robux.payment(ctx, id, pokedex, price)
+            return True
         else:
             await ctx.reply(f"<@{id}> doesn't have enough <:robux:1010974169552404551>")
+            return False
 
 
     @commands.command()
@@ -208,10 +217,7 @@ class Shop(commands.Cog, name="Shop"):
         """payment of tot robux chosen by the guild owner for buy roles"""
         
         data = json.load(open(self.database))[ctx.guild.name]
-        mention_role = mention_role.replace("<", "")
-        mention_role = mention_role.replace("&", "")
-        mention_role = mention_role.replace(">", "")
-        mention_role = mention_role.replace("@", "")
+        mention_role = self.utils.mention_replace(mention_role)
 
         if "roleSale" in data and mention_role in data["roleSale"]:
             pokedex = json.load(open(self.pokedex_db))
@@ -231,3 +237,43 @@ class Shop(commands.Cog, name="Shop"):
                 await ctx.reply(f"<@{id}> doesn't have enough <:robux:1010974169552404551>")
         else:
              await ctx.reply(f"<@&{mention_role}> isn't on role for sale")
+
+
+    #event
+    @commands.Cog.listener()
+    async def on_raw_reaction_add(self, payload):
+        if self.bot.get_user(payload.user_id) == self.bot.user or str(payload.emoji) != "<:robux:1010974169552404551>":
+            return
+    
+        async def points():
+            channel = self.bot.get_channel(payload.channel_id)
+            msg = await channel.fetch_message(payload.message_id)
+            ctx = await self.bot.get_context(msg)
+            if msg.content[22:] == "gives a <:robux:1010974169552404551>, you put the reaction to win it!!" and msg.author == self.bot.user:
+                await self.bank(ctx, payload, msg)
+                
+        await points()
+
+    
+    async def bank(self, ctx, payload, msg):
+        async def is_banker():
+            job = json.load(open(self.jobs_db))
+            if str(payload.user_id) in job["banker"]:
+                await ctx.send(f"<@{payload.user_id}> you are a banker, you can't get this robux")
+                return True
+            return False
+
+        async def payment(old_msg):
+            job = json.load(open(self.jobs_db))
+            old_msg = self.utils.mention_replace(old_msg[:21])
+            if old_msg in job["banker"]:
+                await self.robux.robux(ctx, old_msg, 2)
+
+        if await self.utils.is_ban(ctx, self.filter_no_spam, self.robux) or await is_banker():
+            return
+             
+        old_msg = msg.content
+        await msg.clear_reactions()
+        await msg.edit(content=f"<@{payload.user_id}> you win")
+        await self.robux.robux(ctx, str(payload.user_id), 1)
+        await payment(old_msg)

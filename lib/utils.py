@@ -14,6 +14,13 @@ class Utils:
     def get_prefix(self, bot, msg):
         data = json.load(open(self.database))
         return data[msg.guild.name]["prefix"]
+
+    def mention_replace(self, mention_role):
+        mention_role = mention_role.replace("<", "")
+        mention_role = mention_role.replace("&", "")
+        mention_role = mention_role.replace(">", "")
+        mention_role = mention_role.replace("@", "")
+        return mention_role
     
     async def is_ban(self, ctx, filter_no_spam, robux):
         if filter_no_spam.check_black_list(str(ctx.message.author.id)):

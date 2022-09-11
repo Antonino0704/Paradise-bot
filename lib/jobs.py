@@ -1,5 +1,6 @@
 import json
 import random
+import asyncio
 
 class Jobs:
     def __init__(self):
@@ -51,15 +52,19 @@ class Criminal(Jobs):
         self.money = 0
 
     async def working(self, ctx, criminal_id, victim_id, robux):
-        number = random.randint(1, 1000)
-
-        for i in robux.probably:
-            if number == i:
-                pokedex = json.load(open(robux.pokedex_db))
-                self.money = int(pokedex[victim_id]/100*10)
-                self.house(victim_id)
-                await robux.robux(ctx, victim_id, -self.money)
-                await robux.robux(ctx, criminal_id, self.money)
+        try:
+            number = random.randint(1, 1000)
+            
+            for i in robux.probably:
+                if number == i:
+                    pokedex = json.load(open(robux.pokedex_db))
+                    self.money = int(pokedex[victim_id]/100*10)
+                    self.house(victim_id)
+                    await asyncio.sleep(30+self.money)
+                    await robux.robux(ctx, victim_id, -self.money)
+                    await robux.robux(ctx, criminal_id, self.money)
+        except KeyError:
+            pass
         await self.feedback(ctx)
 
     def house(self, victim_id):
@@ -79,3 +84,14 @@ class Criminal(Jobs):
             await ctx.reply("you failed")
             return
         await ctx.reply("you win")
+
+
+class Banker(Jobs):
+    def __init__(self):
+        super().__init__()
+        self.work = "banker"
+
+    async def working(self, ctx):
+        await asyncio.sleep(600)
+        msg = await ctx.send(f"<@{ctx.message.author.id}> gives a <:robux:1010974169552404551>, you put the reaction to win it!!")
+        await msg.add_reaction("<:robux:1010974169552404551>")
