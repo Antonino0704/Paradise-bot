@@ -126,7 +126,7 @@ class ManagerVC(commands.Cog, name="Manager commands for bot's speech synthesis"
 
     @commands.command()
     async def left(self, ctx):
-        """the bot left channel"""
+        """the bot lefts the channel"""
 
         if await self.utils.is_ban(ctx, self.filter_no_spam, self.robux):
             return
@@ -138,7 +138,7 @@ class ManagerVC(commands.Cog, name="Manager commands for bot's speech synthesis"
 
     @commands.command()
     async def leave(self, ctx):
-        """alternative command for left, the bot leave channel"""
+        """alternative command for left, the bot leaves the channel"""
 
         if await self.utils.is_ban(ctx, self.filter_no_spam, self.robux):
             return
@@ -166,7 +166,7 @@ class ManagerVC(commands.Cog, name="Manager commands for bot's speech synthesis"
     
     @commands.command()
     async def skip(self, ctx):
-        """the bots skips song"""
+        """the bot skips song"""
 
         if await self.utils.is_ban(ctx, self.filter_no_spam, self.robux):
             return
@@ -190,4 +190,4 @@ class ManagerVC(commands.Cog, name="Manager commands for bot's speech synthesis"
             data[ctx.guild.name]["spam"] = spam
             json.dump(data, db)
             
-        await ctx.send("spam set")
+        await ctx.send("spam has been set")

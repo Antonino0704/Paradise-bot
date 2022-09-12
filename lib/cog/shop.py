@@ -78,7 +78,7 @@ class Shop(commands.Cog, name="Shop"):
 
     @commands.command()
     async def Rban(self, ctx):
-        """payment 40 robux for the remove of the blacklist"""
+        """payment 40 robux to remove from blacklist"""
 
         pokedex = json.load(open(self.pokedex_db))
         id = str(ctx.message.author.id)
@@ -93,7 +93,7 @@ class Shop(commands.Cog, name="Shop"):
 
     @commands.command()
     async def ChangeActivity(self, ctx, game):
-        """payment 10 robux for change activity of the bot"""
+        """payment 10 robux to change activity of the bot"""
 
         pokedex = json.load(open(self.pokedex_db))
         id = str(ctx.message.author.id)
@@ -108,7 +108,7 @@ class Shop(commands.Cog, name="Shop"):
     
     @commands.command()
     async def AdoptCat(self, ctx):
-        """payment 5 robux for adopt a cat"""
+        """payment 5 robux to adopt a cat"""
 
         pokedex = json.load(open(self.pokedex_db))
         id = str(ctx.message.author.id)
@@ -125,7 +125,7 @@ class Shop(commands.Cog, name="Shop"):
 
     @commands.command()
     async def BuyOldHouse(self, ctx):
-        """payment 7 robux for buy a old house"""
+        """payment 7 robux to buy a old house"""
 
         pokedex = json.load(open(self.pokedex_db))
         id = str(ctx.message.author.id)
@@ -141,7 +141,7 @@ class Shop(commands.Cog, name="Shop"):
 
     @commands.command()
     async def BuyModernHouse(self, ctx):
-        """payment 10 robux for buy a modern house"""
+        """payment 10 robux to buy a modern house"""
 
         pokedex = json.load(open(self.pokedex_db))
         id = str(ctx.message.author.id)
@@ -158,7 +158,7 @@ class Shop(commands.Cog, name="Shop"):
 
     @commands.command()
     async def BuyWallet(self, ctx):
-        """payment 20 robux for buy a wallet, one only, if you buy it you will be absent from commissions by share command"""
+        """payment 20 robux to buy a wallet, one only, if you buy it you will be absent from commissions by share command"""
 
         pokedex = json.load(open(self.pokedex_db))
         inventory_data = json.load(open(self.inventory_db))
@@ -167,7 +167,7 @@ class Shop(commands.Cog, name="Shop"):
         
         if id in pokedex and pokedex[id] >= price:
             if id in inventory_data and "wallet" in inventory_data[id]:
-                await ctx.reply("you already have a wallet")
+                await ctx.reply("you  have a wallet")
                 return
 
             await self.inventory.buy_object(ctx, id, "wallet", 1)
@@ -180,7 +180,7 @@ class Shop(commands.Cog, name="Shop"):
     @commands.has_permissions(manage_guild=True)
     @commands.command()
     async def addRoleForSale(self, ctx, name_role, price, hex_color="0x00ff00"):
-        """add role for sale, the bot must have permissions to add the role and for every purchase a commission equal to 10% 
+        """you add role for sale, the bot must have permissions to add the role and for every purchase a commission equal to 10% 
             with an approximation of an amount equal to or greater than 10 robux to borne by owner"""
         
         try:
@@ -206,7 +206,7 @@ class Shop(commands.Cog, name="Shop"):
     @commands.command()
     @commands.has_permissions(manage_guild=True)
     async def removeRoleForSale(self, ctx, name_role):
-        """remove role for sale"""
+        """you remove role for sale"""
 
         role = discord.utils.get(ctx.guild.roles, name=name_role)
         if role is None:
@@ -236,7 +236,7 @@ class Shop(commands.Cog, name="Shop"):
 
     @commands.command()
     async def BuyRole(self, ctx, mention_role):
-        """payment of tot robux chosen by the guild owner for buy roles"""
+        """payment of tot robux chosen by the guild owner to buy roles"""
         
         data = json.load(open(self.database))[ctx.guild.name]
         mention_role = self.utils.mention_replace(mention_role)

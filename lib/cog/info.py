@@ -19,7 +19,7 @@ class Info(commands.Cog, name="Information"):
 
     @commands.command()
     async def helpLang(self, ctx):
-        """get link for iso code language"""
+        """you get link for iso code language"""
 
         if await self.utils.is_ban(ctx, self.filter_no_spam, self.robux):
             return
@@ -27,7 +27,7 @@ class Info(commands.Cog, name="Information"):
 
     @commands.command()
     async def info(self, ctx):
-        """show your warns, robux, inventory and job"""
+        """it shows your warns, robux, inventory and job"""
 
         pokedex = json.load(open(self.pokedex_db))
         inventory = json.load(open(self.inventory_db))

@@ -17,7 +17,7 @@ class Spam:
          with open(self.blacklist_db, 'w') as bl:
              black_list[id] = datetime.datetime.now().strftime("%d-%b-%Y (%H:%M:%S.%f)")
              json.dump(black_list, bl)
-             await ctx.reply("user added of blacklist")
+             await ctx.reply("user added to blacklist")
              
     async def remove_black_list(self, ctx, id):
         black_list = json.load(open(self.blacklist_db))
@@ -25,7 +25,7 @@ class Spam:
             with open(self.blacklist_db, 'w') as bl:
                 del black_list[id]
                 json.dump(black_list, bl)
-                await ctx.reply("user removed of blacklist")
+                await ctx.reply("user removed from blacklist")
         else:
             await ctx.reply("user not found")
             return

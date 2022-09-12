@@ -97,7 +97,7 @@ async def on_raw_reaction_add(payload):
 
 @bot.command()
 async def Embed(ctx, description, image):
-    """send embed on Announcements Channel"""
+    """you send embed on Announcements Channel"""
 
     if await utils.is_ban(ctx, filter_no_spam, robux):
         return

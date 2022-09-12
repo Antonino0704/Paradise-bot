@@ -28,7 +28,7 @@ class Jobs:
             with open(self.jobs_db, "w") as jbd:
                 job[self.work][id] = 1
                 json.dump(job, jbd)
-            return f"the {self.work} job is your"
+            return f"the {self.work} job is yours"
         return f"already you have a job"
 
     def remove_worker(self, id):

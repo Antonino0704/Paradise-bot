@@ -40,7 +40,7 @@ class Inventory:
         with open(self.inventory_db, "w") as ind:
             inventory[id][type_object] += num
             json.dump(inventory, ind)
-            await ctx.reply("you have adopt cat <a:catto:1012052395435499550>")
+            await ctx.reply("you have adopt a cat <a:catto:1012052395435499550>")
 
     async def type_old_house(self, ctx, id, type_object, num):
         inventory = json.load(open(self.inventory_db))

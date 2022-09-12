@@ -19,7 +19,7 @@ class InitSettings(commands.Cog, name="Initializing bot settings"):
     @commands.has_permissions(manage_guild=True)
     @commands.command()
     async def changePrefix(self, ctx, new_prefix):
-        """change prefix of bot"""
+        """it changes the bot prefix"""
 
         if await self.utils.is_ban(ctx, self.filter_no_spam, self.robux):
             return
@@ -29,13 +29,13 @@ class InitSettings(commands.Cog, name="Initializing bot settings"):
             data[ctx.guild.name]["prefix"] = new_prefix
             json.dump(data, db)
             
-        await ctx.send("new prefix was set")
+        await ctx.send("new prefix sets")
         
 
     @commands.has_permissions(manage_guild=True)
     @commands.command()
     async def setChannel(self, ctx, name_channel):
-        """set the channel in which all messages are read by the bot"""
+        """it sets the channel in which all messages are read by the bot"""
 
         channel = discord.utils.get(ctx.guild.text_channels, name=name_channel)
         
@@ -51,7 +51,7 @@ class InitSettings(commands.Cog, name="Initializing bot settings"):
                 data[ctx.guild.name]["channel"] = name_channel
                 json.dump(data, db)
                                
-            await ctx.send("channel was set")
+            await ctx.send("the channel has been set")
         except Exception as e:
             await ctx.reply(e)
         
@@ -59,7 +59,7 @@ class InitSettings(commands.Cog, name="Initializing bot settings"):
     @commands.has_permissions(manage_guild=True)
     @commands.command()
     async def removeChannel(self, ctx):
-        """remove the channel in which all messages are read by the bot"""
+        """it removes the channel in which all messages are read by the bot"""
 
         if await self.utils.is_ban(ctx, self.filter_no_spam, self.robux):
             return
@@ -79,7 +79,7 @@ class InitSettings(commands.Cog, name="Initializing bot settings"):
                     del data[ctx.guild.name]["channel"]
                     json.dump(data, db)
                     
-                await ctx.send("channel was delete")
+                await ctx.send("the channel has been deleted")
             except Exception as e:
                 await ctx.reply(e)
             
@@ -90,7 +90,7 @@ class InitSettings(commands.Cog, name="Initializing bot settings"):
     @commands.has_permissions(manage_guild=True)
     @commands.command()
     async def setAnnouncementsChannel(self, ctx, name_channel):
-        """set the channel in which the embed command send"""
+        """it sets the channel in which the embed command sends the messages"""
 
         channel = discord.utils.get(ctx.guild.text_channels, name=name_channel)
 
@@ -106,7 +106,7 @@ class InitSettings(commands.Cog, name="Initializing bot settings"):
                 data[ctx.guild.name]["announcementsChannel"] = name_channel
                 json.dump(data, db)
                 
-            await ctx.send("channel was set")
+            await ctx.send("channel has been set")
         except Exception as e:
                 await ctx.reply(e)
         
@@ -114,7 +114,7 @@ class InitSettings(commands.Cog, name="Initializing bot settings"):
     @commands.has_permissions(manage_guild=True)
     @commands.command()
     async def removeAnnouncementsChannel(self, ctx):
-        """remove the channel in which the embed command send"""
+        """it removes the channel in which the embed command sends the messages"""
 
         if await self.utils.is_ban(ctx, self.filter_no_spam, self.robux):
             return
@@ -134,7 +134,7 @@ class InitSettings(commands.Cog, name="Initializing bot settings"):
                     del data[ctx.guild.name]["announcementsChannel"]
                     json.dump(data, db)
                     
-                await ctx.send("channel was delete")
+                await ctx.send("channel has been deleted")
             except Exception as e:
                 await ctx.reply(e)
             
@@ -145,7 +145,7 @@ class InitSettings(commands.Cog, name="Initializing bot settings"):
     @commands.has_permissions(manage_guild=True)
     @commands.command()
     async def setPrefixVC(self, ctx, prefixVC):
-        """set the prefix for message read by the bot"""
+        """it sets the prefix for the messages that are read by the bot"""
 
         if await self.utils.is_ban(ctx, self.filter_no_spam, self.robux):
             return
@@ -155,13 +155,13 @@ class InitSettings(commands.Cog, name="Initializing bot settings"):
             data[ctx.guild.name]["prefixVC"] = prefixVC
             json.dump(data, db)
             
-        await ctx.send("prefix vocal was set")
+        await ctx.send("prefix vocal has been set")
         
 
     @commands.has_permissions(manage_guild=True)
     @commands.command()
     async def removePrefixVC(self, ctx):
-        """remove the prefix for message read by the bot"""
+        """it removes the prefix for the messages the are read by the bot"""
 
         if await self.utils.is_ban(ctx, self.filter_no_spam, self.robux):
             return
@@ -172,14 +172,14 @@ class InitSettings(commands.Cog, name="Initializing bot settings"):
                 del data[ctx.guild.name]["prefixVC"]
                 json.dump(data, db)
                 
-            await ctx.send("prefix vocal was delete")
+            await ctx.send("prefix vocal has been deleted")
         else:
             await ctx.send("you don't have a channel")
         
 
     @commands.command()
     async def setLang(self, ctx, new_lang):
-        """set iso language code"""
+        """it sets iso language code"""
 
         if await self.utils.is_ban(ctx, self.filter_no_spam, self.robux):
             return

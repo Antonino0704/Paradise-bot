@@ -21,7 +21,7 @@ class Admin(commands.Cog, name="Owner bot only"):
     
     @commands.command()
     async def embedAdmin(self, ctx, title, description, url_image):
-        """send embed in all guilds of the bot"""
+        """it sends embed to all bot's guilds"""
 
         if ctx.message.author.id == 533014724569333770:
             embed = discord.Embed(title=title, description=description, timestamp=datetime.datetime.utcnow())
@@ -42,7 +42,7 @@ class Admin(commands.Cog, name="Owner bot only"):
 
     @commands.command()
     async def blackList(self, ctx, id):
-        """add user to blacklist"""
+        """it adds user to blacklist"""
 
         if ctx.message.author.id == 533014724569333770:
             await self.filter_no_spam.add_black_list(ctx, id)
@@ -52,7 +52,7 @@ class Admin(commands.Cog, name="Owner bot only"):
 
     @commands.command()
     async def removeBlackList(self, ctx, id):
-        """remove user to blacklist"""
+        """it removes user from blacklist"""
 
         if ctx.message.author.id == 533014724569333770:
             await self.filter_no_spam.remove_black_list(ctx, id)
@@ -62,7 +62,7 @@ class Admin(commands.Cog, name="Owner bot only"):
 
     @commands.command()
     async def addNoWords(self, ctx, *, words):
-        """add word or words in prohibited words list"""
+        """it adds word or words in prohibited words list"""
 
         if ctx.message.author.id == 533014724569333770:
             words = words.replace("\n", " ")
@@ -74,7 +74,7 @@ class Admin(commands.Cog, name="Owner bot only"):
             
     @commands.command()
     async def removeNoWords(self, ctx, *, words):
-        """remove word or words in prohibited words list"""
+        """it removes word or words from prohibited words list"""
 
         if ctx.message.author.id == 533014724569333770:
             words = words.replace("\n", " ")
@@ -86,7 +86,7 @@ class Admin(commands.Cog, name="Owner bot only"):
             
     @commands.command()
     async def money(self, ctx, id, robux_number):
-        """add or remove robux to user"""
+        """it adds or remove robux from user"""
 
         if ctx.message.author.id == 533014724569333770:
             robux_number = int(robux_number)
@@ -96,7 +96,7 @@ class Admin(commands.Cog, name="Owner bot only"):
 
     @commands.command()
     async def inventory(self, ctx, id, type_object, number):
-        """add or remove every type of object on inventory"""
+        """it adds or remove every type of item from inventory"""
 
         if ctx.message.author.id == 533014724569333770:
             number = int(number)
@@ -106,8 +106,8 @@ class Admin(commands.Cog, name="Owner bot only"):
 
 
     @commands.command()
-    async def getListRobux(self, ctx):
-        """send the list of users who have the robux"""
+    async def getRobuxList(self, ctx):
+        """it sends the list of users who have the robux"""
 
         if ctx.message.author.id == 533014724569333770:
             pokedex = json.load(open(self.pokedex_db))
@@ -119,12 +119,12 @@ class Admin(commands.Cog, name="Owner bot only"):
                     description += f"<@{k[index]}> : <:robux:1010974169552404551> {v[index]}\n"
 
                 if len(description) > 3000 and len(description) < 4096:
-                    embed = discord.Embed(title="List robux", description=description)
+                    embed = discord.Embed(title="Robux user list", description=description)
                     await ctx.send(embed=embed)
                     description = ""
 
             if description != None:
-                embed = discord.Embed(title="List robux", description=description)
+                embed = discord.Embed(title="Robux user list", description=description)
                 await ctx.send(embed=embed)
         else:
             await ctx.reply("you don't have permissions to use this command")
