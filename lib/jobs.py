@@ -76,7 +76,9 @@ class Criminal(Jobs):
                     self.money -= 5
             if "modern_house" in inventory[victim_id]:
                 for _ in range(inventory[victim_id]["modern_house"]):
-                    self.money -= 10    
+                    self.money -= 10
+                    
+        self.money = 0 if self.money < 0 else self.money 
         return self.money
 
     async def feedback(self, ctx):

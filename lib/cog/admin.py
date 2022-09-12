@@ -10,7 +10,7 @@ from lib.robux import Robux
 from lib.inventory import Inventory
 
 
-class Admin(commands.Cog, name="Owner bot only"):
+class Admin(commands.Cog, name="Bot owner only"):
     def __init__(self, bot, filter_no_spam, robux, pokedex_db, inventory):
         self.bot = bot
         self.filter_no_spam = filter_no_spam

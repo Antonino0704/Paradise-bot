@@ -60,7 +60,9 @@ class Shop(commands.Cog, name="Shop"):
     async def share(self, ctx, mention_role, robux_number):
         """you can share your robux with your friends, the sender will pay a commission equal to 10% 
             with an approximation of an amount equal to or greater than 10 robux"""
-
+        
+        robux_number = int(robux_number)
+        robux_number = robux_number if robux_number >= 0 else -robux_number
         mention_role = self.utils.mention_replace(mention_role)
 
         pokedex = json.load(open(self.pokedex_db))
@@ -167,7 +169,7 @@ class Shop(commands.Cog, name="Shop"):
         
         if id in pokedex and pokedex[id] >= price:
             if id in inventory_data and "wallet" in inventory_data[id]:
-                await ctx.reply("you  have a wallet")
+                await ctx.reply("you already have a wallet")
                 return
 
             await self.inventory.buy_object(ctx, id, "wallet", 1)
