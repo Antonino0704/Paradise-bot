@@ -73,8 +73,11 @@ class ManagerVC(commands.Cog, name="Manager commands for bot's speech synthesis"
             await self.speak(msg)
 
     def finish(self, msg):
-        self.queue[msg.guild.name]["content"].pop(0)
-        self.queue[msg.guild.name]["status"] = False
+        try:
+            self.queue[msg.guild.name]["content"].pop(0)
+            self.queue[msg.guild.name]["status"] = False
+        except IndexError:
+            pass
 
     async def speak(self, msg):
         data = json.load(open(self.database))[msg.guild.name]

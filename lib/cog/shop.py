@@ -276,7 +276,7 @@ class Shop(commands.Cog, name="Shop"):
             if msg.content[22:] == "drops a <:robux:1010974169552404551>, you put the reaction to win it!!" and msg.author == self.bot.user:
                 await self.bank(ctx, payload, msg)
             
-            if msg.content[22:] == "sale a <a:catto:1012052395435499550>, you put the reaction to buy it <:robux:1010974169552404551> 3!!" and msg.author == self.bot.user:
+            if msg.content[22:] == "sales a <a:catto:1012052395435499550>, you put the reaction to buy it <:robux:1010974169552404551> 3!!" and msg.author == self.bot.user:
                 await self.petSell(ctx, payload, msg)
                 
         await points()

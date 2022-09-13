@@ -12,9 +12,10 @@ class Jobs:
 
     def already_job(self, id):
         job = json.load(open(self.jobs_db))
-        if not id in job["criminal"] and not id in job["banker"]:
-            return False
-        return True
+        for key in list(job.keys()):
+            if id in job[key]:
+                return True
+        return False
 
     def check_worker(self, id):
         job = json.load(open(self.jobs_db))[self.work]
@@ -106,6 +107,6 @@ class PetSeller(Jobs):
 
     async def working(self, ctx):
         await asyncio.sleep(300)
-        msg = await ctx.send(f"<@{ctx.message.author.id}> sale a <a:catto:1012052395435499550>, you put the reaction to buy it <:robux:1010974169552404551> 3!!")
+        msg = await ctx.send(f"<@{ctx.message.author.id}> sales a <a:catto:1012052395435499550>, you put the reaction to buy it <:robux:1010974169552404551> 3!!")
         await msg.add_reaction("<a:catto:1012052395435499550>")
     
