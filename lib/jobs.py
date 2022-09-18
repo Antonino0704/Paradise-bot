@@ -61,6 +61,7 @@ class Criminal(Jobs):
                     pokedex = json.load(open(robux.pokedex_db))
                     self.money = int(pokedex[victim_id]/100*10)
                     self.house(victim_id)
+                    await ctx.send(f"wait {30+self.money} seconds")
                     await asyncio.sleep(30+self.money)
                     await robux.robux(ctx, victim_id, -self.money)
                     await robux.robux(ctx, criminal_id, self.money)
@@ -95,6 +96,7 @@ class Banker(Jobs):
         self.work = "banker"
 
     async def working(self, ctx):
+        await ctx.send("wait 10 minutes")
         await asyncio.sleep(600)
         msg = await ctx.send(f"<@{ctx.message.author.id}> drops a <:robux:1010974169552404551>, you put the reaction to win it!!")
         await msg.add_reaction("<:robux:1010974169552404551>")
@@ -106,6 +108,7 @@ class PetSeller(Jobs):
         self.work = "petSeller"
 
     async def working(self, ctx):
+        await ctx.send("wait 5 minutes")
         await asyncio.sleep(300)
         msg = await ctx.send(f"<@{ctx.message.author.id}> sales a <a:catto:1012052395435499550>, you put the reaction to buy it <:robux:1010974169552404551> 3!!")
         await msg.add_reaction("<a:catto:1012052395435499550>")

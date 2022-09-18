@@ -41,7 +41,7 @@ utils = Utils()
 filter_no_spam = Spam()
 robux = Robux()
 inventory = Inventory()
-current_user = ""
+
 queue = {}
 
 bot = commands.Bot(command_prefix=(utils.get_prefix), intents=intents)
@@ -76,27 +76,29 @@ async def on_guild_update(before, after):
 
 @bot.event
 async def on_raw_reaction_add(payload):
-    global current_user
     if bot.get_user(payload.user_id) == bot.user or str(payload.emoji) != "<:robux:1010974169552404551>":
         return
  
-    async def points(current_user):
+    async def points():
         channel = bot.get_channel(payload.channel_id)
         msg = await channel.fetch_message(payload.message_id)
         ctx = await bot.get_context(msg)
-        if msg.content == "<:robux:1010974169552404551> oh a wild robux appeared, you put the reaction to win it!!" and msg.author == bot.user and current_user == bot.get_user(payload.user_id):
+        if msg.content == "<:robux:1010974169552404551> oh a wild robux appeared, you put the reaction to win it!!" and msg.author == bot.user:
             if await utils.is_ban(ctx, filter_no_spam, robux):
                 return
             
             await msg.clear_reactions()
             await msg.edit(content=f"<@{payload.user_id}> you win")
-            await robux.robux(ctx, str(payload.user_id), 1)
-        return ""
-           
-    
-    if current_user == "":
-        current_user = bot.get_user(payload.user_id)
-    current_user = await points(current_user)
+            try:
+                await robux.robux(ctx, str(payload.user_id), 1)
+            except Exception:
+                await asyncio.sleep(10)
+                await robux.robux(ctx, str(payload.user_id), 1)
+       
+    try:
+        await points()
+    except Exception:
+        await bot.get_channel(payload.channel_id).send(f"<@{payload.user_id}> sorry somethings went wrong")
     
 
 @bot.command()
