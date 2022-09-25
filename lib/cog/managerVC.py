@@ -59,6 +59,8 @@ class ManagerVC(commands.Cog, name="Manager commands for bot's speech synthesis"
                         await self.prefixMethods(msg)
         except (IndexError, JSONDecodeError):
             pass
+        
+        await self.bot.process_commands(msg)
 
     
     async def prefixMethods(self, msg):
@@ -106,6 +108,7 @@ class ManagerVC(commands.Cog, name="Manager commands for bot's speech synthesis"
                     await channel.connect()
                     
                 voice = discord.utils.get(self.bot.voice_clients, guild=msg.guild)
+                
                 self.queue[msg.guild.name]["status"] = True
                 voice.play(discord.FFmpegPCMAudio(executable="/usr/bin/ffmpeg",
                                                   source=path + msg.guild.name +".mp3"),
