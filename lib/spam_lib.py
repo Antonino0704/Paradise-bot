@@ -34,7 +34,7 @@ class Spam:
         no_words = json.load(open(self.no_words_db))
         with open(self.no_words_db, 'w') as nw:
             for word in words:
-                no_words["no_words"].append(word)
+                no_words["no_words"].append(word.lower())
                 
             json.dump(no_words, nw)
             await ctx.reply("word/words added")
@@ -45,7 +45,7 @@ class Spam:
         with open(self.no_words_db, 'w') as nw:
             for word in words:
                 if self.check(word, no_words["no_words"]):
-                    no_words["no_words"].remove(word)
+                    no_words["no_words"].remove(word.lower())
                     
             json.dump(no_words, nw)
             await ctx.reply("word/words removed")
@@ -99,6 +99,7 @@ class Spam:
         return 0
     
     def censured(self, msg):
+        msg = msg.lower()
         for word in self.no_words:
             msg = msg.replace(word, "*")
         return msg

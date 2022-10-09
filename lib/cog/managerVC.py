@@ -36,7 +36,7 @@ class ManagerVC(commands.Cog, name="Manager commands for bot's speech synthesis"
                 time = time + 1
                 if voice.is_playing() and not voice.is_paused():
                     time = 0
-                if time == 600:
+                if time >= 600:
                     await voice.disconnect()
                     await self.utils.disconnection_for_inactivity(after.channel.guild, 0)
                 if not voice.is_connected():
@@ -59,9 +59,6 @@ class ManagerVC(commands.Cog, name="Manager commands for bot's speech synthesis"
                         await self.prefixMethods(msg)
         except (IndexError, JSONDecodeError):
             pass
-        
-        await self.bot.process_commands(msg)
-
     
     async def prefixMethods(self, msg):
         ctx = await self.bot.get_context(msg)
@@ -71,6 +68,7 @@ class ManagerVC(commands.Cog, name="Manager commands for bot's speech synthesis"
         self.queue[msg.guild.name]["content"].append(msg.content)
         self.filter_no_spam.msg_stopped = len(msg.content)
         await self.robux.catch(ctx)
+        print(len(self.queue[msg.guild.name]["content"]))
         if len(self.queue[msg.guild.name]["content"]) == 1:
             await self.speak(msg)
 
@@ -79,7 +77,7 @@ class ManagerVC(commands.Cog, name="Manager commands for bot's speech synthesis"
             self.queue[msg.guild.name]["content"].pop(0)
             self.queue[msg.guild.name]["status"] = False
         except IndexError:
-            pass
+            print("index error")
 
     async def speak(self, msg):
         data = json.load(open(self.database))[msg.guild.name]
@@ -96,13 +94,12 @@ class ManagerVC(commands.Cog, name="Manager commands for bot's speech synthesis"
                     if data["spam"] == "no":
                         self.queue[msg.guild.name]["content"][0] = self.filter_no_spam.censured(self.queue[msg.guild.name]["content"][0])
 
-                    tts = gTTS(self.queue[msg.guild.name]["content"][0], lang=data["lang"])
+                    tts = gTTS(self.queue[msg.guild.name]["content"][0], lang=data["lang"], slow=False)
                     tts.save(f"songs/{msg.guild.name}.mp3")
 
                 else:
                     YouTube(self.queue[msg.guild.name]["content"][0]).streams.filter(only_audio=True).first().download(path,
-                                                                                                                        filename=msg.guild.name + ".mp3")
-                        
+                                                                                                                        filename=msg.guild.name + ".mp3")   
                 if not msg.guild.voice_client in self.bot.voice_clients:
                     channel = msg.author.voice.channel
                     await channel.connect()
@@ -197,3 +194,13 @@ class ManagerVC(commands.Cog, name="Manager commands for bot's speech synthesis"
             json.dump(data, db)
             
         await ctx.send("spam has been set")
+        
+        
+    #for the unconnected bug, read readme.md
+    @commands.command(hidden=True)
+    async def clean(self, ctx):
+        try:
+            for index in range(0, len(self.queue[ctx.guild.name]["content"])):
+                del self.queue[ctx.guild.name]["content"][index]
+        except:
+            pass

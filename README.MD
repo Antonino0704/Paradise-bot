@@ -5,6 +5,11 @@
     It also has other features like a dummy system of game coins, sending embed messages or play music
 
     Default prefix = $
+    
+# Development Status
+    I created this bot because not all can to talk on chat but I'm alone in development and between high school final exam, driving license exam and college tests 
+    I don't have enough time. This is not my job and not get a any salary 
+    so at moment the bot will not to receive any updates and development status is suspended.
 
 # Start:
     You don't waste time with permissions, the bot is safe:
@@ -38,8 +43,12 @@
 
     now the share  command accept mention role
     
+ 
+# Known bugs
+    if the bot doesn't connect to your server use $clean command and try again(it may be necessary to try several times)
+    
 # Bugs
-    if you find a bug contact me on discord: Hikki#0666
+    if you find a bug open a new issue on github
 
 # Author
     Antonino Buscarino
