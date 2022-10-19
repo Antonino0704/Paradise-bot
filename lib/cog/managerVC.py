@@ -74,7 +74,7 @@ class ManagerVC(commands.Cog, name="Manager commands for bot's speech synthesis"
 
     def finish(self, msg):
         try:
-            self.queue[msg.guild.name]["content"].pop(0)
+            del self.queue[ctx.guild.name]["content"][0]
             self.queue[msg.guild.name]["status"] = False
         except IndexError:
             print("index error")
