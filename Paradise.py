@@ -20,6 +20,7 @@ from lib.cog.shop import Shop
 from lib.cog.info import Info
 from lib.cog.managerVC import ManagerVC
 from lib.cog.work import Work
+from lib.cog.events import Events
 
             
 load_dotenv()
@@ -72,7 +73,12 @@ async def on_guild_update(before, after):
         with open(database, 'w') as db:
             data[after.name]= data[before.name]
             del data[before.name]
-            json.dump(data, db)  
+            json.dump(data, db)
+        
+        del queue[before.name]
+        queue[after.name] = {}
+        queue[after.name]["content"] = []
+        queue[after.name]["status"] = False
 
 @bot.event
 async def on_raw_reaction_add(payload):
@@ -141,5 +147,8 @@ bot.add_cog(ManagerVC(bot, utils, filter_no_spam, robux,
                     
 bot.add_cog(Work(bot, utils, filter_no_spam, robux,
             pokedex_db, inventory_db))
+
+bot.add_cog(Events(bot, utils, filter_no_spam, robux,
+                   inventory_db))
 
 bot.run(token)

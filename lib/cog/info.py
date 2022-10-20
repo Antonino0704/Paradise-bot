@@ -39,9 +39,11 @@ class Info(commands.Cog, name="Information"):
         old_house = 0 if not id_s in inventory else 0 if not "old_house" in inventory[id_s] else inventory[id_s]["old_house"]
         modern_house = 0 if not id_s in inventory else 0 if not "modern_house" in inventory[id_s] else inventory[id_s]["modern_house"]
         wallet = 0 if not id_s in inventory else 0 if not "wallet" in inventory[id_s] else  inventory[id_s]["wallet"]
+        
+        halloween = " " if not id_s in inventory else " " if not "halloweenAward" in inventory[id_s] else " <a:halloween:1032777226397175920>"
         job = self.getJob(id_s)
-            
-        title = ctx.message.author
+
+        title = str(ctx.message.author) + halloween
         description = f'''<:robux:1010974169552404551>: {rob}\n
     <a:catto:1012052395435499550>: {cat}\n
     <:oldhouse:1012052537198776430>: {old_house}\n

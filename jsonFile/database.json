@@ -1,1 +1,1 @@
-{"Bot tester": {"prefix": "$", "lang": "it", "spam": "yes", "channel": "bot-vc"}, "Paradise! \ud83c\udf83": {"prefix": "$", "lang": "it", "spam": "no", "prefixVC": "-"}, "Bot tester 2\u2615": {"prefix": "$", "lang": "en", "spam": "yes", "prefixVC": "-"}}
+{"Bot tester": {"prefix": "$", "lang": "it", "spam": "yes", "channel": "bot-vc"}, "Bot tester 2": {"prefix": "$", "lang": "en", "spam": "yes", "prefixVC": "-"}, "Paradise!": {"prefix": "$", "lang": "it", "spam": "no", "prefixVC": "-"}}
