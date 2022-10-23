@@ -33,6 +33,7 @@ blacklist_db = 'jsonFile/blacklist.json'
 pokedex_db = 'jsonFile/pokedex.json'
 inventory_db = 'jsonFile/inventory.json'
 jobs_db = 'jsonFile/jobs.json'
+badge_db = 'jsonFile/badge.json'
 
 intents = discord.Intents.default()
 intents.members = True
@@ -130,7 +131,7 @@ async def Embed(ctx, description, image):
 
 #cog
 bot.add_cog(Admin(bot, filter_no_spam, robux, pokedex_db, 
-                inventory))
+                inventory_db, badge_db, inventory))
 
 bot.add_cog(InitSettings(bot, utils, filter_no_spam, robux, 
             database))
@@ -140,7 +141,7 @@ bot.add_cog(Shop(bot, utils, filter_no_spam, robux,
                 jobs_db))
 
 bot.add_cog(Info(bot, utils, filter_no_spam, robux, 
-                pokedex_db, inventory_db, jobs_db))
+                pokedex_db, inventory_db, jobs_db, badge_db))
 
 bot.add_cog(ManagerVC(bot, utils, filter_no_spam, robux, 
                     database, queue))

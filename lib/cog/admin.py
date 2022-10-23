@@ -11,12 +11,14 @@ from lib.inventory import Inventory
 
 
 class Admin(commands.Cog, name="Bot owner only"):
-    def __init__(self, bot, filter_no_spam, robux, pokedex_db, inventory):
+    def __init__(self, bot, filter_no_spam, robux, pokedex_db, inventory_db, badge_db, inventory):
         self.bot = bot
         self.filter_no_spam = filter_no_spam
         self.robux = robux
         self.inventory = inventory
         self.pokedex_db = pokedex_db
+        self.inventory_db = inventory_db
+        self.badge_db = badge_db
 
     
     @commands.command()
@@ -128,4 +130,78 @@ class Admin(commands.Cog, name="Bot owner only"):
                 await ctx.send(embed=embed)
         else:
             await ctx.reply("you don't have permissions to use this command")
-        
+            
+    @commands.command()
+    async def addBadge(self, ctx, name, emoji):
+        """it adds badge from database"""
+
+        if ctx.message.author.id == 533014724569333770:
+            badge = json.load(open(self.badge_db))
+            with open(self.badge_db, "w") as f_bd:
+                badge[name] = emoji
+                json.dump(badge, f_bd)
+            await ctx.reply("badge activated")
+        else:
+            await ctx.reply("you don't have permissions to use this command")
+            
+    @commands.command()
+    async def removeBadge(self, ctx, name):
+        """it removes badge from database"""
+
+        if ctx.message.author.id == 533014724569333770:
+            badge = json.load(open(self.badge_db))
+            
+            if name in badge:
+                with open(self.badge_db, "w") as f_bd:
+                    del badge[name]
+                    json.dump(badge, f_bd)
+                await ctx.reply("badge disabled")
+            else:
+                await ctx.reply("badge doesn't exist")
+        else:
+            await ctx.reply("you don't have permissions to use this command")
+            
+    @commands.command()
+    async def addBadgeUser(self, ctx, id, name):
+	"""it adds badge to user"""
+        if ctx.message.author.id == 533014724569333770:
+            badge = json.load(open(self.badge_db))
+            inventory = json.load(open(self.inventory_db))
+            
+            if id in inventory and name in inventory[id]:
+                await ctx.reply(f"<@{id}>, you already have the badge")
+                return
+            
+            if name in badge:
+                if not id in inventory:
+                    inventory[id] = {}
+                    
+                with open(self.inventory_db, "w") as ind:
+                    inventory[id][name] = True
+                    json.dump(inventory, ind)
+                await ctx.reply(f"<@{id}> gets {name} badge")
+            else:
+                await ctx.reply("badge doesn't exist")
+        else:
+            await ctx.reply("you don't have permissions to use this command")
+            
+    
+    @commands.command()
+    async def removeBadgeUser(self, ctx, id, name):
+	"""it removes badge to user"""
+        if ctx.message.author.id == 533014724569333770:
+            badge = json.load(open(self.badge_db))
+            inventory = json.load(open(self.inventory_db))
+            
+            if name in badge:
+                if id in inventory and name in inventory[id]:
+                    with open(self.inventory_db, "w") as ind:
+                        del inventory[id][name]
+                        json.dump(inventory, ind)
+                    await ctx.reply(f"<@{id}> drops {name} badge")
+                else:      
+                    await ctx.reply(f"<@{id}>, you don't have the badge")
+            else:
+                await ctx.reply("badge doesn't exist")
+        else:
+            await ctx.reply("you don't have permissions to use this command")

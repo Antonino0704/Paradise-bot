@@ -12,7 +12,6 @@ from pytube.exceptions  import RegexMatchError
 from lib.utils import Utils
 from lib.spam_lib import Spam
 from lib.robux import Robux
-from lib.cog.events import Events
 
 class ManagerVC(commands.Cog, name="Manager commands for bot's speech synthesis"):
     def __init__(self, bot, utils, filter_no_spam, robux, database, queue):
@@ -69,7 +68,6 @@ class ManagerVC(commands.Cog, name="Manager commands for bot's speech synthesis"
         self.queue[msg.guild.name]["content"].append(msg.content)
         self.filter_no_spam.msg_stopped = len(msg.content)
         await self.robux.catch(ctx)
-        await self.halloween_event(ctx)
         print(len(self.queue[msg.guild.name]["content"]))
         if len(self.queue[msg.guild.name]["content"]) == 1:
             await self.speak(msg)
@@ -206,8 +204,3 @@ class ManagerVC(commands.Cog, name="Manager commands for bot's speech synthesis"
                 del self.queue[ctx.guild.name]["content"][index]
         except:
             pass
-        
-    #events
-    async def halloween_event(self, ctx):
-        event = Events(self.bot, self.utils, self.filter_no_spam, self.robux, 'jsonFile/inventory.json')
-        await event.halloween_message(ctx)

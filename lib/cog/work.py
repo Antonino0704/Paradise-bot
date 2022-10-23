@@ -6,6 +6,7 @@ from lib.utils import Utils
 from lib.spam_lib import Spam
 from lib.robux import Robux
 from lib.jobs import Criminal, Banker, PetSeller
+from lib.cog.events import Events
 
 class Work(commands.Cog, name="Jobs"):
     def __init__(self, bot, utils, filter_no_spam, robux, pokedex_db, inventory_db):
@@ -87,6 +88,8 @@ class Work(commands.Cog, name="Jobs"):
             await self.criminal.working(ctx, id, mention_victim, self.robux)
         else:
             await ctx.reply("you aren't a criminal")
+            
+        await self.halloween_event(ctx) #it will be delete
 
     @commands.command()
     async def printRobux(self, ctx):
@@ -102,6 +105,8 @@ class Work(commands.Cog, name="Jobs"):
             await self.banker.working(ctx)
         else:
             await ctx.reply("you aren't a banker")
+            
+        await self.halloween_event(ctx) #it will be delete
 
     @commands.command()
     async def saleCat(self, ctx):
@@ -120,3 +125,10 @@ class Work(commands.Cog, name="Jobs"):
             await self.petSeller.working(ctx)
         else:
             await ctx.reply("you aren't a pet seller")
+            
+        await self.halloween_event(ctx) #it will be delete
+            
+    #events it will be delete
+    async def halloween_event(self, ctx):
+        event = Events(self.bot, self.utils, self.filter_no_spam, self.robux, self.inventory_db)
+        await event.halloween_message(ctx)

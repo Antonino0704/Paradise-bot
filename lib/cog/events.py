@@ -27,7 +27,11 @@ class Events(commands.Cog, name="events"):
             msg = await channel.fetch_message(payload.message_id)
             ctx = await self.bot.get_context(msg)
             if msg.content == "<a:halloween:1032777226397175920>Happy Halloween<a:halloween:1032777226397175920>" and msg.author == self.bot.user:
-                await self.halloween_award(ctx, str(payload.user_id), msg)
+                try:
+                    await self.halloween_award(ctx, str(payload.user_id), msg)
+                except Exception:
+                    await asyncio.sleep(10)
+                    await self.halloween_award(ctx, str(payload.user_id), msg)
           
         await points()
         
@@ -59,6 +63,4 @@ class Events(commands.Cog, name="events"):
             inventory[id]["halloweenAward"] = True
             json.dump(inventory, ind)
             await ctx.reply(f"<@{id}> gets halloween badge")
-            await msg.clear_reactions()
-        
-        
+            await msg.clear_reactions()     

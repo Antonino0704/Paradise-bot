@@ -8,7 +8,7 @@ from lib.spam_lib import Spam
 from lib.robux import Robux
 
 class Info(commands.Cog, name="Information"):
-    def __init__(self, bot, utils, filter_no_spam, robux, pokedex_db, inventory_db, jobs_db):
+    def __init__(self, bot, utils, filter_no_spam, robux, pokedex_db, inventory_db, jobs_db, badge_db):
         self.bot = bot
         self.utils = utils
         self.filter_no_spam = filter_no_spam
@@ -16,6 +16,7 @@ class Info(commands.Cog, name="Information"):
         self.pokedex_db = pokedex_db
         self.inventory_db = inventory_db
         self.jobs_db = jobs_db
+        self.badge_db = badge_db
 
     @commands.command()
     async def helpLang(self, ctx):
@@ -40,7 +41,7 @@ class Info(commands.Cog, name="Information"):
         modern_house = 0 if not id_s in inventory else 0 if not "modern_house" in inventory[id_s] else inventory[id_s]["modern_house"]
         wallet = 0 if not id_s in inventory else 0 if not "wallet" in inventory[id_s] else  inventory[id_s]["wallet"]
         
-        halloween = " " if not id_s in inventory else " " if not "halloweenAward" in inventory[id_s] else " <a:halloween:1032777226397175920>"
+        halloween = " " if not id_s in inventory else self.getBadge(id_s, inventory)
         job = self.getJob(id_s)
 
         title = str(ctx.message.author) + halloween
@@ -63,3 +64,12 @@ class Info(commands.Cog, name="Information"):
             if id in jobs[k]:
                 return k
         return None
+    
+    def getBadge(self, id, inventory):
+        badge_str = " "
+        badge = json.load(open(self.badge_db))
+        for k in list(badge.keys()):
+            if k in inventory[id]:
+                badge_str += badge[k] + " "
+        return badge_str
+            
