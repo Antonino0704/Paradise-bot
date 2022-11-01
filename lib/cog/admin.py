@@ -163,7 +163,7 @@ class Admin(commands.Cog, name="Bot owner only"):
             
     @commands.command()
     async def addBadgeUser(self, ctx, id, name):
-	"""it adds badge to user"""
+        """it adds badge to user"""
         if ctx.message.author.id == 533014724569333770:
             badge = json.load(open(self.badge_db))
             inventory = json.load(open(self.inventory_db))
@@ -188,7 +188,7 @@ class Admin(commands.Cog, name="Bot owner only"):
     
     @commands.command()
     async def removeBadgeUser(self, ctx, id, name):
-	"""it removes badge to user"""
+        """it removes badge to user"""
         if ctx.message.author.id == 533014724569333770:
             badge = json.load(open(self.badge_db))
             inventory = json.load(open(self.inventory_db))
