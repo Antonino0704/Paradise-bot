@@ -65,8 +65,11 @@ async def on_guild_join(guild):
         data[guild.name]["lang"] = "en"
         data[guild.name]["spam"] = "yes"
         json.dump(data, db)
-        
 
+        queue[guild.name] = {}
+        queue[guild.name]["content"] = []
+        queue[guild.name]["status"] = False 
+ 
 @bot.event
 async def on_guild_update(before, after):
     if before.name != after.name:
