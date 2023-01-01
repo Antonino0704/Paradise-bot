@@ -48,13 +48,17 @@ queue = {}
 
 bot = commands.Bot(command_prefix=(utils.get_prefix), intents=intents)
 
+
+def queue_init(name):
+    queue[name] = {}
+    queue[name]["content"] = []
+    queue[name]["status"] = False
+
 @bot.event
 async def on_ready():
     print("I'm ready")
     for guild in bot.guilds:
-        queue[guild.name] = {}
-        queue[guild.name]["content"] = []
-        queue[guild.name]["status"] = False
+        queue_init(guild.name)
 
 @bot.event
 async def on_guild_join(guild):
@@ -66,9 +70,7 @@ async def on_guild_join(guild):
         data[guild.name]["spam"] = "yes"
         json.dump(data, db)
 
-        queue[guild.name] = {}
-        queue[guild.name]["content"] = []
-        queue[guild.name]["status"] = False 
+        queue_init(guild.name)
  
 @bot.event
 async def on_guild_update(before, after):
@@ -80,9 +82,7 @@ async def on_guild_update(before, after):
             json.dump(data, db)
         
         del queue[before.name]
-        queue[after.name] = {}
-        queue[after.name]["content"] = []
-        queue[after.name]["status"] = False
+        queue_init(after.name)
 
 @bot.event
 async def on_raw_reaction_add(payload):

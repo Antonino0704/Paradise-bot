@@ -205,3 +205,14 @@ class Admin(commands.Cog, name="Bot owner only"):
                 await ctx.reply("badge doesn't exist")
         else:
             await ctx.reply("you don't have permissions to use this command")
+
+
+    @commands.command()
+    async def getEmoji(self, ctx, msg):
+        """you get emoji like to string"""
+
+        if ctx.message.author.id == 533014724569333770:
+            msg = msg.replace("<", "")
+            await ctx.reply(msg)
+        else:
+            await ctx.reply("you don't have permissions to use this command")
