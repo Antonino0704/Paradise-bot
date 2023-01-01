@@ -9,13 +9,21 @@ from lib.spam_lib import Spam
 from lib.robux import Robux
 
 class Events(commands.Cog, name="events"):
-    def __init__(self, bot, utils, filter_no_spam, robux, inventory_db):
+    def __init__(self, bot, utils, filter_no_spam, robux, inventory_db, badge_db):
         self.bot = bot
         self.utils = utils
         self.filter_no_spam = filter_no_spam
         self.robux = robux
         self.inventory_db = inventory_db
+        self.badge_db = badge_db
 
+    def checkEmoji(self, emoji):
+        badge = json.load(open(self.badge_db))
+        for k in badge:
+            print(badge[k] == emoji)
+            if emoji == badge[k]:
+                return False
+        return True
     
     @staticmethod
     def generate_probably(start, end, limit):
@@ -33,7 +41,7 @@ class Events(commands.Cog, name="events"):
         
     @commands.Cog.listener()
     async def on_raw_reaction_add(self, payload):
-        if self.bot.get_user(payload.user_id) == self.bot.user or str(payload.emoji) != "<a:halloween:1032777226397175920>":
+        if self.bot.get_user(payload.user_id) == self.bot.user or self.checkEmoji(str(payload.emoji)):
             return
     
         async def points():
@@ -48,6 +56,22 @@ class Events(commands.Cog, name="events"):
                 except Exception:
                     await asyncio.sleep(10)
                     await self.event_award(ctx, str(payload.user_id), msg, "halloween", "halloweenAward")
+
+            #christmas
+            if msg.content == "<:christmas:1059147339014623353>Happy christmas<:christmas:1059147339014623353>" and msg.author == self.bot.user:
+                try:
+                    await self.event_award(ctx, str(payload.user_id), msg, "christmas", "christmas")
+                except Exception:
+                    await asyncio.sleep(10)
+                    await self.event_award(ctx, str(payload.user_id), msg, "christmas", "christmas")
+
+            #2023year
+            if msg.content == "<a:2023:1059150117577437234>Happy new year<a:2023:1059150117577437234>" and msg.author == self.bot.user:
+                try:
+                    await self.event_award(ctx, str(payload.user_id), msg, "new year", "2023")
+                except Exception:
+                    await asyncio.sleep(10)
+                    await self.event_award(ctx, str(payload.user_id), msg, "new year", "2023")
           
         await points()
             
