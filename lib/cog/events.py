@@ -3,6 +3,7 @@ from discord.ext import commands
 
 import json
 import random
+import asyncio
 
 from lib.utils import Utils
 from lib.spam_lib import Spam
@@ -20,7 +21,6 @@ class Events(commands.Cog, name="events"):
     def checkEmoji(self, emoji):
         badge = json.load(open(self.badge_db))
         for k in badge:
-            print(badge[k] == emoji)
             if emoji == badge[k]:
                 return False
         return True

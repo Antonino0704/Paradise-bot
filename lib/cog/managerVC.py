@@ -69,7 +69,7 @@ class ManagerVC(commands.Cog, name="Manager commands for bot's speech synthesis"
         self.queue[msg.guild.name]["content"].append(msg.content)
         self.filter_no_spam.msg_stopped = len(msg.content)
         await self.robux.catch(ctx)
-        await Events.event_message(ctx, "<a:2023:1059150117577437234>", "new year", 1, 1, 1)
+        await Events.event_message(ctx, "<a:2023:1059150117577437234>", "new year", 1, 50, 100)
         print(len(self.queue[msg.guild.name]["content"]))
         if len(self.queue[msg.guild.name]["content"]) == 1:
             await self.speak(msg)

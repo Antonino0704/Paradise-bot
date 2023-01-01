@@ -157,7 +157,7 @@ bot.add_cog(Events(bot, utils, filter_no_spam, robux,
 
 
 @bot.command()
-async def stocazzo(ctx):
+async def christmas(ctx):
     """you get christmas badge"""
 
     await Events.event_message(ctx, "<:christmas:1059147339014623353>", "christmas", 1, 1, 1)
