@@ -34,6 +34,6 @@ class Utils:
     async def disconnection_for_inactivity(self, guild, n):
         try:
             channel = guild.text_channels[n]
-            await channel.send("disconection for inactivity")
+            await channel.send("disconnection for inactivity")
         except:
             return await self.disconnection_for_inactivity(guild, n+1)

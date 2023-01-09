@@ -1,4 +1,3 @@
-from turtle import title
 import discord
 from discord.ext import commands
 
@@ -216,3 +215,18 @@ class Admin(commands.Cog, name="Bot owner only"):
             await ctx.reply(msg)
         else:
             await ctx.reply("you don't have permissions to use this command")
+
+    @commands.command() 
+    async def responding(self, ctx, id_message, id_channel, text): 
+        """you send a message like to bot""" 
+
+        if ctx.message.author.id == 533014724569333770:
+            try: 
+            	channel = self.bot.get_channel(int(id_channel))
+            	msg = await channel.fetch_message(id_message)
+            	ctx_msg = await self.bot.get_context(msg) 
+            	await ctx_msg.reply(text)
+            except:
+                await ctx.reply("error message or channel not found") 
+        else:
+            await ctx.reply("you don't have permissions to use this command") 
