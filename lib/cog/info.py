@@ -52,7 +52,7 @@ class Info(commands.Cog, name="Information"):
 
     @commands.command()
     async def infoBadge(self, ctx, badge_name):
-        """shows badge informationr"""
+        """shows badge information"""
 
         data = self.mysql_connection.get_info("name", badge_name, "badges")
         if data:

@@ -23,25 +23,24 @@
     after $help for learn all commands
     
 # News
-    fix internal bugs
-    leave command (it's likes left command)
-    Jobs (criminal, banker, pet seller)
+## A new save system
+    Now the bot has a database (the old save system was cancelled and replaced by a database server) 
 
-    remember to use your prefix
+## Fixed bugs
+    The bug that didn't give cats after acuisting them was fixed
 
-    $help makeRequest
-    $help resignation 
-    $help printRobux
-    $help steal
-    $help saleCat
+    fixed the bug that would make coin payments even if you were not blacklisted in the Rban command
 
-    now the setChannel  and removeChannel commands alert you when they don't have permission
+## New commands
+    $setFirstLastName command -> allows you to set a first and last name for the account
 
-    now the setAnnouncementsChannel and removeAnnouncementsChannel commands alert you when they don't have permission
+    $infoItem -> shows item information
+    $infoBadge -> shows badge information
+    $infoJob -> shows job information
 
-    now the addRoleForSale and removeRoleForSale commands can manage the roles
+## Coins
+    Decreased the odds of finding a coin, from 10% to 1%
 
-    now the share  command accept mention role
     
  
 # Known bugs
