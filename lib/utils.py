@@ -33,3 +33,10 @@ class Utils:
             await channel.send("disconnection for inactivity")
         except:
             return await self.disconnection_for_inactivity(guild, n+1)
+    
+    def gets_item_icon(self):
+        icons = self.mysql_connection.get_all_emoji_icon()
+        item_list = []
+        for icon in icons:
+            item_list.append(icon[0])
+        return item_list

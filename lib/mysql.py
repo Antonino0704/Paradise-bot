@@ -33,6 +33,16 @@ class Mysql:
         result = self.cursor.fetchall()
         return result[0][0]
     
+    def get_all_emoji_icon(self):
+        query = """
+                SELECT icon
+                FROM items
+                ORDER BY item_id
+                """
+        self.cursor.execute(query)
+        result = self.cursor.fetchall()
+        return result
+    
     def get_badge_icon(self, emoji_id):
         query = """
                 SELECT icon
@@ -174,6 +184,7 @@ class Mysql:
                 SELECT user_id, amount
                 FROM pokedex
                 WHERE item_id = 1
+                ORDER BY amount DESC
                 """
         self.cursor.execute(query)
         result = self.cursor.fetchall()

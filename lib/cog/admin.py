@@ -112,7 +112,7 @@ class Admin(commands.Cog, name="Owner"):
             robux_list = self.mysql_connection.get_robux_list()
             description = ""
             for index in robux_list:
-                description += f"<@{index[0]}> : <:robux:1010974169552404551> {index[1]}\n"
+                description += f"<@{index[0]}> : {self.mysql_connection.get_emoji_icon(1)} {index[1]}\n"
 
                 if len(description) > 3000 and len(description) < 4096:
                     embed = discord.Embed(title="Robux user list", description=description)

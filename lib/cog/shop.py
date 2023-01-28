@@ -18,9 +18,7 @@ class Shop(commands.Cog, name="Shop"):
         self.gets_item_icon()
 
     def gets_item_icon(self):
-        self.item_list = []
-        for i in range(1, 6):
-            self.item_list.append(self.mysql_connection.get_emoji_icon(i))
+        self.item_list = self.utils.gets_item_icon()
 
     @commands.command()
     async def shop(self, ctx):

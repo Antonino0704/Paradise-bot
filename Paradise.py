@@ -109,15 +109,7 @@ async def Embed(ctx, description, image):
     embed = discord.Embed(description=description, timestamp=datetime.datetime.utcnow())
     embed.set_image(url=image)
     
-    await channel.send(embed=embed)
-
-@bot.command()
-async def test(ctx):
-    g = mysql_connection.get_badge_icon_all(ctx.message.author.id)
-    print(g)
-    await ctx.send("<a:halloween:1032777226397175920>Happy Halloween<a:halloween:1032777226397175920>")
-
-    
+    await channel.send(embed=embed)    
 
 #cog
 bot.add_cog(Admin(bot, filter_no_spam, robux, inventory, 
