@@ -8,12 +8,12 @@ from lib.spam_lib import Spam
 from lib.robux import Robux
 
 class InitSettings(commands.Cog, name="Initializing bot settings"):
-    def __init__(self, bot, utils, filter_no_spam, robux, database):
+    def __init__(self, bot, utils, filter_no_spam, robux, mysql_connection):
         self.bot = bot
         self.utils = utils
         self.filter_no_spam = filter_no_spam
         self.robux = robux
-        self.database = database
+        self.mysql_connection = mysql_connection
 
 
     @commands.has_permissions(manage_guild=True)
@@ -24,11 +24,7 @@ class InitSettings(commands.Cog, name="Initializing bot settings"):
         if await self.utils.is_ban(ctx, self.filter_no_spam, self.robux):
             return
         
-        data = json.load(open(self.database))
-        with open(self.database, 'w') as db:
-            data[ctx.guild.name]["prefix"] = new_prefix
-            json.dump(data, db)
-            
+        self.mysql_connection.update_guild_data(ctx.guild.id, "prefix", new_prefix)   
         await ctx.send("new prefix sets")
         
 
@@ -45,12 +41,8 @@ class InitSettings(commands.Cog, name="Initializing bot settings"):
 
             if await self.utils.is_ban(ctx, self.filter_no_spam, self.robux):
                 return
-            
-            data = json.load(open(self.database))
-            with open(self.database, 'w') as db:
-                data[ctx.guild.name]["channel"] = name_channel
-                json.dump(data, db)
-                               
+
+            self.mysql_connection.update_guild_data(ctx.guild.id, "channel", name_channel)           
             await ctx.send("the channel has been set")
         except Exception as e:
             await ctx.reply(e)
@@ -63,22 +55,14 @@ class InitSettings(commands.Cog, name="Initializing bot settings"):
 
         if await self.utils.is_ban(ctx, self.filter_no_spam, self.robux):
             return
-        
-        data = json.load(open(self.database))
-        if "channel" in data[ctx.guild.name]:
+
+        if not self.mysql_connection.is_exist("guild_id", ctx.guild.id, "guilds", "channel"):
             try:
-                name_channel = data[ctx.guild.name]["channel"]
+                name_channel = self.mysql_connection.get_guild_data(ctx.guild.id, "channel")
                 channel = discord.utils.get(ctx.guild.text_channels, name=name_channel)
 
-                if channel is None:
-                    await ctx.reply("the channel doesn't exist")
-                    return
                 await channel.delete()
-
-                with open(self.database, 'w') as db:
-                    del data[ctx.guild.name]["channel"]
-                    json.dump(data, db)
-                    
+                self.mysql_connection.update_guild_data(ctx.guild.id, "channel", None)
                 await ctx.send("the channel has been deleted")
             except Exception as e:
                 await ctx.reply(e)
@@ -101,11 +85,7 @@ class InitSettings(commands.Cog, name="Initializing bot settings"):
             if await self.utils.is_ban(ctx, self.filter_no_spam, self.robux):
                 return
             
-            data = json.load(open(self.database))
-            with open(self.database, 'w') as db:
-                data[ctx.guild.name]["announcementsChannel"] = name_channel
-                json.dump(data, db)
-                
+            self.mysql_connection.update_guild_data(ctx.guild.id, "announcementsChannel", name_channel)    
             await ctx.send("channel has been set")
         except Exception as e:
                 await ctx.reply(e)
@@ -119,21 +99,17 @@ class InitSettings(commands.Cog, name="Initializing bot settings"):
         if await self.utils.is_ban(ctx, self.filter_no_spam, self.robux):
             return
         
-        data = json.load(open(self.database))
-        if "announcementsChannel" in data[ctx.guild.name]:
+        if not self.mysql_connection.is_exist("guild_id", ctx.guild.id, "guilds", "announcementsChannel"):
             try:
-                name_channel = data[ctx.guild.name]["announcementsChannel"]
+                name_channel = self.mysql_connection.get_guild_data(ctx.guild.id, "announcementsChannel")
                 channel = discord.utils.get(ctx.guild.text_channels, name=name_channel)
 
                 if channel is None:
                     await ctx.reply("the channel doesn't exist")
                     return
+                
                 await channel.delete()
-
-                with open(self.database, 'w') as db:
-                    del data[ctx.guild.name]["announcementsChannel"]
-                    json.dump(data, db)
-                    
+                self.mysql_connection.update_guild_data(ctx.guild.id, "announcementsChannel", None)
                 await ctx.send("channel has been deleted")
             except Exception as e:
                 await ctx.reply(e)
@@ -150,11 +126,7 @@ class InitSettings(commands.Cog, name="Initializing bot settings"):
         if await self.utils.is_ban(ctx, self.filter_no_spam, self.robux):
             return
         
-        data = json.load(open(self.database))
-        with open(self.database, 'w') as db:
-            data[ctx.guild.name]["prefixVC"] = prefixVC
-            json.dump(data, db)
-            
+        self.mysql_connection.update_guild_data(ctx.guild.id, "prefixVC", prefixVC)      
         await ctx.send("prefix vocal has been set")
         
 
@@ -165,16 +137,12 @@ class InitSettings(commands.Cog, name="Initializing bot settings"):
 
         if await self.utils.is_ban(ctx, self.filter_no_spam, self.robux):
             return
-        
-        data = json.load(open(self.database))
-        if "prefixVC" in data[ctx.guild.name]:
-            with open(self.database, 'w') as db:
-                del data[ctx.guild.name]["prefixVC"]
-                json.dump(data, db)
-                
+
+        if not self.mysql_connection.is_exist("guild_id", ctx.guild.id, "guilds", "prefixVC"):
+            self.mysql_connection.update_guild_data(ctx.guild.id, "prefixVC", None)
             await ctx.send("prefix vocal has been deleted")
         else:
-            await ctx.send("you don't have a channel")
+            await ctx.send("you don't have a prefixVC")
         
 
     @commands.command()
@@ -183,10 +151,18 @@ class InitSettings(commands.Cog, name="Initializing bot settings"):
 
         if await self.utils.is_ban(ctx, self.filter_no_spam, self.robux):
             return
-        
-        data = json.load(open(self.database))
-        with open(self.database, 'w') as db:
-            data[ctx.guild.name]["lang"] = new_lang
-            json.dump(data, db)
-            
+
+        self.mysql_connection.update_guild_data(ctx.guild.id, "lang", new_lang)
         await ctx.send("new lang was set")
+
+    @commands.command()
+    async def setFirstLastName(self, ctx, firstName, lastName):
+        """it set your account's firstname and lastname"""
+
+        if await self.utils.is_ban(ctx, self.filter_no_spam, self.robux):
+            return
+        id = str(ctx.message.author.id)
+        if self.mysql_connection.is_exist("user_id", id, "users", "user_id"):
+            self.mysql_connection.add_user(id)
+        self.mysql_connection.update_user_names(id, firstName, lastName)
+        await ctx.send("firstname and lastname was set")

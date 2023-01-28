@@ -9,16 +9,15 @@ from lib.jobs import Criminal, Banker, PetSeller
 from lib.cog.events import Events
 
 class Work(commands.Cog, name="Jobs"):
-    def __init__(self, bot, utils, filter_no_spam, robux, pokedex_db, inventory_db):
+    def __init__(self, bot, utils, filter_no_spam, robux, mysql_connection):
         self.bot = bot
         self.utils = utils
         self.filter_no_spam = filter_no_spam
         self.robux = robux
-        self.pokedex_db = pokedex_db
-        self.inventory_db = inventory_db
-        self.criminal = Criminal()
-        self.banker = Banker()
-        self.petSeller = PetSeller()
+        self.criminal = Criminal(mysql_connection)
+        self.banker = Banker(mysql_connection)
+        self.petSeller = PetSeller(mysql_connection)
+        self.mysql_connection = mysql_connection
 
     @commands.command()
     async def makeRequest(self, ctx, work_type):
@@ -32,21 +31,21 @@ class Work(commands.Cog, name="Jobs"):
         if await self.utils.is_ban(ctx, self.filter_no_spam, self.robux):
             return
 
-        pokedex = json.load(open(self.pokedex_db))
-        inventory = json.load(open(self.inventory_db))
         id = str(ctx.message.author.id)
+        robux = self.mysql_connection.get_pokedex(id, 1)
+        cat = self.mysql_connection.get_pokedex(id, 2)
 
-        if id in pokedex:
-            if work_type == "criminal" and pokedex[id] >= 10 and pokedex[id] < 50:
+        if robux:
+            if work_type == "criminal" and robux >= 10 and robux < 50:
                 await ctx.reply(self.criminal.add_worker(id))
                 return
 
-            elif work_type == "banker" and pokedex[id] >= 50:
+            elif work_type == "banker" and robux >= 50:
                 await ctx.reply(self.banker.add_worker(str(ctx.message.author.id)))
                 return
 
-        if id in inventory:
-            if work_type == "petSeller" and "cat" in inventory[id]:
+        if cat:
+            if work_type == "petSeller":
                 await ctx.reply(self.petSeller.add_worker(str(ctx.message.author.id)))
                 return
 

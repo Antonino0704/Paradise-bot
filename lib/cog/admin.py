@@ -9,15 +9,13 @@ from lib.robux import Robux
 from lib.inventory import Inventory
 
 
-class Admin(commands.Cog, name="Bot owner only"):
-    def __init__(self, bot, filter_no_spam, robux, pokedex_db, inventory_db, badge_db, inventory):
+class Admin(commands.Cog, name="Owner"):
+    def __init__(self, bot, filter_no_spam, robux, inventory, mysql_connection):
         self.bot = bot
         self.filter_no_spam = filter_no_spam
         self.robux = robux
         self.inventory = inventory
-        self.pokedex_db = pokedex_db
-        self.inventory_db = inventory_db
-        self.badge_db = badge_db
+        self.mysql_connection = mysql_connection
 
     
     @commands.command()
@@ -111,13 +109,10 @@ class Admin(commands.Cog, name="Bot owner only"):
         """it sends the list of users who have the robux"""
 
         if ctx.message.author.id == 533014724569333770:
-            pokedex = json.load(open(self.pokedex_db))
+            robux_list = self.mysql_connection.get_robux_list()
             description = ""
-            for index in range(len(pokedex)):
-                k = list(pokedex.keys())
-                v = list(pokedex.values())
-                if index != 0:
-                    description += f"<@{k[index]}> : <:robux:1010974169552404551> {v[index]}\n"
+            for index in robux_list:
+                description += f"<@{index[0]}> : <:robux:1010974169552404551> {index[1]}\n"
 
                 if len(description) > 3000 and len(description) < 4096:
                     embed = discord.Embed(title="Robux user list", description=description)
@@ -131,29 +126,23 @@ class Admin(commands.Cog, name="Bot owner only"):
             await ctx.reply("you don't have permissions to use this command")
             
     @commands.command()
-    async def addBadge(self, ctx, name, emoji):
-        """it adds badge from database"""
+    async def addBadge(self, ctx, name, emoji, description = "no description"):
+        """it adds badge to database"""
 
         if ctx.message.author.id == 533014724569333770:
-            badge = json.load(open(self.badge_db))
-            with open(self.badge_db, "w") as f_bd:
-                badge[name] = emoji
-                json.dump(badge, f_bd)
+            self.mysql_connection.add_badge(name, description, emoji)
             await ctx.reply("badge activated")
         else:
             await ctx.reply("you don't have permissions to use this command")
             
     @commands.command()
-    async def removeBadge(self, ctx, name):
+    async def removeBadge(self, ctx, emoji):
         """it removes badge from database"""
 
         if ctx.message.author.id == 533014724569333770:
-            badge = json.load(open(self.badge_db))
-            
-            if name in badge:
-                with open(self.badge_db, "w") as f_bd:
-                    del badge[name]
-                    json.dump(badge, f_bd)
+            badge_id = self.mysql_connection.get_badge_by_icon(emoji)
+            if not self.mysql_connection.is_exist("badge_id", badge_id, "badges", "badge_id"):
+                self.mysql_connection.remove_badges(badge_id)
                 await ctx.reply("badge disabled")
             else:
                 await ctx.reply("badge doesn't exist")
@@ -161,24 +150,21 @@ class Admin(commands.Cog, name="Bot owner only"):
             await ctx.reply("you don't have permissions to use this command")
             
     @commands.command()
-    async def addBadgeUser(self, ctx, id, name):
+    async def addBadgeUser(self, ctx, id, emoji):
         """it adds badge to user"""
         if ctx.message.author.id == 533014724569333770:
-            badge = json.load(open(self.badge_db))
-            inventory = json.load(open(self.inventory_db))
-            
-            if id in inventory and name in inventory[id]:
+            badge_id = self.mysql_connection.get_badge_by_icon(emoji)
+
+            if not self.mysql_connection.is_exist_composite("user_id", "badge_id", id, badge_id, "inventories", "received"):
                 await ctx.reply(f"<@{id}>, you already have the badge")
                 return
             
-            if name in badge:
-                if not id in inventory:
-                    inventory[id] = {}
+            if not self.mysql_connection.is_exist("badge_id", badge_id, "badges", "badge_id"):
+                if self.mysql_connection.is_exist("user_id", id, "users", "user_id"):
+                    self.mysql_connection.add_user(id)
                     
-                with open(self.inventory_db, "w") as ind:
-                    inventory[id][name] = True
-                    json.dump(inventory, ind)
-                await ctx.reply(f"<@{id}> gets {name} badge")
+                self.mysql_connection.add_badge_to_user(id, badge_id)
+                await ctx.reply(f"<@{id}> gets {emoji} badge")
             else:
                 await ctx.reply("badge doesn't exist")
         else:
@@ -186,18 +172,16 @@ class Admin(commands.Cog, name="Bot owner only"):
             
     
     @commands.command()
-    async def removeBadgeUser(self, ctx, id, name):
+    async def removeBadgeUser(self, ctx, id, emoji):
         """it removes badge to user"""
         if ctx.message.author.id == 533014724569333770:
-            badge = json.load(open(self.badge_db))
-            inventory = json.load(open(self.inventory_db))
-            
-            if name in badge:
-                if id in inventory and name in inventory[id]:
-                    with open(self.inventory_db, "w") as ind:
-                        del inventory[id][name]
-                        json.dump(inventory, ind)
-                    await ctx.reply(f"<@{id}> drops {name} badge")
+            badge_id = self.mysql_connection.get_badge_by_icon(emoji)
+
+            if not self.mysql_connection.is_exist("badge_id", badge_id, "badges", "badge_id"):
+
+                if not self.mysql_connection.is_exist_composite("user_id", "badge_id", id, badge_id, "inventories", "received"):
+                    self.mysql_connection.delete_badge_to_user(id, badge_id)
+                    await ctx.reply(f"<@{id}> drops {emoji} badge")
                 else:      
                     await ctx.reply(f"<@{id}>, you don't have the badge")
             else:
@@ -222,10 +206,10 @@ class Admin(commands.Cog, name="Bot owner only"):
 
         if ctx.message.author.id == 533014724569333770:
             try: 
-            	channel = self.bot.get_channel(int(id_channel))
-            	msg = await channel.fetch_message(id_message)
-            	ctx_msg = await self.bot.get_context(msg) 
-            	await ctx_msg.reply(text)
+                channel = self.bot.get_channel(int(id_channel))
+                msg = await channel.fetch_message(id_message)
+                ctx_msg = await self.bot.get_context(msg) 
+                await ctx_msg.reply(text)
             except:
                 await ctx.reply("error message or channel not found") 
         else:

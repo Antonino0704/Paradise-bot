@@ -15,13 +15,13 @@ from lib.robux import Robux
 from lib.cog.events import Events
 
 class ManagerVC(commands.Cog, name="Manager commands for bot's speech synthesis"):
-    def __init__(self, bot, utils, filter_no_spam, robux, database, queue):
+    def __init__(self, bot, utils, filter_no_spam, robux, queue, mysql_connection):
         self.bot = bot
         self.utils = utils
         self.filter_no_spam = filter_no_spam
         self.robux = robux
-        self.database = database
         self.queue = queue
+        self.mysql_connection = mysql_connection
 
     @commands.Cog.listener()
     async def on_voice_state_update(self, member, before, after):
@@ -49,16 +49,14 @@ class ManagerVC(commands.Cog, name="Manager commands for bot's speech synthesis"
             return   
         
         try:
-            data = json.load(open(self.database))[msg.guild.name]
-            if msg.content[0] != data["prefix"]:
-                if "prefixVC" in data:
-                    if msg.content[0] == data["prefixVC"]:
-                        await self.prefixMethods(msg)
-                        return
-                if "channel" in data: 
-                    if msg.channel.name == data["channel"]:
-                        await self.prefixMethods(msg)
-        except (IndexError, JSONDecodeError):
+            data = self.mysql_connection.get_guild_data_managerVC(msg.guild.id, "prefix, prefixVC, channel")[0]
+            if msg.content[0] != data[0]:
+                if msg.content[0] == data[1]:
+                    await self.prefixMethods(msg)
+                    return
+                if msg.channel.name == data[2]:
+                    await self.prefixMethods(msg)
+        except (IndexError):
             pass
     
     async def prefixMethods(self, msg):
@@ -81,7 +79,7 @@ class ManagerVC(commands.Cog, name="Manager commands for bot's speech synthesis"
             print("index error")
 
     async def speak(self, msg):
-        data = json.load(open(self.database))[msg.guild.name]
+        data = self.mysql_connection.get_guild_data_managerVC(msg.guild.id, "spam, lang")[0]
 
         while(len(self.queue[msg.guild.name]["content"]) != 0):
             try:
@@ -89,13 +87,12 @@ class ManagerVC(commands.Cog, name="Manager commands for bot's speech synthesis"
                     os.remove(msg.guild.name+ ".mp3")
                         
                 path = "/home/raspberry/Desktop/discord_bot/songs/"
-
                 
                 if self.queue[msg.guild.name]["content"][0][1:25] != "https://www.youtube.com/" and self.queue[msg.guild.name]["content"][0][1:24] != "ttps://www.youtube.com/":
-                    if data["spam"] == "no":
+                    if data[0] == "no":
                         self.queue[msg.guild.name]["content"][0] = self.filter_no_spam.censured(self.queue[msg.guild.name]["content"][0])
 
-                    tts = gTTS(self.queue[msg.guild.name]["content"][0], lang=data["lang"], slow=False)
+                    tts = gTTS(self.queue[msg.guild.name]["content"][0], lang=data[1], slow=False)
                     tts.save(f"songs/{msg.guild.name}.mp3")
 
                 else:
@@ -189,11 +186,7 @@ class ManagerVC(commands.Cog, name="Manager commands for bot's speech synthesis"
             await ctx.reply("use only yes or no")
             return
         
-        data = json.load(open(self.database))
-        with open(self.database, 'w') as db:
-            data[ctx.guild.name]["spam"] = spam
-            json.dump(data, db)
-            
+        self.mysql_connection.update_guild_data(ctx.guild.id, "spam", spam)     
         await ctx.send("spam has been set")
         
         

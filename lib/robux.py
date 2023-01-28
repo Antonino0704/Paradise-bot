@@ -4,35 +4,29 @@ import discord
 
 
 class Robux:
-    def __init__(self):
-        self.data_files()
+    def __init__(self, mysql_connection):
         self.probably = []
         self.generate_probably()
-        
-    def data_files(self):
-        self.pokedex_db = 'jsonFile/pokedex.json'
+        self.mysql_connection = mysql_connection
+        self.emoji = mysql_connection.get_emoji_icon(1)
         
     def less_one_robux(self, id):
-        pokedex = json.load(open(self.pokedex_db))
-        if id in pokedex:
-            if pokedex[id] > 0:
-                with open(self.pokedex_db, "w")as pd:
-                    pokedex[id]-=1
-                    json.dump(pokedex, pd)
-                    return True
-            return False
+        amount = self.mysql_connection.get_pokedex(id, 1)
+        if amount > 0:
+            self.mysql_connection.update_pokedex(id, 1, amount-1)
+            return True
         return False
     
     def generate_probably(self):
         max = 100
         min = 1
-        up = 10
+        up = 1  #first it was 10
         
-        for i in range(100):
+        for i in range(10):  #range was 100
             if up == i:
                 max += 100
                 min += 100
-                up += 10
+                up += 1  #up was 10
             
             self.probably.append(self.random_number(min, max))
             
@@ -48,25 +42,26 @@ class Robux:
         
         for i in self.probably:
             if number == i:
-                msg = await ctx.send("<:robux:1010974169552404551> oh a wild robux appeared, you put the reaction to win it!!")
-                await msg.add_reaction("<:robux:1010974169552404551>")
+                msg = await ctx.send(f"{self.emoji} oh a wild robux appeared, you put the reaction to win it!!")
+                await msg.add_reaction(self.emoji)
                  
-    async def payment(self, ctx, id, pokedex, price):
-        with open(self.pokedex_db, 'w') as pd:
-            pokedex[id] -= price   
-            json.dump(pokedex, pd)
-            await ctx.reply(f"payment success -{price} <:robux:1010974169552404551> added to <@{id}>")
+    async def payment(self, ctx, id, price):
+        amount = self.mysql_connection.get_pokedex(id, 1)
+        self.mysql_connection.update_pokedex(id, 1, amount-price)
+        await ctx.reply(f"payment success -{price} {self.emoji} added to <@{id}>")
             
     async def robux(self, ctx, id, robux_number):
-        pokedex = json.load(open(self.pokedex_db))
-        if not id in pokedex:
-            pokedex[id] = 0
-            
-        if robux_number < 0 and pokedex[id] < -robux_number:
-            await ctx.reply(f"<@{id}> doesn't have enough <:robux:1010974169552404551>")
+        if self.mysql_connection.is_exist_composite("user_id", "item_id", id, 1, "pokedex", "amount"):
+            if self.mysql_connection.is_exist("user_id", id, "users", "user_id"):
+                self.mysql_connection.add_user(id)
+                
+            self.mysql_connection.add_item_to_user(id, 1)
+
+        amount = self.mysql_connection.get_pokedex(id, 1)
+
+        if robux_number < 0 and amount < -robux_number:
+            await ctx.reply(f"<@{id}> doesn't have enough {self.emoji}")
             return
             
-        with open(self.pokedex_db, 'w') as pd:
-            pokedex[id] += robux_number   
-            json.dump(pokedex, pd)
-            await ctx.reply(f"{robux_number} <:robux:1010974169552404551> added to <@{id}>")
+        self.mysql_connection.update_pokedex(id, 1, amount+robux_number)
+        await ctx.reply(f"{robux_number} {self.emoji} added to <@{id}>")

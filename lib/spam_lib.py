@@ -1,70 +1,59 @@
 import json
 import datetime
+from lib.mysql import Mysql
 
 class Spam:
-    def __init__(self):
-        self.data_files()
-        self.no_spam = {}
+    def __init__(self, mysql_connection):
+        #self.no_spam = {}
+        self.mysql_connection = mysql_connection
         #self.msg_stopped = 0
-        self.no_words = json.load(open(self.no_words_db))["no_words"]
-        
-    def data_files(self):
-        self.no_words_db = 'jsonFile/no_words.json'
-        self.blacklist_db = 'jsonFile/blacklist.json'
+        self.no_words = self.mysql_connection.get_no_words()
         
     async def add_black_list(self, ctx, id):
-         black_list = json.load(open(self.blacklist_db))
-         with open(self.blacklist_db, 'w') as bl:
-             black_list[id] = datetime.datetime.now().strftime("%d-%b-%Y (%H:%M:%S.%f)")
-             json.dump(black_list, bl)
-             await ctx.reply("user added to blacklist")
+        self.mysql_connection.update_blacklist(id, datetime.datetime.now().strftime("%Y-%m-%d-%H-%M-%S"))
+        await ctx.reply("user added to blacklist")
              
     async def remove_black_list(self, ctx, id):
-        black_list = json.load(open(self.blacklist_db))
-        if self.check(id, black_list):
-            with open(self.blacklist_db, 'w') as bl:
-                del black_list[id]
-                json.dump(black_list, bl)
-                await ctx.reply("user removed from blacklist")
-        else:
+        if self.mysql_connection.is_exist("user_id", id, "users", "blacklist"):
             await ctx.reply("user not found")
-            return
+            return False
         
+        self.mysql_connection.update_blacklist(id, None)
+        await ctx.reply("user removed from blacklist")
+        return True
+
+
     async def add_no_words(self, ctx, words):
-        no_words = json.load(open(self.no_words_db))
-        with open(self.no_words_db, 'w') as nw:
-            for word in words:
-                no_words["no_words"].append(word.lower())
-                
-            json.dump(no_words, nw)
-            await ctx.reply("word/words added")
-        self.no_words = json.load(open(self.no_words_db))["no_words"]
+        for word in words:
+            if self.check(word, self.no_words):
+                return await ctx.reply("word/words already exist")
+            
+            self.mysql_connection.add_noWords(word.lower())
+        await ctx.reply("word/words added")
+        self.no_words = self.mysql_connection.get_no_words()
         
     async def remove_no_words(self, ctx, words):
-        no_words = json.load(open(self.no_words_db))
-        with open(self.no_words_db, 'w') as nw:
-            for word in words:
-                if self.check(word, no_words["no_words"]):
-                    no_words["no_words"].remove(word.lower())
-                    
-            json.dump(no_words, nw)
-            await ctx.reply("word/words removed")
-        self.no_words = json.load(open(self.no_words_db))["no_words"]
+        for word in words:
+            if not self.check(word, self.no_words):
+                return await ctx.reply("word/words doesn't exist")
+            
+            self.mysql_connection.remove_noWords(word.lower())
+        await ctx.reply("word/words removed")
+        self.no_words = self.mysql_connection.get_no_words()
         
     def check(self, id, lst):
-        if id in lst:
+        if id in lst: 
             return True
         return False
         
     def check_black_list(self, id):
-        black_list = json.load(open(self.blacklist_db))
-        if id in black_list:
-            diff = datetime.datetime.now() - datetime.datetime.strptime(black_list[id], "%d-%b-%Y (%H:%M:%S.%f)")
-            
+        date = self.mysql_connection.get_user_data(id, "blacklist")
+        if date:
+            diff = datetime.datetime.now() - date
+           
             if diff.total_seconds() / 60 > 180:
                 with open(self.blacklist_db, 'w') as bl:
-                    del black_list[id]
-                    json.dump(black_list, bl)
+                    self.mysql_connection.update_blacklist(id, None)
                 return False
             return True
         
@@ -88,7 +77,8 @@ class Spam:
                 black_list[id] = datetime.datetime.now().strftime("%d-%b-%Y (%H:%M:%S.%f)")
                 json.dump(black_list, bl)
                 del self.no_spam[id]
-                
+
+    @DeprecationWarning    
     def checkWarns(self, id):
         if id in self.no_spam:
             diff = datetime.datetime.now() - self.no_spam[id][1]

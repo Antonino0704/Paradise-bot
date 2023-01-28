@@ -10,20 +10,18 @@ from lib.spam_lib import Spam
 from lib.robux import Robux
 
 class Events(commands.Cog, name="events"):
-    def __init__(self, bot, utils, filter_no_spam, robux, inventory_db, badge_db):
+    def __init__(self, bot, utils, filter_no_spam, robux, mysql_connection):
         self.bot = bot
         self.utils = utils
         self.filter_no_spam = filter_no_spam
         self.robux = robux
-        self.inventory_db = inventory_db
-        self.badge_db = badge_db
+        self.mysql_connection = mysql_connection
+        self.gets_emoji()
 
-    def checkEmoji(self, emoji):
-        badge = json.load(open(self.badge_db))
-        for k in badge:
-            if emoji == badge[k]:
-                return False
-        return True
+    def gets_emoji(self):
+        self.halloween_emoji = self.mysql_connection.get_badge_icon(3)
+        self.christmas = self.mysql_connection.get_badge_icon(4)
+        self.new_year2023 = self.mysql_connection.get_badge_icon(5)
     
     @staticmethod
     def generate_probably(start, end, limit):
@@ -41,7 +39,7 @@ class Events(commands.Cog, name="events"):
         
     @commands.Cog.listener()
     async def on_raw_reaction_add(self, payload):
-        if self.bot.get_user(payload.user_id) == self.bot.user or self.checkEmoji(str(payload.emoji)):
+        if self.bot.get_user(payload.user_id) == self.bot.user or self.mysql_connection.is_exist("icon", str(payload.emoji), "badges", "name") : 
             return
     
         async def points():
@@ -50,46 +48,31 @@ class Events(commands.Cog, name="events"):
             ctx = await self.bot.get_context(msg)
 
             #halloween
-            if msg.content == "<a:halloween:1032777226397175920>Happy Halloween<a:halloween:1032777226397175920>" and msg.author == self.bot.user:
-                try:
-                    await self.event_award(ctx, str(payload.user_id), msg, "halloween", "halloweenAward")
-                except Exception:
-                    await asyncio.sleep(10)
-                    await self.event_award(ctx, str(payload.user_id), msg, "halloween", "halloweenAward")
+            if msg.content == f"{self.halloween_emoji}Happy Halloween{self.halloween_emoji}" and msg.author == self.bot.user:
+                await self.event_award(ctx, str(payload.user_id), str(payload.emoji), msg, "halloween", "halloweenAward")
 
             #christmas
-            if msg.content == "<:christmas:1059147339014623353>Happy christmas<:christmas:1059147339014623353>" and msg.author == self.bot.user:
-                try:
-                    await self.event_award(ctx, str(payload.user_id), msg, "christmas", "christmas")
-                except Exception:
-                    await asyncio.sleep(10)
-                    await self.event_award(ctx, str(payload.user_id), msg, "christmas", "christmas")
+            if msg.content == f"{self.christmas}Happy christmas{self.christmas}" and msg.author == self.bot.user:
+                await self.event_award(ctx, str(payload.user_id), str(payload.emoji), msg, "christmas", "christmas")
 
             #2023year
-            if msg.content == "<a:2023:1059150117577437234>Happy new year<a:2023:1059150117577437234>" and msg.author == self.bot.user:
-                try:
-                    await self.event_award(ctx, str(payload.user_id), msg, "new year", "2023")
-                except Exception:
-                    await asyncio.sleep(10)
-                    await self.event_award(ctx, str(payload.user_id), msg, "new year", "2023")
+            if msg.content == f"{self.new_year2023}Happy new year{self.new_year2023}" and msg.author == self.bot.user:
+                await self.event_award(ctx, str(payload.user_id), str(payload.emoji), msg, "new year", "2023")
           
         await points()
             
-    async def event_award(self, ctx, id, msg, name_event, badge_name):
+    async def event_award(self, ctx, id, badge_icon, msg, name_event, badge_name):
         if await self.utils.is_ban(ctx, self.filter_no_spam, self.robux):
             return
-        
-        inventory = json.load(open(self.inventory_db))
-        
-        if id in inventory and badge_name in inventory[id]:
+
+        badge_id = self.mysql_connection.get_badge_by_icon(badge_icon)
+        if not self.mysql_connection.is_exist_composite("user_id", "badge_id", id, badge_id, "inventories", "received"):
             await ctx.reply(f"<@{id}>, you already have the {name_event} badge")
             return
         
-        if not id in inventory:
-            inventory[id] = {}
+        if self.mysql_connection.is_exist("user_id", id, "users", "user_id"):
+            self.mysql_connection.add_user(id)
         
-        with open(self.inventory_db, "w") as ind:
-            inventory[id][badge_name] = True
-            json.dump(inventory, ind)
-            await ctx.reply(f"<@{id}> gets {name_event} badge")
-            await msg.clear_reactions()     
+        self.mysql_connection.add_badge_to_user(id, badge_id)
+        await ctx.reply(f"<@{id}> gets {name_event} badge")
+        await msg.clear_reactions()     

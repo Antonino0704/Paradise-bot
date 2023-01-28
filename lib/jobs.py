@@ -3,41 +3,31 @@ import random
 import asyncio
 
 class Jobs:
-    def __init__(self):
-        self.data_files()
+    def __init__(self, mysql_connection):
         self.work = ""
-
-    def data_files(self):
-        self.jobs_db = 'jsonFile/jobs.json'
+        self.mysql_connection = mysql_connection
 
     def already_job(self, id):
-        job = json.load(open(self.jobs_db))
-        for key in list(job.keys()):
-            if id in job[key]:
-                return True
+        if not self.mysql_connection.is_exist("user_id", id, "users", "work_id"):
+            return True
         return False
 
     def check_worker(self, id):
-        job = json.load(open(self.jobs_db))[self.work]
-        if not id in job:
+        work_id = self.mysql_connection.get_work_by_name(self.work)
+        if self.mysql_connection.is_exist_composite("user_id", "work_id", id, work_id, "users", "work_id"):
             return False
         return True
 
     def add_worker(self, id):
-        job = json.load(open(self.jobs_db))
         if not self.already_job(id):
-            with open(self.jobs_db, "w") as jbd:
-                job[self.work][id] = 1
-                json.dump(job, jbd)
+            work_id = self.mysql_connection.get_work_by_name(self.work)
+            self.mysql_connection.update_work(id, work_id)
             return f"the {self.work} job is yours"
         return f"already you have a job"
 
     def remove_worker(self, id):
-        job = json.load(open(self.jobs_db))
         if self.check_worker(id):
-            with open(self.jobs_db, "w") as jbd:
-                del job[self.work][id]
-                json.dump(job, jbd)
+            self.mysql_connection.update_work(id, None)
             return f"you lost the {self.work} job"
         return f"you don't have {self.work} job"
 
@@ -46,10 +36,9 @@ class Jobs:
 
 
 class Criminal(Jobs):
-    def __init__(self):
-        super().__init__()
+    def __init__(self, mysql_connection):
+        super().__init__(mysql_connection)
         self.work = "criminal"
-        self.inventory_db = 'jsonFile/inventory.json'
         self.money = 0
 
     async def working(self, ctx, criminal_id, victim_id, robux):
@@ -58,8 +47,7 @@ class Criminal(Jobs):
             
             for i in robux.probably:
                 if number == i:
-                    pokedex = json.load(open(robux.pokedex_db))
-                    self.money = int(pokedex[victim_id]/100*10)
+                    self.money = self.mysql_connection.get_pokedex(victim_id, 1) / 100 * 1
                     self.house(victim_id)
                     await ctx.send(f"wait {30+self.money} seconds")
                     await asyncio.sleep(30+self.money)
@@ -70,15 +58,12 @@ class Criminal(Jobs):
         await self.feedback(ctx)
 
     def house(self, victim_id):
-        inventory = json.load(open(self.inventory_db))
-        
-        if victim_id in inventory:
-            if "old_house" in inventory[victim_id]:
-                for _ in range(inventory[victim_id]["old_house"]):
-                    self.money -= 5
-            if "modern_house" in inventory[victim_id]:
-                for _ in range(inventory[victim_id]["modern_house"]):
-                    self.money -= 10
+        old_house = self.mysql_connection.get_pokedex(victim_id, 2)
+        modern_house = self.mysql_connection.get_pokedex(victim_id, 3)
+        if old_house:
+            self.money -= 5 * old_house
+        if modern_house:
+            self.money -= 10 * old_house
                     
         self.money = 0 if self.money < 0 else self.money 
         return self.money
@@ -91,25 +76,28 @@ class Criminal(Jobs):
 
 
 class Banker(Jobs):
-    def __init__(self):
-        super().__init__()
+    def __init__(self, mysql_connection):
+        super().__init__(mysql_connection)
         self.work = "banker"
 
     async def working(self, ctx):
         await ctx.send("wait 10 minutes")
         await asyncio.sleep(600)
-        msg = await ctx.send(f"<@{ctx.message.author.id}> drops a <:robux:1010974169552404551>, you put the reaction to win it!!")
-        await msg.add_reaction("<:robux:1010974169552404551>")
+        emoji_icon = self.mysql_connection.get_emoji_icon(1)
+        msg = await ctx.send(f"<@{ctx.message.author.id}> drops a {emoji_icon}, you put the reaction to win it!!")
+        await msg.add_reaction(emoji_icon)
 
 
 class PetSeller(Jobs):
-    def __init__(self):
-        super().__init__()
+    def __init__(self, mysql_connection):
+        super().__init__(mysql_connection)
         self.work = "petSeller"
 
     async def working(self, ctx):
         await ctx.send("wait 5 minutes")
         await asyncio.sleep(300)
-        msg = await ctx.send(f"<@{ctx.message.author.id}> sales a <a:catto:1012052395435499550>, you put the reaction to buy it <:robux:1010974169552404551> 3!!")
-        await msg.add_reaction("<a:catto:1012052395435499550>")
+        emoji_robux = self.mysql_connection.get_emoji_icon(1)
+        emoji_catto = self.mysql_connection.get_emoji_icon(2)
+        msg = await ctx.send(f"<@{ctx.message.author.id}> sales a {emoji_catto}, you put the reaction to buy it {emoji_robux} 3!!")
+        await msg.add_reaction(emoji_catto)
     

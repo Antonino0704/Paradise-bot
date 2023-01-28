@@ -5,15 +5,11 @@ from lib.robux import Robux
 
 
 class Utils:
-    def __init__(self):
-        self.data_files()
-        
-    def data_files(self):
-        self.database = 'jsonFile/database.json'
+    def __init__(self, mysql_connection):
+        self.mysql_connection = mysql_connection
         
     def get_prefix(self, bot, msg):
-        data = json.load(open(self.database))
-        return data[msg.guild.name]["prefix"]
+        return self.mysql_connection.get_guild_data(msg.guild.id, "prefix")
 
     def mention_replace(self, mention_role):
         mention_role = mention_role.replace("<", "")
@@ -25,7 +21,7 @@ class Utils:
     async def is_ban(self, ctx, filter_no_spam, robux):
         if filter_no_spam.check_black_list(str(ctx.message.author.id)):
             if robux.less_one_robux(str(ctx.message.author.id)):
-                await ctx.reply("-1 <:robux:1010974169552404551>")
+                await ctx.reply(f"-1 {self.mysql_connection.get_emoji_icon(1)}")
                 
             await ctx.reply("you are banned")
             return True
