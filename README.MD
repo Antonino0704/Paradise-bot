@@ -7,27 +7,27 @@
     Default prefix = $
     
 # Development Status
-    I created this bot because not all can to talk on chat but I'm alone in development and between high school final exam, driving license exam and college tests 
-    I don't have enough time. This is not my job and not get a any salary 
-    so at moment the bot will not to receive any updates and development status is suspended.
+    I created this bot because not everyone can talk in voice chat but I'm alone in development and between high school final exam, driving license exam and college tests 
+    I don't have enough time. This is not my job and not get any salary 
+    so at moment the bot will not receive any updates and development status is suspended.
 
 # Start:
-    You don't waste time with permissions, the bot is safe:
+    Don't waste time with permissions, the bot is safe:
 
     https://discord.com/api/oauth2/authorize?client_id=1004801168674926643&permissions=8&scope=bot
 
-    Don't you trust? here is another link with the minimum permissions needed
+    Doesn't feel trustworthy? here is another link with the minimum permissions needed
 
     https://discord.com/api/oauth2/authorize?client_id=1004801168674926643&permissions=412622519376&scope=bot
 
-    after $help for learn all commands
+    type $help to learn all commands
     
 # News
 ## A new save system
-    Now the bot has a database (the old save system was cancelled and replaced by a database server) 
+    The bot now has a database (the old save system was deleted and replaced by a database server) 
 
 ## Fixed bugs
-    The bug that didn't give cats after acuisting them was fixed
+    The bug that didn't give cats after buying them was fixed
 
     fixed the bug that would make coin payments even if you were not blacklisted in the Rban command
 
@@ -44,7 +44,7 @@
     
  
 # Known bugs
-    if the bot doesn't connect to your server use $clean command and try again(it may be necessary to try several times)
+    if the bot doesn't connect to your server use the $clean command and try again (it may be necessary to try several times)
     
 # Bugs
     if you find a bug open a new issue on github
