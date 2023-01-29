@@ -127,7 +127,7 @@ class ManagerVC(commands.Cog, name="Manager commands for bot's speech synthesis"
 
     @commands.command()
     async def left(self, ctx):
-        """the bot lefts the channel"""
+        """the bot leaves the channel"""
 
         if await self.utils.is_ban(ctx, self.filter_no_spam, self.robux):
             return

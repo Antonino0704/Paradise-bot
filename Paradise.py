@@ -74,12 +74,12 @@ async def on_raw_reaction_add(payload):
         channel = bot.get_channel(payload.channel_id)
         msg = await channel.fetch_message(payload.message_id)
         ctx = await bot.get_context(msg)
-        if msg.content == f"{emj} oh a wild robux appeared, you put the reaction to win it!!" and msg.author == bot.user:
+        if msg.content == f"{emj} oh! a wild robux appeared, use the reaction to win it!!" and msg.author == bot.user:
             if await utils.is_ban(ctx, filter_no_spam, robux):
                 return
             
             await msg.clear_reactions()
-            await msg.edit(content=f"<@{payload.user_id}> you win")
+            await msg.edit(content=f"<@{payload.user_id}> you win!")
             try:
                 await robux.robux(ctx, str(payload.user_id), 1)
             except Exception:
@@ -89,19 +89,19 @@ async def on_raw_reaction_add(payload):
     try:
         await points()
     except Exception:
-        await bot.get_channel(payload.channel_id).send(f"<@{payload.user_id}> sorry somethings went wrong")
+        await bot.get_channel(payload.channel_id).send(f"<@{payload.user_id}> sorry, something went wrong")
     
 
 @bot.command()
 async def Embed(ctx, description, image):
-    """you send embed on Announcements Channel"""
+    """you send an embed on Announcements Channel"""
 
     if await utils.is_ban(ctx, filter_no_spam, robux):
         return
         
     if mysql_connection.is_exist("guild_id", ctx.guild.id, "guilds", "announcementsChannel"):
         prefix = mysql_connection.get_guild_data(ctx.guild.id, "prefix")
-        await ctx.send(f"set a announcements channel, {prefix}setAnnouncementsChannel")
+        await ctx.send(f"set an announcements channel, {prefix}setAnnouncementsChannel")
         return
 
     channel = discord.utils.get(ctx.guild.text_channels, name=mysql_connection.get_guild_data(ctx.guild.id, "announcementsChannel"))
