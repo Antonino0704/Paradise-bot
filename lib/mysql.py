@@ -60,7 +60,7 @@ class Mysql:
                 FROM badges
                     INNER JOIN inventories
                     ON badges.badge_id = inventories.badge_id
-                WHERE USER_id = %s
+                WHERE user_id = %s
                 """
         data = (user_id, )
         self.cursor.execute(query, data)
@@ -117,7 +117,7 @@ class Mysql:
                 FROM users
                     INNER JOIN jobs
                     ON users.work_id = jobs.work_id
-                WHERE USER_id = %s
+                WHERE user_id = %s
                 """
         data = (user_id, )
         self.cursor.execute(query, data)
@@ -172,7 +172,7 @@ class Mysql:
                 FROM pokedex
 	                INNER JOIN items
 	                ON pokedex.item_id = items.item_id
-                WHERE USER_id = %s
+                WHERE user_id = %s
                 """
         data = (user_id, )
         self.cursor.execute(query, data)
