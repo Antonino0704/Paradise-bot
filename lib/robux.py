@@ -42,7 +42,7 @@ class Robux:
         
         for i in self.probably:
             if number == i:
-                msg = await ctx.send(f"{self.emoji} oh a wild robux appeared, you put the reaction to win it!!")
+                msg = await ctx.send(f"{self.emoji} oh! a wild robux appeared, use the reaction to win it!!")
                 await msg.add_reaction(self.emoji)
                  
     async def payment(self, ctx, id, price):

@@ -7,3 +7,5 @@ token
 venv/
 
 __pycache__/
+
+backup.sh
