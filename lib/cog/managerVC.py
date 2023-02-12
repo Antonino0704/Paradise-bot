@@ -15,8 +15,10 @@ from lib.robux import Robux
 from lib.cog.events import Events
 
 class ManagerVC(commands.Cog, name="Manager commands for bot's speech synthesis"):
-    def __init__(self, bot, utils, filter_no_spam, robux, queue, mysql_connection):
+    def __init__(self, bot, songs, ffmpeg, utils, filter_no_spam, robux, queue, mysql_connection):
         self.bot = bot
+        self.songs = songs
+        self.ffmpeg = ffmpeg
         self.utils = utils
         self.filter_no_spam = filter_no_spam
         self.robux = robux
@@ -86,7 +88,7 @@ class ManagerVC(commands.Cog, name="Manager commands for bot's speech synthesis"
                 if(os.path.exists(msg.guild.name + ".mp3")):
                     os.remove(msg.guild.name+ ".mp3")
                         
-                path = "/home/raspberry/Desktop/discord_bot/songs/"
+                path = self.songs
                 
                 if self.queue[msg.guild.name]["content"][0][1:25] != "https://www.youtube.com/" and self.queue[msg.guild.name]["content"][0][1:24] != "ttps://www.youtube.com/":
                     if data[0] == "no":
@@ -105,7 +107,7 @@ class ManagerVC(commands.Cog, name="Manager commands for bot's speech synthesis"
                 voice = discord.utils.get(self.bot.voice_clients, guild=msg.guild)
                 
                 self.queue[msg.guild.name]["status"] = True
-                voice.play(discord.FFmpegPCMAudio(executable="/usr/bin/ffmpeg",
+                voice.play(discord.FFmpegPCMAudio(executable=self.ffmpeg,
                                                   source=path + msg.guild.name +".mp3"),
                                                   after= lambda e: self.finish(msg))
 

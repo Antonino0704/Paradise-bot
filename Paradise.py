@@ -124,7 +124,7 @@ bot.add_cog(Shop(bot, utils, filter_no_spam, robux,
 bot.add_cog(Info(bot, utils, filter_no_spam, robux, 
                 mysql_connection))
 
-bot.add_cog(ManagerVC(bot, utils, filter_no_spam, robux, 
+bot.add_cog(ManagerVC(bot, os.environ["songs"], os.environ["ffmpeg"], utils, filter_no_spam, robux, 
                 queue, mysql_connection))
                     
 bot.add_cog(Work(bot, utils, filter_no_spam, robux,

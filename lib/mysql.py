@@ -8,7 +8,8 @@ class Mysql:
             user = usr,
             password = passwd,
             database = "paradise_database",
-            autocommit = True
+            autocommit = True,
+	    connect_timeout=86400   # it's a test	
         )
 
         self.cursor = self.db.cursor()
