@@ -12,7 +12,7 @@ class Mysql:
 	    connect_timeout=86400   # it's a test	
         )
 
-        self.cursor = self.db.cursor()
+        self.cursor = self.db.cursor(buffered=True) # test
 
     def guild_join(self, guild_id, guild_name):
         query = """
