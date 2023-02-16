@@ -71,7 +71,7 @@ class Work(commands.Cog, name="Jobs"):
 
     @commands.command()
     async def steal(self, ctx, mention_victim):
-        """you can to steal with 10% of probability the 10% of user's assets 
+        """you can steal with 10% of probability the 10% of user's assets 
 
         if the user has houses, -5 for all old house and -10 for all modern house, the result will be your salary
         
@@ -90,7 +90,7 @@ class Work(commands.Cog, name="Jobs"):
 
     @commands.command()
     async def printRobux(self, ctx):
-        """you can to drop a robux, who puts reaction it gets 1 robux, while the banker gets 2 robux
+        """you can drop a robux, who puts reaction it gets 1 robux, while the banker gets 2 robux
         
         you can use the command every 10 minutes"""
 
@@ -105,7 +105,7 @@ class Work(commands.Cog, name="Jobs"):
 
     @commands.command()
     async def saleCat(self, ctx):
-        """you can to sale a cat, who puts the reaction pays 3 robux for a cat, while pet seller gets 3 robux
+        """you can sale a cat, who puts the reaction pays 3 robux for a cat, while pet seller gets 3 robux
         
         the salary will multiply for each cat
         if you go over 9 robux will be applicate the taxs, wallet's power is applicable
