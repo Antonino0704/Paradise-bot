@@ -201,3 +201,17 @@ class Admin(commands.Cog, name="Owner"):
                 await ctx_msg.reply(text)
             except:
                 await ctx.reply("error message or channel not found")
+
+
+
+    @commands.command() 
+    async def disconnect(self, ctx, id_guild): 
+        """disconnect from a specific guild""" 
+
+        if await self.passAdminCheck(ctx):
+            try: 
+                guild = self.bot.get_guild(int(id_guild))
+                voice = guild.voice_client
+                await voice.disconnect()
+            except:
+                await ctx.reply("error guild not found or already disconnected")
