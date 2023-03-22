@@ -49,7 +49,7 @@ class ManagerVC(commands.Cog, name="Manager commands for bot's speech synthesis"
     async def on_message(self, msg):
         if msg.author == self.bot.user:
             return   
-        
+        await msg.channel.send("the voice commands aren't working at moment", reference=msg) #the voice commands aren't working
         try:
             data = self.mysql_connection.get_guild_data_managerVC(msg.guild.id, "prefix, prefixVC, channel")[0]
             if msg.content[0] != data[0]:
@@ -95,7 +95,7 @@ class ManagerVC(commands.Cog, name="Manager commands for bot's speech synthesis"
                         self.queue[msg.guild.name]["content"][0] = self.filter_no_spam.censured(self.queue[msg.guild.name]["content"][0])
 
                     tts = gTTS(self.queue[msg.guild.name]["content"][0], lang=data[1], slow=False)
-                    tts.save(f"songs/{msg.guild.name}.mp3")
+                    tts.save(f"{path}/{msg.guild.name}.mp3")
 
                 else:
                     YouTube(self.queue[msg.guild.name]["content"][0]).streams.filter(only_audio=True).first().download(path,
