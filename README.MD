@@ -5,6 +5,8 @@
    It also has other features like a dummy system of game coins, sending embed messages or play music
 
    Default prefix = $
+   
+   ⚠The voice commands aren't working⚠
     
 # Development Status
    I created this bot because not everyone can talk in voice chat but I'm alone in development and between high school final exam, driving license exam and college tests 
