@@ -49,7 +49,6 @@ class ManagerVC(commands.Cog, name="Manager commands for bot's speech synthesis"
     async def on_message(self, msg):
         if msg.author == self.bot.user:
             return   
-        await msg.channel.send("the voice commands aren't working at moment", reference=msg) #the voice commands aren't working
         try:
             data = self.mysql_connection.get_guild_data_managerVC(msg.guild.id, "prefix, prefixVC, channel")[0]
             if msg.content[0] != data[0]:
@@ -66,6 +65,7 @@ class ManagerVC(commands.Cog, name="Manager commands for bot's speech synthesis"
         if await self.utils.is_ban(ctx, self.filter_no_spam, self.robux):
             return
 
+        return await msg.channel.send("the voice commands aren't working at moment", reference=msg) #the voice commands aren't working
         self.queue[msg.guild.name]["content"].append(msg.content)
         self.filter_no_spam.msg_stopped = len(msg.content)
         await self.robux.catch(ctx)
