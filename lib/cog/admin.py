@@ -34,7 +34,7 @@ class Admin(commands.Cog, name="Owner"):
         if await self.passAdminCheck(ctx):
             embed = discord.Embed(title=title, description=description, timestamp=datetime.datetime.utcnow())
             embed.set_image(url=url_image)
-            embed.set_author(name=ctx.message.author, icon_url=ctx.message.author.avatar_url)
+            embed.set_author(name=ctx.message.author, icon_url=ctx.message.author.avatar)
             for guild in self.bot.guilds:
                 await self.embed_admin_channel(embed, guild, 0)
 
@@ -215,3 +215,7 @@ class Admin(commands.Cog, name="Owner"):
                 await voice.disconnect()
             except:
                 await ctx.reply("error guild not found or already disconnected")
+                
+
+async def setup(bot, filter_no_spam, robux, inventory, mysql_connection):
+    await bot.add_cog(Admin(bot, filter_no_spam, robux, inventory, mysql_connection))

@@ -39,7 +39,7 @@ class Shop(commands.Cog, name="Shop"):
     {self.roles_shop(ctx, prefix, arrow)}
     '''
         embed = discord.Embed(title=title, description=description)
-        embed.set_image(url=self.bot.user.avatar_url)
+        embed.set_image(url=self.bot.user.avatar)
         await ctx.reply(embed=embed)
 
     def roles_shop(self, ctx, prefix, arrow):
@@ -323,3 +323,7 @@ class Shop(commands.Cog, name="Shop"):
             await msg.clear_reactions()
             await msg.edit(content=f"<@{payload.user_id}> bought it")
             await payment_seller(old_msg)
+
+
+async def setup(bot, utils, filter_no_spam, robux, inventory, mysql_connection):
+    await bot.add_cog(Shop(bot, utils, filter_no_spam, robux, inventory, mysql_connection))

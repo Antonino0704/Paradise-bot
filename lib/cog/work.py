@@ -120,3 +120,7 @@ class Work(commands.Cog, name="Jobs"):
             await self.petSeller.working(ctx)
         else:
             await ctx.reply("you aren't a pet seller")
+
+
+async def setup(bot, utils, filter_no_spam, robux, mysql_connection):
+    await bot.add_cog(Work(bot, utils, filter_no_spam, robux, mysql_connection))

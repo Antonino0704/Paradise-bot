@@ -166,3 +166,7 @@ class InitSettings(commands.Cog, name="Initializing bot settings"):
             self.mysql_connection.add_user(id)
         self.mysql_connection.update_user_names(id, firstName, lastName)
         await ctx.send("firstname and lastname was set")
+
+
+async def setup(bot, utils, filter_no_spam, robux, mysql_connection):
+    await bot.add_cog(InitSettings(bot, utils, filter_no_spam, robux, mysql_connection))

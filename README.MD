@@ -6,7 +6,6 @@
 
    Default prefix = $
    
-   ⚠The voice commands aren't working⚠
     
 # Development Status
    I created this bot because not everyone can talk in voice chat but I'm alone in development and between high school final exam, driving license exam and college tests 
@@ -25,24 +24,11 @@
    type $help to learn all commands
     
 # News
-## A new save system
-   The bot now has a database (the old save system was deleted and replaced by a database server) 
-
 ## Fixed bugs
-   The bug that didn't give cats after buying them was fixed
+   Updated discord py version and now voice commands work again
 
-   fixed the bug that would make coin payments even if you were not blacklisted in the Rban command
-
-## New commands
-   $setFirstLastName command -> allows you to set a first and last name for the account
-
-   $infoItem -> shows item information
-   $infoBadge -> shows badge information
-   $infoJob -> shows job information
-
-## Coins
-   Decreased the odds of finding a coin, from 10% to 1%
-
+## New slash command
+   New slash command to report a problem /contact-us
     
  
 # Known bugs

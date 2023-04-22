@@ -1,5 +1,6 @@
 import discord
 from discord.ext import commands
+from discord import app_commands
 
 import json
 
@@ -59,6 +60,17 @@ class Info(commands.Cog, name="Information"):
             return await ctx.reply(embed=embed)
         await ctx.reply("badge doesn't exist")
 
+
+    #slash command
+    @app_commands.command(name="contact-us")
+    async def contact_us(self, Interaction: discord.Interaction, problem: str):
+        for guild in self.bot.guilds:
+            if(guild.id == 1005889989315416094):    #your personal guild or official bot guild
+                user = guild.get_member(533014724569333770)  #your id
+                
+        await user.send(problem)
+        await Interaction.response.send_message(f"message sent, we will let you know as soon as possible")
+
     @commands.command()
     async def info(self, ctx):
         """it shows your warns, robux, inventory and job"""
@@ -80,9 +92,10 @@ class Info(commands.Cog, name="Information"):
         description += f'''
     Job: {job}    
         '''
-
+        
         embed = discord.Embed(title=title, description=description)
-        embed.set_image(url=ctx.message.author.avatar_url)
+        embed.set_image(url=ctx.message.author.avatar)
+        #embed.set_image(url=ctx.message.author.avatar_url)
         embed.set_footer(text=names)
         await ctx.reply(embed=embed)
     
@@ -92,4 +105,8 @@ class Info(commands.Cog, name="Information"):
         for i in badges:
             badge_str += i[0] + " "
         return badge_str
+    
+
+async def setup(bot, utils, filter_no_spam, robux, mysql_connection):
+    await bot.add_cog(Info(bot, utils, filter_no_spam, robux, mysql_connection))
             

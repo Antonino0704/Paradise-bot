@@ -76,3 +76,7 @@ class Events(commands.Cog, name="events"):
         self.mysql_connection.add_badge_to_user(id, badge_id)
         await ctx.reply(f"<@{id}> gets {name_event} badge")
         await msg.clear_reactions()     
+
+
+async def setup(bot, utils, filter_no_spam, robux, mysql_connection):
+    await bot.add_cog(Events(bot, utils, filter_no_spam, robux, mysql_connection))
