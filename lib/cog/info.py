@@ -8,6 +8,7 @@ from lib.utils import Utils
 from lib.spam_lib import Spam
 from lib.robux import Robux
 
+
 class Info(commands.Cog, name="Information"):
     def __init__(self, bot, utils, filter_no_spam, robux, mysql_connection):
         self.bot = bot
@@ -26,7 +27,9 @@ class Info(commands.Cog, name="Information"):
 
         if await self.utils.is_ban(ctx, self.filter_no_spam, self.robux):
             return
-        await ctx.send("all languages code: https://developers.google.com/admin-sdk/directory/v1/languages")
+        await ctx.send(
+            "all languages code: https://developers.google.com/admin-sdk/directory/v1/languages"
+        )
 
     @commands.command()
     async def infoItem(self, ctx, item_name):
@@ -41,7 +44,7 @@ class Info(commands.Cog, name="Information"):
     @commands.command()
     async def infoJob(self, ctx, work_type):
         """shows job information
-    work type: criminal, banker, petSeller"""
+        work type: criminal, banker, petSeller"""
 
         data = self.mysql_connection.get_info("name", work_type, "jobs")
         if data:
@@ -56,25 +59,30 @@ class Info(commands.Cog, name="Information"):
         data = self.mysql_connection.get_info("name", badge_name, "badges")
         if data:
             embed = discord.Embed(title=data[0][0], description=data[0][1])
-            embed.set_footer(text=f"you got that: {self.mysql_connection.get_badge_date(ctx.message.author.id, badge_name)}")
+            embed.set_footer(
+                text=f"you got that: {self.mysql_connection.get_badge_date(ctx.message.author.id, badge_name)}"
+            )
             return await ctx.reply(embed=embed)
         await ctx.reply("badge doesn't exist")
 
-
-    #slash command
+    # slash command
     @app_commands.command(name="contact-us")
     async def contact_us(self, Interaction: discord.Interaction, problem: str):
         for guild in self.bot.guilds:
-            if(guild.id == 1005889989315416094):    #your personal guild or official bot guild
-                user = guild.get_member(533014724569333770)  #your id
-                
+            if (
+                guild.id == 1005889989315416094
+            ):  # your personal guild or official bot guild
+                user = guild.get_member(533014724569333770)  # your id
+
         await user.send(problem)
-        await Interaction.response.send_message(f"message sent, we will let you know as soon as possible")
+        await Interaction.response.send_message(
+            f"message sent, we will let you know as soon as possible"
+        )
 
     @commands.command()
     async def info(self, ctx):
         """it shows your warns, robux, inventory and job"""
-        
+
         id_s = str(ctx.message.author.id)
         items = self.mysql_connection.get_pokedex_all(id_s)
         badges = self.getBadge(id_s)
@@ -86,27 +94,26 @@ class Info(commands.Cog, name="Information"):
 
         description = ""
         for icon, amount in items:
-            description += f'''
+            description += f"""
     {icon}: {amount}\n
-            '''
-        description += f'''
+            """
+        description += f"""
     Job: {job}    
-        '''
-        
+        """
+
         embed = discord.Embed(title=title, description=description)
         embed.set_image(url=ctx.message.author.avatar)
-        #embed.set_image(url=ctx.message.author.avatar_url)
+        # embed.set_image(url=ctx.message.author.avatar_url)
         embed.set_footer(text=names)
         await ctx.reply(embed=embed)
-    
+
     def getBadge(self, id):
         badge_str = " "
         badges = self.mysql_connection.get_badge_icon_all(id)
         for i in badges:
             badge_str += i[0] + " "
         return badge_str
-    
+
 
 async def setup(bot, utils, filter_no_spam, robux, mysql_connection):
     await bot.add_cog(Info(bot, utils, filter_no_spam, robux, mysql_connection))
-            

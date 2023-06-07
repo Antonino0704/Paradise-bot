@@ -43,7 +43,8 @@
    >[Python 3(3.9 recommended)](https://www.python.org/downloads/)\
    >[Git](https://git-scm.com/downloads)\
    >[MariaDB](https://mariadb.org/download/?t=mariadb&p=mariadb&r=10.11.2)\
-   >[FFmpeg](https://ffmpeg.org/download.html)
+   >[FFmpeg](https://ffmpeg.org/download.html)\
+   >[NodeJS](https://nodejs.org/en/download)
    
   [create a bot account](https://discordpy.readthedocs.io/en/stable/discord.html)\
   fork the project\
@@ -55,6 +56,7 @@
   ## Type these commands:
      git clone your fork link
      python -m venv venv
+     npm i
      
   Linux: ```source venv/bin/activate```\
   Windows: ```venv/Scripts/activate```\

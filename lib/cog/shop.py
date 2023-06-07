@@ -7,6 +7,7 @@ from lib.spam_lib import Spam
 from lib.robux import Robux
 from lib.inventory import Inventory
 
+
 class Shop(commands.Cog, name="Shop"):
     def __init__(self, bot, utils, filter_no_spam, robux, inventory, mysql_connection):
         self.bot = bot
@@ -25,9 +26,9 @@ class Shop(commands.Cog, name="Shop"):
         """shown the shop"""
 
         prefix = self.mysql_connection.get_guild_data(ctx.guild.id, "prefix")
-        arrow = '<:4596froggyarrow:1011296133131292692>'
+        arrow = "<:4596froggyarrow:1011296133131292692>"
         title = f"{ctx.message.author.name} welcome at shop"
-        description = f'''Remove ban: {self.item_list[0]} 40 {arrow} {prefix}help Rban\n
+        description = f"""Remove ban: {self.item_list[0]} 40 {arrow} {prefix}help Rban\n
     Change bot activity: {self.item_list[0]} 10 {arrow} {prefix}help ChangeActivity\n
     Adopt a cat: {self.item_list[0]} 5 {arrow} {prefix}help AdoptCat\n
     Buy a old house: {self.item_list[0]} 7 {arrow} {prefix}help BuyOldHouse\n
@@ -37,7 +38,7 @@ class Shop(commands.Cog, name="Shop"):
     Roles for sale in this guild:
 
     {self.roles_shop(ctx, prefix, arrow)}
-    '''
+    """
         embed = discord.Embed(title=title, description=description)
         embed.set_image(url=self.bot.user.avatar)
         await ctx.reply(embed=embed)
@@ -52,16 +53,17 @@ class Shop(commands.Cog, name="Shop"):
         return None
 
     def is_wallet(self, id, price):
-        if not self.mysql_connection.is_exist_composite("user_id", "item_id", id, "5", "pokedex", "amount"):
-            return int(price/100*10)
+        if not self.mysql_connection.is_exist_composite(
+            "user_id", "item_id", id, "5", "pokedex", "amount"
+        ):
+            return int(price / 100 * 10)
         return 0
-
 
     @commands.command()
     async def share(self, ctx, mention_role, robux_number):
-        """you can share your robux with your friends, the sender will pay a commission equal to 10% 
-            with an approximation of an amount equal to or greater than 10 robux"""
-        
+        """you can share your robux with your friends, the sender will pay a commission equal to 10%
+        with an approximation of an amount equal to or greater than 10 robux"""
+
         robux_number = int(robux_number)
         robux_number = robux_number if robux_number >= 0 else -robux_number
         mention_role = self.utils.mention_replace(mention_role)
@@ -69,7 +71,7 @@ class Shop(commands.Cog, name="Shop"):
         id = str(ctx.message.author.id)
         pokedex = self.mysql_connection.get_pokedex(id, 1)
         robux_number = int(robux_number)
-        price = robux_number + int((robux_number/100*10))
+        price = robux_number + int((robux_number / 100 * 10))
         price -= self.is_wallet(id, robux_number)
 
         if pokedex >= price:
@@ -78,7 +80,6 @@ class Shop(commands.Cog, name="Shop"):
         else:
             await ctx.reply(f"<@{id}> doesn't have enough <:robux:1010974169552404551>")
 
-
     @commands.command()
     async def Rban(self, ctx):
         """payment 40 robux to remove from blacklist"""
@@ -86,13 +87,12 @@ class Shop(commands.Cog, name="Shop"):
         id = str(ctx.message.author.id)
         pokedex = self.mysql_connection.get_pokedex(id, 1)
         price = 40
-        
+
         if pokedex >= price:
             if await self.filter_no_spam.remove_black_list(ctx, id):
                 await self.robux.payment(ctx, id, price)
         else:
             await ctx.reply(f"<@{id}> doesn't have enough <:robux:1010974169552404551>")
-            
 
     @commands.command()
     async def ChangeActivity(self, ctx, game):
@@ -108,7 +108,6 @@ class Shop(commands.Cog, name="Shop"):
         else:
             await ctx.reply(f"<@{id}> doesn't have enough <:robux:1010974169552404551>")
 
-    
     @commands.command()
     async def AdoptCat(self, ctx):
         """payment 5 robux to adopt a cat"""
@@ -116,7 +115,7 @@ class Shop(commands.Cog, name="Shop"):
         id = str(ctx.message.author.id)
         pokedex = self.mysql_connection.get_pokedex(id, 1)
         price = 5
-        
+
         if pokedex >= price:
             await self.inventory.buy_object(ctx, id, "cat", 1)
             await self.robux.payment(ctx, id, price)
@@ -125,7 +124,6 @@ class Shop(commands.Cog, name="Shop"):
             await ctx.reply(f"<@{id}> doesn't have enough <:robux:1010974169552404551>")
             return False
 
-
     @commands.command()
     async def BuyOldHouse(self, ctx):
         """payment 7 robux to buy a old house"""
@@ -133,7 +131,7 @@ class Shop(commands.Cog, name="Shop"):
         id = str(ctx.message.author.id)
         pokedex = self.mysql_connection.get_pokedex(id, 1)
         price = 7
-        
+
         if pokedex >= price:
             await self.inventory.buy_object(ctx, id, "old_house", 1)
             await self.robux.payment(ctx, id, price)
@@ -149,7 +147,7 @@ class Shop(commands.Cog, name="Shop"):
         id = str(ctx.message.author.id)
         pokedex = self.mysql_connection.get_pokedex(id, 1)
         price = 10
-        
+
         if pokedex >= price:
             await self.inventory.buy_object(ctx, id, "modern_house", 1)
             await self.robux.payment(ctx, id, price)
@@ -158,7 +156,6 @@ class Shop(commands.Cog, name="Shop"):
             await ctx.reply(f"<@{id}> doesn't have enough <:robux:1010974169552404551>")
             return False
 
-
     @commands.command()
     async def BuyWallet(self, ctx):
         """payment 20 robux to buy a wallet, one only, if you buy it you will be absent from commissions by share command"""
@@ -166,9 +163,11 @@ class Shop(commands.Cog, name="Shop"):
         id = str(ctx.message.author.id)
         pokedex = self.mysql_connection.get_pokedex(id, 1)
         price = 20
-        
+
         if pokedex >= price:
-            if not self.mysql_connection.is_exist_composite("user_id", "item_id", id, 5, "pokedex", "amount"):
+            if not self.mysql_connection.is_exist_composite(
+                "user_id", "item_id", id, 5, "pokedex", "amount"
+            ):
                 await ctx.reply("you already have a wallet")
                 return
 
@@ -177,25 +176,28 @@ class Shop(commands.Cog, name="Shop"):
         else:
             await ctx.reply(f"<@{id}> doesn't have enough <:robux:1010974169552404551>")
 
-
-    #roles
+    # roles
     @commands.has_permissions(manage_guild=True)
     @commands.command()
     async def addRoleForSale(self, ctx, name_role, price, hex_color="0x00ff00"):
-        """you add role for sale, the bot must have permissions to add the role and for every purchase a commission equal to 10% 
-            with an approximation of an amount equal to or greater than 10 robux to borne by owner"""
-        
+        """you add role for sale, the bot must have permissions to add the role and for every purchase a commission equal to 10%
+        with an approximation of an amount equal to or greater than 10 robux to borne by owner
+        """
+
         try:
             role = discord.utils.get(ctx.guild.roles, name=name_role)
-            
-            if role is None:
-                role = await ctx.guild.create_role(name=name_role, colour=int(hex_color, 16))
 
-            self.mysql_connection.add_role(str(role.id), name_role, int(price), ctx.guild.id)    
+            if role is None:
+                role = await ctx.guild.create_role(
+                    name=name_role, colour=int(hex_color, 16)
+                )
+
+            self.mysql_connection.add_role(
+                str(role.id), name_role, int(price), ctx.guild.id
+            )
             await ctx.reply(f"role added for <:robux:1010974169552404551> {price}")
         except Exception as e:
             await ctx.reply(e)
-
 
     @commands.command()
     @commands.has_permissions(manage_guild=True)
@@ -207,11 +209,11 @@ class Shop(commands.Cog, name="Shop"):
             await ctx.reply("the role doesn't exist")
             return
         role_id = str(role.id)
-        
+
         if not self.mysql_connection.is_exist("role_id", role_id, "roles", "name"):
             try:
                 await role.delete()
-                self.mysql_connection.delete_role(role_id)     
+                self.mysql_connection.delete_role(role_id)
                 await ctx.reply(f"the role has been removed")
                 return
             except Exception as e:
@@ -220,18 +222,17 @@ class Shop(commands.Cog, name="Shop"):
 
         await ctx.reply("the role has not been added to the roles for sale")
 
-
     @commands.command()
     async def BuyRole(self, ctx, mention_role):
         """payment of tot robux chosen by the guild owner to buy roles"""
-        
+
         mention_role = self.utils.mention_replace(mention_role)
         data = self.mysql_connection.get_role_price(mention_role)
 
         if data:
             id = str(ctx.message.author.id)
             pokedex = self.mysql_connection.get_pokedex(id, 1)
-            price = data  - int((data / 100 * 10))
+            price = data - int((data / 100 * 10))
             price += self.is_wallet(str(ctx.guild.owner.id), data)
 
             if pokedex >= data:
@@ -243,45 +244,65 @@ class Shop(commands.Cog, name="Shop"):
                 except Exception as e:
                     await ctx.reply(f"error {e}")
             else:
-                await ctx.reply(f"<@{id}> doesn't have enough <:robux:1010974169552404551>")
+                await ctx.reply(
+                    f"<@{id}> doesn't have enough <:robux:1010974169552404551>"
+                )
         else:
-             await ctx.reply(f"<@&{mention_role}> isn't on role for sale")
+            await ctx.reply(f"<@&{mention_role}> isn't on role for sale")
 
-
-    #event
+    # event
     @commands.Cog.listener()
     async def on_raw_reaction_add(self, payload):
-        if self.bot.get_user(payload.user_id) == self.bot.user or not str(payload.emoji) in self.item_list:
+        if (
+            self.bot.get_user(payload.user_id) == self.bot.user
+            or not str(payload.emoji) in self.item_list
+        ):
             return
-    
+
         async def points():
             channel = self.bot.get_channel(payload.channel_id)
             msg = await channel.fetch_message(payload.message_id)
             ctx = await self.bot.get_context(msg)
-            if msg.content[22:] == f"drops a {self.item_list[0]}, you put the reaction to win it!!" and msg.author == self.bot.user:
+            if (
+                msg.content[22:]
+                == f"drops a {self.item_list[0]}, you put the reaction to win it!!"
+                and msg.author == self.bot.user
+            ):
                 await self.bank(ctx, payload, msg)
-            
-            if msg.content[22:] == f"sales a {self.item_list[1]}, you put the reaction to buy it <:robux:1010974169552404551> 3!!" and msg.author == self.bot.user:
+
+            if (
+                msg.content[22:]
+                == f"sales a {self.item_list[1]}, you put the reaction to buy it <:robux:1010974169552404551> 3!!"
+                and msg.author == self.bot.user
+            ):
                 await self.petSell(ctx, payload, msg)
-                
+
         await points()
 
-    
     async def bank(self, ctx, payload, msg):
         async def is_banker():
-            if not self.mysql_connection.is_exist_composite("user_id", "work_id", str(payload.user_id), "1", "users", "work_id"):
-                await ctx.send(f"<@{payload.user_id}>, you are a banker, you can't get this robux")
+            if not self.mysql_connection.is_exist_composite(
+                "user_id", "work_id", str(payload.user_id), "1", "users", "work_id"
+            ):
+                await ctx.send(
+                    f"<@{payload.user_id}>, you are a banker, you can't get this robux"
+                )
                 return True
             return False
 
         async def payment(old_msg):
             old_msg = self.utils.mention_replace(old_msg[:21])
-            if not self.mysql_connection.is_exist_composite("user_id", "work_id", str(old_msg), "1", "users", "work_id"):
+            if not self.mysql_connection.is_exist_composite(
+                "user_id", "work_id", str(old_msg), "1", "users", "work_id"
+            ):
                 await self.robux.robux(ctx, old_msg, 2)
 
-        if await self.utils.is_ban(ctx, self.filter_no_spam, self.robux) or await is_banker():
+        if (
+            await self.utils.is_ban(ctx, self.filter_no_spam, self.robux)
+            or await is_banker()
+        ):
             return
-             
+
         old_msg = msg.content
         await msg.clear_reactions()
         await msg.edit(content=f"<@{payload.user_id}> you win")
@@ -290,8 +311,12 @@ class Shop(commands.Cog, name="Shop"):
 
     async def petSell(self, ctx, payload, msg):
         async def is_petSeller():
-            if not self.mysql_connection.is_exist_composite("user_id", "work_id", str(payload.user_id), 3, "users", "work_id"):
-                await ctx.send(f"<@{payload.user_id}>, you are a pet seller, you can't get this cat")
+            if not self.mysql_connection.is_exist_composite(
+                "user_id", "work_id", str(payload.user_id), 3, "users", "work_id"
+            ):
+                await ctx.send(
+                    f"<@{payload.user_id}>, you are a pet seller, you can't get this cat"
+                )
                 return True
             return False
 
@@ -307,15 +332,20 @@ class Shop(commands.Cog, name="Shop"):
 
         async def payment_seller(old_msg):
             old_msg = self.utils.mention_replace(old_msg[:21])
-            if not self.mysql_connection.is_exist_composite("user_id", "work_id", str(old_msg), 3, "users", "work_id"):
+            if not self.mysql_connection.is_exist_composite(
+                "user_id", "work_id", str(old_msg), 3, "users", "work_id"
+            ):
                 cat = self.mysql_connection.get_pokedex(old_msg, 2)
                 price = 3 * cat
-                price -= int((price/100*10))
+                price -= int((price / 100 * 10))
                 price += self.is_wallet(old_msg, 3 * cat)
-                
+
                 await self.robux.robux(ctx, old_msg, price)
 
-        if await self.utils.is_ban(ctx, self.filter_no_spam, self.robux) or await is_petSeller():
+        if (
+            await self.utils.is_ban(ctx, self.filter_no_spam, self.robux)
+            or await is_petSeller()
+        ):
             return
 
         if await payment():
@@ -326,4 +356,6 @@ class Shop(commands.Cog, name="Shop"):
 
 
 async def setup(bot, utils, filter_no_spam, robux, inventory, mysql_connection):
-    await bot.add_cog(Shop(bot, utils, filter_no_spam, robux, inventory, mysql_connection))
+    await bot.add_cog(
+        Shop(bot, utils, filter_no_spam, robux, inventory, mysql_connection)
+    )

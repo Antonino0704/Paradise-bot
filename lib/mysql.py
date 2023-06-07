@@ -9,13 +9,13 @@ class Mysql:
 
     def connection(self):
         return mysql.connector.connect(
-            host = self.address,
-            user = self.usr,
-            password = self.passwd,
-            database = "paradise_database",
-            autocommit = True,
+            host=self.address,
+            user=self.usr,
+            password=self.passwd,
+            database="paradise_database",
+            autocommit=True,
         )
-    
+
     def close(self, db, cursor):
         cursor.close()
         db.close()
@@ -40,12 +40,12 @@ class Mysql:
                 FROM items
                 WHERE item_id = %s
                 """
-        data = (emoji_id, )
+        data = (emoji_id,)
         cursor.execute(query, data)
         result = cursor.fetchall()
         self.close(db, cursor)
         return result[0][0]
-    
+
     def get_all_emoji_icon(self):
         db = self.connection()
         cursor = db.cursor()
@@ -58,7 +58,7 @@ class Mysql:
         result = cursor.fetchall()
         self.close(db, cursor)
         return result
-    
+
     def get_badge_icon(self, emoji_id):
         db = self.connection()
         cursor = db.cursor()
@@ -67,12 +67,12 @@ class Mysql:
                 FROM badges
                 WHERE badge_id = %s
                 """
-        data = (emoji_id, )
+        data = (emoji_id,)
         cursor.execute(query, data)
         result = cursor.fetchall()
         self.close(db, cursor)
         return result[0][0]
-    
+
     def get_badge_icon_all(self, user_id):
         db = self.connection()
         cursor = db.cursor()
@@ -83,7 +83,7 @@ class Mysql:
                     ON badges.badge_id = inventories.badge_id
                 WHERE user_id = %s
                 """
-        data = (user_id, )
+        data = (user_id,)
         cursor.execute(query, data)
         result = cursor.fetchall()
         self.close(db, cursor)
@@ -97,12 +97,12 @@ class Mysql:
                 FROM guilds
                 WHERE guild_id = %s
                 """
-        data = (guild_id, )
+        data = (guild_id,)
         cursor.execute(query, data)
         result = cursor.fetchall()
         self.close(db, cursor)
         return result[0][0]
-    
+
     def get_guild_data_managerVC(self, guild_id, attributes):
         db = self.connection()
         cursor = db.cursor()
@@ -111,12 +111,12 @@ class Mysql:
                 FROM guilds
                 WHERE guild_id = %s
                 """
-        data = (str(guild_id), )
+        data = (str(guild_id),)
         cursor.execute(query, data)
         result = cursor.fetchall()
         self.close(db, cursor)
         return False if len(result) == 0 else result
-    
+
     def get_user_data(self, user_id, attribute):
         db = self.connection()
         cursor = db.cursor()
@@ -125,12 +125,12 @@ class Mysql:
                 FROM users
                 WHERE user_id = %s
                 """
-        data = (user_id, )
+        data = (user_id,)
         cursor.execute(query, data)
         result = cursor.fetchall()
         self.close(db, cursor)
         return False if len(result) == 0 else result[0][0]
-    
+
     def get_user_names(self, user_id, attribute):
         db = self.connection()
         cursor = db.cursor()
@@ -139,12 +139,12 @@ class Mysql:
                 FROM users
                 WHERE user_id = %s
                 """
-        data = (user_id, )
+        data = (user_id,)
         cursor.execute(query, data)
         result = cursor.fetchall()
         self.close(db, cursor)
         return False if len(result) == 0 else result
-    
+
     def get_user_job(self, user_id):
         db = self.connection()
         cursor = db.cursor()
@@ -155,12 +155,12 @@ class Mysql:
                     ON users.work_id = jobs.work_id
                 WHERE user_id = %s
                 """
-        data = (user_id, )
+        data = (user_id,)
         cursor.execute(query, data)
         result = cursor.fetchall()
         self.close(db, cursor)
         return None if len(result) == 0 else result[0][0]
-    
+
     def get_no_words(self):
         db = self.connection()
         cursor = db.cursor()
@@ -172,7 +172,7 @@ class Mysql:
         result = cursor.fetchall()
         self.close(db, cursor)
         return [i[0] for i in result]
-    
+
     def get_work_by_name(self, work_name):
         db = self.connection()
         cursor = db.cursor()
@@ -181,12 +181,12 @@ class Mysql:
                 FROM jobs
                 WHERE name = %s
                 """
-        data = (work_name, )
+        data = (work_name,)
         cursor.execute(query, data)
         result = cursor.fetchall()
         self.close(db, cursor)
         return False if len(result) == 0 else result[0][0]
-    
+
     def get_badge_by_icon(self, icon):
         db = self.connection()
         cursor = db.cursor()
@@ -195,12 +195,12 @@ class Mysql:
                 FROM badges
                 WHERE icon = %s
                 """
-        data = (icon, )
+        data = (icon,)
         cursor.execute(query, data)
         result = cursor.fetchall()
         self.close(db, cursor)
         return False if len(result) == 0 else result[0][0]
-    
+
     def get_pokedex(self, user_id, item_id):
         db = self.connection()
         cursor = db.cursor()
@@ -214,7 +214,7 @@ class Mysql:
         result = cursor.fetchall()
         self.close(db, cursor)
         return False if len(result) == 0 else result[0][0]
-    
+
     def get_pokedex_all(self, user_id):
         db = self.connection()
         cursor = db.cursor()
@@ -225,12 +225,12 @@ class Mysql:
 	                ON pokedex.item_id = items.item_id
                 WHERE user_id = %s
                 """
-        data = (user_id, )
+        data = (user_id,)
         cursor.execute(query, data)
         result = cursor.fetchall()
         self.close(db, cursor)
         return result
-    
+
     def get_robux_list(self):
         db = self.connection()
         cursor = db.cursor()
@@ -244,7 +244,7 @@ class Mysql:
         result = cursor.fetchall()
         self.close(db, cursor)
         return False if len(result) == 0 else result
-    
+
     def get_role_id_price(self, guild_id):
         db = self.connection()
         cursor = db.cursor()
@@ -253,12 +253,12 @@ class Mysql:
                 FROM roles
                 WHERE guild_id = %s
                 """
-        data = (guild_id, )
+        data = (guild_id,)
         cursor.execute(query, data)
         result = cursor.fetchall()
         self.close(db, cursor)
         return False if len(result) == 0 else result
-    
+
     def get_role_price(self, role_id):
         db = self.connection()
         cursor = db.cursor()
@@ -267,12 +267,12 @@ class Mysql:
                 FROM roles
                 WHERE role_id = %s
                 """
-        data = (role_id, )
+        data = (role_id,)
         cursor.execute(query, data)
         result = cursor.fetchall()
         self.close(db, cursor)
         return False if len(result) == 0 else result[0][0]
-    
+
     def get_info(self, pk, table_id, table):
         db = self.connection()
         cursor = db.cursor()
@@ -281,12 +281,12 @@ class Mysql:
                 FROM {table}
                 WHERE {pk} = %s
                 """
-        data = (table_id, )
+        data = (table_id,)
         cursor.execute(query, data)
         result = cursor.fetchall()
         self.close(db, cursor)
         return result
-    
+
     def get_badge_date(self, user_id, badge_name):
         db = self.connection()
         cursor = db.cursor()
@@ -311,12 +311,12 @@ class Mysql:
                 FROM {table}
                 WHERE {pk} = %s
                 """
-        data = (str(table_id), )
+        data = (str(table_id),)
         cursor.execute(query, data)
         result = cursor.fetchall()
         self.close(db, cursor)
         return True if len(result) == 0 else result[0][0]
-    
+
     def is_exist_composite(self, pk1, pk2, table_id1, table_id2, table, attribute):
         db = self.connection()
         cursor = db.cursor()
@@ -325,12 +325,12 @@ class Mysql:
                 FROM {table}
                 WHERE {pk1} = %s and {pk2} = %s
                 """
-        data = (str(table_id1),table_id2)
+        data = (str(table_id1), table_id2)
         cursor.execute(query, data)
         result = cursor.fetchall()
         self.close(db, cursor)
         return True if len(result) == 0 else result[0][0]
-    
+
     def add_noWords(self, word):
         db = self.connection()
         cursor = db.cursor()
@@ -338,7 +338,7 @@ class Mysql:
                 INSERT INTO noWords(word)
                 VALUES (%s)
                 """
-        data = (word, )
+        data = (word,)
         cursor.execute(query, data)
         db.commit()
         self.close(db, cursor)
@@ -350,7 +350,7 @@ class Mysql:
                 DELETE FROM noWords
                 WHERE word = %s
                 """
-        data = (word, )
+        data = (word,)
         cursor.execute(query, data)
         db.commit()
         self.close(db, cursor)
@@ -374,7 +374,7 @@ class Mysql:
                 DELETE FROM badges
                 WHERE badge_id = %s
                 """
-        data = (badge_id, )
+        data = (badge_id,)
         cursor.execute(query, data)
         db.commit()
         self.close(db, cursor)
@@ -422,7 +422,7 @@ class Mysql:
                 DELETE FROM roles
                 WHERE role_id = %s
                 """
-        data = (role_id, )
+        data = (role_id,)
         cursor.execute(query, data)
         db.commit()
         self.close(db, cursor)
@@ -499,7 +499,7 @@ class Mysql:
                 INSERT INTO users(user_id)
                 VALUES (%s)
                 """
-        data = (str(user_id), )
+        data = (str(user_id),)
         cursor.execute(query, data)
         db.commit()
         self.close(db, cursor)

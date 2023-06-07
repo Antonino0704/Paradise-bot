@@ -7,15 +7,18 @@ import os
 from gtts import gTTS
 import asyncio
 from pytube import YouTube
-from pytube.exceptions  import RegexMatchError
+from pytube.exceptions import RegexMatchError
 
 from lib.utils import Utils
 from lib.spam_lib import Spam
 from lib.robux import Robux
 from lib.cog.events import Events
 
+
 class ManagerVC(commands.Cog, name="Manager commands for bot's speech synthesis"):
-    def __init__(self, bot, songs, ffmpeg, utils, filter_no_spam, robux, queue, mysql_connection):
+    def __init__(
+        self, bot, songs, ffmpeg, utils, filter_no_spam, robux, queue, mysql_connection
+    ):
         self.bot = bot
         self.songs = songs
         self.ffmpeg = ffmpeg
@@ -27,7 +30,6 @@ class ManagerVC(commands.Cog, name="Manager commands for bot's speech synthesis"
 
     @commands.Cog.listener()
     async def on_voice_state_update(self, member, before, after):
-        
         if not member.id == self.bot.user.id:
             return
 
@@ -41,25 +43,29 @@ class ManagerVC(commands.Cog, name="Manager commands for bot's speech synthesis"
                     time = 0
                 if time >= 600:
                     await voice.disconnect()
-                    await self.utils.disconnection_for_inactivity(after.channel.guild, 0)
+                    await self.utils.disconnection_for_inactivity(
+                        after.channel.guild, 0
+                    )
                 if not voice.is_connected():
                     break
 
     @commands.Cog.listener()
     async def on_message(self, msg):
         if msg.author == self.bot.user:
-            return   
+            return
         try:
-            data = self.mysql_connection.get_guild_data_managerVC(msg.guild.id, "prefix, prefixVC, channel")[0]
+            data = self.mysql_connection.get_guild_data_managerVC(
+                msg.guild.id, "prefix, prefixVC, channel"
+            )[0]
             if msg.content[0] != data[0]:
                 if msg.content[0] == data[1]:
                     await self.prefixMethods(msg)
                     return
                 if msg.channel.name == data[2]:
                     await self.prefixMethods(msg)
-        except (IndexError):
+        except IndexError:
             pass
-    
+
     async def prefixMethods(self, msg):
         ctx = await self.bot.get_context(msg)
         if await self.utils.is_ban(ctx, self.filter_no_spam, self.robux):
@@ -80,51 +86,74 @@ class ManagerVC(commands.Cog, name="Manager commands for bot's speech synthesis"
             print("index error")
 
     async def speak(self, msg):
-        data = self.mysql_connection.get_guild_data_managerVC(msg.guild.id, "spam, lang")[0]
+        data = self.mysql_connection.get_guild_data_managerVC(
+            msg.guild.id, "spam, lang"
+        )[0]
 
-        while(len(self.queue[msg.guild.name]["content"]) != 0):
+        while len(self.queue[msg.guild.name]["content"]) != 0:
             try:
-                if(os.path.exists(msg.guild.name + ".mp3")):
-                    os.remove(msg.guild.name+ ".mp3")
-                        
-                path = self.songs
-                
-                if self.queue[msg.guild.name]["content"][0][1:25] != "https://www.youtube.com/" and self.queue[msg.guild.name]["content"][0][1:24] != "ttps://www.youtube.com/":
-                    if data[0] == "no":
-                        self.queue[msg.guild.name]["content"][0] = self.filter_no_spam.censured(self.queue[msg.guild.name]["content"][0])
+                if os.path.exists(msg.guild.name + ".mp3"):
+                    os.remove(msg.guild.name + ".mp3")
 
-                    tts = gTTS(self.queue[msg.guild.name]["content"][0], lang=data[1], slow=False)
+                path = self.songs
+
+                if (
+                    self.queue[msg.guild.name]["content"][0][1:25]
+                    != "https://www.youtube.com/"
+                    and self.queue[msg.guild.name]["content"][0][1:24]
+                    != "ttps://www.youtube.com/"
+                ):
+                    if data[0] == "no":
+                        self.queue[msg.guild.name]["content"][
+                            0
+                        ] = self.filter_no_spam.censured(
+                            self.queue[msg.guild.name]["content"][0]
+                        )
+
+                    tts = gTTS(
+                        self.queue[msg.guild.name]["content"][0],
+                        lang=data[1],
+                        slow=False,
+                    )
                     tts.save(f"{path}/{msg.guild.name}.mp3")
 
                 else:
-                    YouTube(self.queue[msg.guild.name]["content"][0]).streams.filter(only_audio=True).first().download(path,
-                                                                                                                        filename=msg.guild.name + ".mp3")   
+                    YouTube(self.queue[msg.guild.name]["content"][0]).streams.filter(
+                        only_audio=True
+                    ).first().download(path, filename=msg.guild.name + ".mp3")
                 if not msg.guild.voice_client in self.bot.voice_clients:
                     channel = msg.author.voice.channel
                     await channel.connect()
-                    
-                voice = discord.utils.get(self.bot.voice_clients, guild=msg.guild)
-                
-                self.queue[msg.guild.name]["status"] = True
-                voice.play(discord.FFmpegPCMAudio(executable=self.ffmpeg,
-                                                  source=path + msg.guild.name +".mp3"),
-                                                  after= lambda e: self.finish(msg))
 
-                while(self.queue[msg.guild.name]["status"]):
+                voice = discord.utils.get(self.bot.voice_clients, guild=msg.guild)
+
+                self.queue[msg.guild.name]["status"] = True
+                voice.play(
+                    discord.FFmpegPCMAudio(
+                        executable=self.ffmpeg, source=path + msg.guild.name + ".mp3"
+                    ),
+                    after=lambda e: self.finish(msg),
+                )
+
+                while self.queue[msg.guild.name]["status"]:
                     await asyncio.sleep(1)
 
             except AttributeError:
-                await msg.channel.send("you are not connected to a voice channel", reference=msg)
+                await msg.channel.send(
+                    "you are not connected to a voice channel", reference=msg
+                )
                 self.finish(msg)
-        
+
             except ValueError:
-                await msg.channel.send("language you have selected doesn't exist, please change it", reference=msg)
+                await msg.channel.send(
+                    "language you have selected doesn't exist, please change it",
+                    reference=msg,
+                )
                 self.finish(msg)
 
             except RegexMatchError:
                 await msg.channel.send("video not found", reference=msg)
                 self.finish(msg)
-
 
     @commands.command()
     async def left(self, ctx):
@@ -149,8 +178,6 @@ class ManagerVC(commands.Cog, name="Manager commands for bot's speech synthesis"
             await voice.disconnect()
         except:
             await ctx.reply("you are not connected to a voice channel")
-            
-            
 
     @commands.command()
     async def stop(self, ctx):
@@ -165,7 +192,6 @@ class ManagerVC(commands.Cog, name="Manager commands for bot's speech synthesis"
         voice = discord.utils.get(self.bot.voice_clients, guild=ctx.guild)
         voice.stop()
 
-    
     @commands.command()
     async def skip(self, ctx):
         """the bot skips song"""
@@ -174,7 +200,6 @@ class ManagerVC(commands.Cog, name="Manager commands for bot's speech synthesis"
             return
         voice = discord.utils.get(self.bot.voice_clients, guild=ctx.guild)
         voice.stop()
-        
 
     @commands.command()
     async def spam(self, ctx, spam):
@@ -182,16 +207,15 @@ class ManagerVC(commands.Cog, name="Manager commands for bot's speech synthesis"
 
         if await self.utils.is_ban(ctx, self.filter_no_spam, self.robux):
             return
-        
+
         if spam != "yes" and spam != "no":
             await ctx.reply("use only yes or no")
             return
-        
-        self.mysql_connection.update_guild_data(ctx.guild.id, "spam", spam)     
+
+        self.mysql_connection.update_guild_data(ctx.guild.id, "spam", spam)
         await ctx.send("spam has been set")
-        
-        
-    #for the unconnected bug, read readme.md
+
+    # for the unconnected bug, read readme.md
     @commands.command(hidden=True)
     async def clean(self, ctx):
         try:

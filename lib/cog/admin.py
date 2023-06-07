@@ -17,35 +17,39 @@ class Admin(commands.Cog, name="Owner"):
         self.inventory = inventory
         self.mysql_connection = mysql_connection
 
-
     async def passAdminCheck(self, ctx):
-        id = self.mysql_connection.get_user_data(str(ctx.message.author.id), "privilege")
+        id = self.mysql_connection.get_user_data(
+            str(ctx.message.author.id), "privilege"
+        )
         ADMIN_PRIVILEGE = 1
         if id != ADMIN_PRIVILEGE:
             await ctx.reply("You don't have permission to use this command")
             return False
         return True
 
-
     @commands.command()
     async def embedAdmin(self, ctx, title, description, url_image):
         """it sends embed to all bot's guilds"""
 
         if await self.passAdminCheck(ctx):
-            embed = discord.Embed(title=title, description=description, timestamp=datetime.datetime.utcnow())
+            embed = discord.Embed(
+                title=title,
+                description=description,
+                timestamp=datetime.datetime.utcnow(),
+            )
             embed.set_image(url=url_image)
-            embed.set_author(name=ctx.message.author, icon_url=ctx.message.author.avatar)
+            embed.set_author(
+                name=ctx.message.author, icon_url=ctx.message.author.avatar
+            )
             for guild in self.bot.guilds:
                 await self.embed_admin_channel(embed, guild, 0)
-
 
     async def embed_admin_channel(self, embed, guild, n):
         try:
             channel = guild.text_channels[n]
             await channel.send(embed=embed)
         except:
-            return await self.embed_admin_channel(embed, guild, n+1)
-
+            return await self.embed_admin_channel(embed, guild, n + 1)
 
     @commands.command()
     async def blackList(self, ctx, id):
@@ -54,14 +58,12 @@ class Admin(commands.Cog, name="Owner"):
         if await self.passAdminCheck(ctx):
             await self.filter_no_spam.add_black_list(ctx, id)
 
-
     @commands.command()
     async def removeBlackList(self, ctx, id):
         """it removes user from blacklist"""
 
         if await self.passAdminCheck(ctx):
             await self.filter_no_spam.remove_black_list(ctx, id)
-
 
     @commands.command()
     async def addNoWords(self, ctx, *, words):
@@ -70,8 +72,7 @@ class Admin(commands.Cog, name="Owner"):
         if await self.passAdminCheck(ctx):
             words = words.replace("\n", " ")
             words = words.split(" ")
-            await self.filter_no_spam.add_no_words(ctx,words)
-
+            await self.filter_no_spam.add_no_words(ctx, words)
 
     @commands.command()
     async def removeNoWords(self, ctx, *, words):
@@ -82,7 +83,6 @@ class Admin(commands.Cog, name="Owner"):
             words = words.split(" ")
             await self.filter_no_spam.remove_no_words(ctx, words)
 
-
     @commands.command()
     async def money(self, ctx, id, robux_number):
         """it adds or remove robux from user"""
@@ -91,7 +91,6 @@ class Admin(commands.Cog, name="Owner"):
             robux_number = int(robux_number)
             await self.robux.robux(ctx, id, robux_number)
 
-
     @commands.command()
     async def inventory(self, ctx, id, type_object, number):
         """it adds or remove every type of item from inventory"""
@@ -99,7 +98,6 @@ class Admin(commands.Cog, name="Owner"):
         if await self.passAdminCheck(ctx):
             number = int(number)
             await self.inventory.buy_object(ctx, id, type_object, number)
-
 
     @commands.command()
     async def getRobuxList(self, ctx):
@@ -112,7 +110,9 @@ class Admin(commands.Cog, name="Owner"):
                 description += f"<@{index[0]}> : {self.mysql_connection.get_emoji_icon(1)} {index[1]}\n"
 
                 if len(description) > 3000 and len(description) < 4096:
-                    embed = discord.Embed(title="Robux user list", description=description)
+                    embed = discord.Embed(
+                        title="Robux user list", description=description
+                    )
                     await ctx.send(embed=embed)
                     description = ""
 
@@ -120,15 +120,13 @@ class Admin(commands.Cog, name="Owner"):
                 embed = discord.Embed(title="Robux user list", description=description)
                 await ctx.send(embed=embed)
 
-
     @commands.command()
-    async def addBadge(self, ctx, name, emoji, description = "no description"):
+    async def addBadge(self, ctx, name, emoji, description="no description"):
         """it adds badge to database"""
 
         if await self.passAdminCheck(ctx):
             self.mysql_connection.add_badge(name, description, emoji)
             await ctx.reply("badge activated")
-
 
     @commands.command()
     async def removeBadge(self, ctx, emoji):
@@ -136,12 +134,13 @@ class Admin(commands.Cog, name="Owner"):
 
         if await self.passAdminCheck(ctx):
             badge_id = self.mysql_connection.get_badge_by_icon(emoji)
-            if not self.mysql_connection.is_exist("badge_id", badge_id, "badges", "badge_id"):
+            if not self.mysql_connection.is_exist(
+                "badge_id", badge_id, "badges", "badge_id"
+            ):
                 self.mysql_connection.remove_badges(badge_id)
                 await ctx.reply("badge disabled")
             else:
                 await ctx.reply("badge doesn't exist")
-
 
     @commands.command()
     async def addBadgeUser(self, ctx, id, emoji):
@@ -149,19 +148,22 @@ class Admin(commands.Cog, name="Owner"):
         if await self.passAdminCheck(ctx):
             badge_id = self.mysql_connection.get_badge_by_icon(emoji)
 
-            if not self.mysql_connection.is_exist_composite("user_id", "badge_id", id, badge_id, "inventories", "received"):
+            if not self.mysql_connection.is_exist_composite(
+                "user_id", "badge_id", id, badge_id, "inventories", "received"
+            ):
                 await ctx.reply(f"<@{id}>, you already have the badge")
                 return
-            
-            if not self.mysql_connection.is_exist("badge_id", badge_id, "badges", "badge_id"):
+
+            if not self.mysql_connection.is_exist(
+                "badge_id", badge_id, "badges", "badge_id"
+            ):
                 if self.mysql_connection.is_exist("user_id", id, "users", "user_id"):
                     self.mysql_connection.add_user(id)
-                    
+
                 self.mysql_connection.add_badge_to_user(id, badge_id)
                 await ctx.reply(f"<@{id}> gets {emoji} badge")
             else:
                 await ctx.reply("badge doesn't exist")
-
 
     @commands.command()
     async def removeBadgeUser(self, ctx, id, emoji):
@@ -169,16 +171,18 @@ class Admin(commands.Cog, name="Owner"):
         if await self.passAdminCheck(ctx):
             badge_id = self.mysql_connection.get_badge_by_icon(emoji)
 
-            if not self.mysql_connection.is_exist("badge_id", badge_id, "badges", "badge_id"):
-
-                if not self.mysql_connection.is_exist_composite("user_id", "badge_id", id, badge_id, "inventories", "received"):
+            if not self.mysql_connection.is_exist(
+                "badge_id", badge_id, "badges", "badge_id"
+            ):
+                if not self.mysql_connection.is_exist_composite(
+                    "user_id", "badge_id", id, badge_id, "inventories", "received"
+                ):
                     self.mysql_connection.delete_badge_to_user(id, badge_id)
                     await ctx.reply(f"<@{id}> drops {emoji} badge")
-                else:      
+                else:
                     await ctx.reply(f"<@{id}>, you don't have the badge")
             else:
                 await ctx.reply("badge doesn't exist")
-
 
     @commands.command()
     async def getEmoji(self, ctx, msg):
@@ -188,34 +192,31 @@ class Admin(commands.Cog, name="Owner"):
             msg = msg.replace("<", "")
             await ctx.reply(msg)
 
-
-    @commands.command() 
-    async def responding(self, ctx, id_message, id_channel, text): 
-        """you send a message like to bot""" 
+    @commands.command()
+    async def responding(self, ctx, id_message, id_channel, text):
+        """you send a message like to bot"""
 
         if await self.passAdminCheck(ctx):
-            try: 
+            try:
                 channel = self.bot.get_channel(int(id_channel))
                 msg = await channel.fetch_message(id_message)
-                ctx_msg = await self.bot.get_context(msg) 
+                ctx_msg = await self.bot.get_context(msg)
                 await ctx_msg.reply(text)
             except:
                 await ctx.reply("error message or channel not found")
 
-
-
-    @commands.command() 
-    async def disconnect(self, ctx, id_guild): 
-        """disconnect from a specific guild""" 
+    @commands.command()
+    async def disconnect(self, ctx, id_guild):
+        """disconnect from a specific guild"""
 
         if await self.passAdminCheck(ctx):
-            try: 
+            try:
                 guild = self.bot.get_guild(int(id_guild))
                 voice = guild.voice_client
                 await voice.disconnect()
             except:
                 await ctx.reply("error guild not found or already disconnected")
-                
+
 
 async def setup(bot, filter_no_spam, robux, inventory, mysql_connection):
     await bot.add_cog(Admin(bot, filter_no_spam, robux, inventory, mysql_connection))

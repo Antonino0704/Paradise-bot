@@ -1,0 +1,14 @@
+{
+  "name": "paradise-bot",
+  "version": "7.1.6",
+  "scripts": {
+    "prepare": "husky install"
+  },
+  "author": "Hikki",
+  "license": "GNU General Public License v3",
+  "dependencies": {
+    "@commitlint/cli": "^17.6.5",
+    "@commitlint/config-conventional": "^17.6.5",
+    "husky": "^8.0.3"
+  }
+}
