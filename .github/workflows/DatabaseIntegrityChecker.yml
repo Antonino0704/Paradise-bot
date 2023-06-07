@@ -1,0 +1,16 @@
+name: Database Integrity Checker
+on: 
+  pull_request:
+    paths:
+      - "paradiseDatabase.sql"
+jobs:
+  formatCheck:
+    name: Database Integrity Checker
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Project
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: Fail
+        run: exit 1
