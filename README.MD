@@ -56,13 +56,12 @@
   ## Type these commands:
      git clone your fork link
      python -m venv venv
-     npm i
      
   Linux: ```source venv/bin/activate```\
   Windows: ```venv/Scripts/activate```\
   ```cd Paradise-bot```\
   create the database: ```mysql < paradiseDatabase.sql```\
-  install the requirements: ```pip install -r requirements.txt```\
+  install the requirements: ```pip install -r requirements.txt``` and  ```npm i```\
   create a .env file and write into it:
   >token=YourAppToken\
   >address=YourMariaDBServerAddress\
