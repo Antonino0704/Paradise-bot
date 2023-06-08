@@ -194,7 +194,7 @@ class Admin(commands.Cog, name="Owner"):
 
     @commands.command()
     async def responding(self, ctx, id_message, id_channel, text):
-        """you send a message like to bot"""
+        """you send a message as bot"""
 
         if await self.passAdminCheck(ctx):
             try:

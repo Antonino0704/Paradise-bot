@@ -77,7 +77,7 @@ CREATE TABLE `guilds` (
 
 LOCK TABLES `guilds` WRITE;
 /*!40000 ALTER TABLE `guilds` DISABLE KEYS */;
-INSERT INTO `guilds` VALUES ('1005889989315416094','Bot tester 2','$','en','yes',NULL,NULL,'-'),('1108494757073801236','MetaTest','$','en','yes',NULL,NULL,NULL),('704895895485022290','GAYSHIN BOH','$','ja','yes','ud83cudf10speak-bot',NULL,'-'),('717451610254606386','Bot tester','$','it','no','bot-vc','annunci',NULL),('996535243441975326','Paradise!','$','it','no',NULL,NULL,'-');
+INSERT INTO `guilds` VALUES ('1005889989315416094','Bot tester 2','$','en','yes',NULL,NULL,'-'),('1108494757073801236','MetaTest','$','en','yes',NULL,NULL,NULL),('704895895485022290','GAYSHIN BOH','$','ja','yes',NULL,NULL,'-'),('717451610254606386','Bot tester','$','it','no','1006620836440055808','1033095429644095618',NULL),('996535243441975326','Paradise!','$','it','no',NULL,NULL,'-');
 /*!40000 ALTER TABLE `guilds` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -282,4 +282,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2023-06-08  2:04:13
+-- Dump completed on 2023-06-08 18:01:20
