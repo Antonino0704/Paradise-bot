@@ -120,9 +120,8 @@ async def Embed(ctx, description, image):
 
     channel = discord.utils.get(
         ctx.guild.text_channels,
-        name=mysql_connection.get_guild_data(ctx.guild.id, "announcementsChannel"),
+        id=int(mysql_connection.get_guild_data(ctx.guild.id, "announcementsChannel")),
     )
-
     embed = discord.Embed(description=description, timestamp=datetime.datetime.utcnow())
     embed.set_image(url=image)
 

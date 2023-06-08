@@ -61,7 +61,7 @@ class ManagerVC(commands.Cog, name="Manager commands for bot's speech synthesis"
                 if msg.content[0] == data[1]:
                     await self.prefixMethods(msg)
                     return
-                if msg.channel.name == data[2]:
+                if str(msg.channel.id) == data[2]:
                     await self.prefixMethods(msg)
         except IndexError:
             pass
@@ -126,7 +126,6 @@ class ManagerVC(commands.Cog, name="Manager commands for bot's speech synthesis"
                     await channel.connect()
 
                 voice = discord.utils.get(self.bot.voice_clients, guild=msg.guild)
-
                 self.queue[msg.guild.name]["status"] = True
                 voice.play(
                     discord.FFmpegPCMAudio(

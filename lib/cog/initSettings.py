@@ -35,15 +35,13 @@ class InitSettings(commands.Cog, name="Initializing bot settings"):
         channel = discord.utils.get(ctx.guild.text_channels, name=name_channel)
 
         try:
-            if channel is None:
-                await ctx.guild.create_text_channel(name_channel)
-
             if await self.utils.is_ban(ctx, self.filter_no_spam, self.robux):
                 return
 
-            self.mysql_connection.update_guild_data(
-                ctx.guild.id, "channel", name_channel
-            )
+            if channel is None:
+                channel = await ctx.guild.create_text_channel(name_channel)
+
+            self.mysql_connection.update_guild_data(ctx.guild.id, "channel", channel.id)
             await ctx.send("the channel has been set")
         except Exception as e:
             await ctx.reply(e)
@@ -60,11 +58,10 @@ class InitSettings(commands.Cog, name="Initializing bot settings"):
             "guild_id", ctx.guild.id, "guilds", "channel"
         ):
             try:
-                name_channel = self.mysql_connection.get_guild_data(
+                channel_id = self.mysql_connection.get_guild_data(
                     ctx.guild.id, "channel"
                 )
-                channel = discord.utils.get(ctx.guild.text_channels, name=name_channel)
-
+                channel = discord.utils.get(ctx.guild.text_channels, id=int(channel_id))
                 await channel.delete()
                 self.mysql_connection.update_guild_data(ctx.guild.id, "channel", None)
                 await ctx.send("the channel has been deleted")
@@ -82,14 +79,14 @@ class InitSettings(commands.Cog, name="Initializing bot settings"):
         channel = discord.utils.get(ctx.guild.text_channels, name=name_channel)
 
         try:
-            if channel is None:
-                await ctx.guild.create_text_channel(name_channel)
-
             if await self.utils.is_ban(ctx, self.filter_no_spam, self.robux):
                 return
 
+            if channel is None:
+                channel = await ctx.guild.create_text_channel(name_channel)
+
             self.mysql_connection.update_guild_data(
-                ctx.guild.id, "announcementsChannel", name_channel
+                ctx.guild.id, "announcementsChannel", channel.id
             )
             await ctx.send("channel has been set")
         except Exception as e:
@@ -107,10 +104,10 @@ class InitSettings(commands.Cog, name="Initializing bot settings"):
             "guild_id", ctx.guild.id, "guilds", "announcementsChannel"
         ):
             try:
-                name_channel = self.mysql_connection.get_guild_data(
+                channel_id = self.mysql_connection.get_guild_data(
                     ctx.guild.id, "announcementsChannel"
                 )
-                channel = discord.utils.get(ctx.guild.text_channels, name=name_channel)
+                channel = discord.utils.get(ctx.guild.text_channels, id=int(channel_id))
 
                 if channel is None:
                     await ctx.reply("the channel doesn't exist")
