@@ -3,11 +3,11 @@ from discord.ext import commands
 from discord import app_commands
 
 import datetime
-import json
 
 from lib.spam_lib import Spam
 from lib.robux import Robux
 from lib.inventory import Inventory
+from lib.utils import Utils
 
 from lib.legacy_cog.admin import Admin as LegacyAdmin
 
@@ -15,9 +15,6 @@ from lib.legacy_cog.admin import Admin as LegacyAdmin
 class Admin(LegacyAdmin, name="Owner"):
     def __init__(self, bot, filter_no_spam, robux, inventory, mysql_connection):
         super().__init__(bot, filter_no_spam, robux, inventory, mysql_connection)
-
-    async def getCtx(self, interaction):
-        return await self.bot.get_context(interaction)
 
     @app_commands.command(
         name="embed-admin", description="it sends embed to all bot's guilds"
@@ -32,7 +29,7 @@ class Admin(LegacyAdmin, name="Owner"):
         description: str,
         url_image: str,
     ):
-        ctx = await self.getCtx(interaction)
+        ctx = await Utils.getCtx(self.bot, interaction)
         if await super().passAdminCheck(ctx):
             embed = discord.Embed(
                 title=title,
@@ -51,7 +48,7 @@ class Admin(LegacyAdmin, name="Owner"):
     @app_commands.command(name="black-list", description="it adds user to blacklist")
     @app_commands.describe(id="user id")
     async def blackList_slash(self, interaction: discord.Interaction, id: str):
-        ctx = await self.getCtx(interaction)
+        ctx = await Utils.getCtx(self.bot, interaction)
         if await super().passAdminCheck(ctx):
             await self.filter_no_spam.add_black_list(ctx, id)
 
@@ -60,7 +57,7 @@ class Admin(LegacyAdmin, name="Owner"):
     )
     @app_commands.describe(id="user id")
     async def removeBlackList_slash(self, interaction: discord.Interaction, id: str):
-        ctx = await self.getCtx(interaction)
+        ctx = await Utils.getCtx(self.bot, interaction)
         if await super().passAdminCheck(ctx):
             await self.filter_no_spam.remove_black_list(interaction, id)
 
@@ -69,7 +66,7 @@ class Admin(LegacyAdmin, name="Owner"):
     )
     @app_commands.describe(words="word or words that will be banned")
     async def addNoWords_slash(self, interaction: discord.Interaction, words: str):
-        ctx = await self.getCtx(interaction)
+        ctx = await Utils.getCtx(self.bot, interaction)
         if await super().passAdminCheck(ctx):
             words = words.replace("\n", " ")
             words = words.split(" ")
@@ -81,7 +78,7 @@ class Admin(LegacyAdmin, name="Owner"):
     )
     @app_commands.describe(words="word or words that will be unbanned")
     async def removeNoWords_slash(self, interaction: discord.Interaction, words: str):
-        ctx = await self.getCtx(interaction)
+        ctx = await Utils.getCtx(self.bot, interaction)
         if await super().passAdminCheck(ctx):
             words = words.replace("\n", " ")
             words = words.split(" ")
@@ -93,7 +90,7 @@ class Admin(LegacyAdmin, name="Owner"):
     @app_commands.describe(id="user id")
     @app_commands.describe(robux_number="number of robux to give")
     async def money(self, interaction: discord.Interaction, id: str, robux_number: int):
-        ctx = await self.getCtx(interaction)
+        ctx = await Utils.getCtx(self.bot, interaction)
         if await super().passAdminCheck(ctx):
             await self.robux.robux(ctx, id, robux_number)
 
@@ -107,7 +104,7 @@ class Admin(LegacyAdmin, name="Owner"):
     async def inventory_slash(
         self, interaction: discord.Interaction, id: str, type_object: str, number: int
     ):
-        ctx = await self.getCtx(interaction)
+        ctx = await Utils.getCtx(self.bot, interaction)
         if await super().passAdminCheck(ctx):
             await self.inventory.buy_object(ctx, id, type_object, number)
 
@@ -116,7 +113,7 @@ class Admin(LegacyAdmin, name="Owner"):
         description="it sends the list of users who have the robux",
     )
     async def getRobuxList_slash(self, interaction: discord.Interaction):
-        if await super().passAdminCheck(await self.getCtx(interaction)):
+        if await super().passAdminCheck(await Utils.getCtx(self.bot, interaction)):
             robux_list = self.mysql_connection.get_robux_list()
             description = ""
             for index in robux_list:
@@ -132,6 +129,7 @@ class Admin(LegacyAdmin, name="Owner"):
             if description != None:
                 embed = discord.Embed(title="Robux user list", description=description)
                 await interaction.channel.send(embed=embed)
+                await interaction.response.defer()
 
     @app_commands.command(
         name="add-badge",
@@ -147,7 +145,7 @@ class Admin(LegacyAdmin, name="Owner"):
         emoji: str,
         description: str = "no description",
     ):
-        if await super().passAdminCheck(await self.getCtx(interaction)):
+        if await super().passAdminCheck(await Utils.getCtx(self.bot, interaction)):
             self.mysql_connection.add_badge(name, description, emoji)
             await interaction.response.send_message("badge activated")
 
@@ -157,7 +155,7 @@ class Admin(LegacyAdmin, name="Owner"):
     )
     @app_commands.describe(emoji="badge emoji")
     async def removeBadge_slash(self, interaction: discord.Interaction, emoji: str):
-        if await super().passAdminCheck(await self.getCtx(interaction)):
+        if await super().passAdminCheck(await Utils.getCtx(self.bot, interaction)):
             badge_id = self.mysql_connection.get_badge_by_icon(emoji)
             if not self.mysql_connection.is_exist(
                 "badge_id", badge_id, "badges", "badge_id"
@@ -176,7 +174,7 @@ class Admin(LegacyAdmin, name="Owner"):
     async def addBadgeUser_slash(
         self, interaction: discord.Interaction, id: str, emoji: str
     ):
-        if await super().passAdminCheck(await self.getCtx(interaction)):
+        if await super().passAdminCheck(await Utils.getCtx(self.bot, interaction)):
             badge_id = self.mysql_connection.get_badge_by_icon(emoji)
 
             if not self.mysql_connection.is_exist_composite(
@@ -207,7 +205,7 @@ class Admin(LegacyAdmin, name="Owner"):
     async def removeBadgeUser_slash(
         self, interaction: discord.Interaction, id: str, emoji: str
     ):
-        if await super().passAdminCheck(await self.getCtx(interaction)):
+        if await super().passAdminCheck(await Utils.getCtx(self.bot, interaction)):
             badge_id = self.mysql_connection.get_badge_by_icon(emoji)
 
             if not self.mysql_connection.is_exist(
@@ -232,7 +230,7 @@ class Admin(LegacyAdmin, name="Owner"):
         description="you get emoji like to string",
     )
     async def getEmoji_slash(self, interaction: discord.Interaction, emoji: str):
-        if await super().passAdminCheck(await self.getCtx(interaction)):
+        if await super().passAdminCheck(await Utils.getCtx(self.bot, interaction)):
             emoji = emoji.replace("<", "")
             await interaction.response.send_message(emoji)
 
@@ -250,7 +248,7 @@ class Admin(LegacyAdmin, name="Owner"):
         id_channel: str,
         text: str,
     ):
-        if await super().passAdminCheck(await self.getCtx(interaction)):
+        if await super().passAdminCheck(await Utils.getCtx(self.bot, interaction)):
             try:
                 channel = self.bot.get_channel(int(id_channel))
                 msg = await channel.fetch_message(id_message)
@@ -267,7 +265,7 @@ class Admin(LegacyAdmin, name="Owner"):
     )
     @app_commands.describe(id_guild="id of the guild from where you want to disconnect")
     async def disconnect_slash(self, interaction: discord.Interaction, id_guild: str):
-        if await super().passAdminCheck(await self.getCtx(interaction)):
+        if await super().passAdminCheck(await Utils.getCtx(self.bot, interaction)):
             try:
                 guild = self.bot.get_guild(int(id_guild))
                 voice = guild.voice_client

@@ -1,177 +1,250 @@
 import discord
 from discord.ext import commands
+from discord import app_commands
 
-import json
+import typing
 
 from lib.utils import Utils
 from lib.spam_lib import Spam
 from lib.robux import Robux
 
+from lib.legacy_cog.initSettings import InitSettings as LegacyInitSettings
 
-class InitSettings(commands.Cog, name="Initializing bot settings"):
+
+class InitSettings(LegacyInitSettings, name="Initializing bot settings"):
     def __init__(self, bot, utils, filter_no_spam, robux, mysql_connection):
-        self.bot = bot
-        self.utils = utils
-        self.filter_no_spam = filter_no_spam
-        self.robux = robux
-        self.mysql_connection = mysql_connection
+        super().__init__(bot, utils, filter_no_spam, robux, mysql_connection)
 
-    @commands.has_permissions(manage_guild=True)
-    @commands.command()
-    async def changePrefix(self, ctx, new_prefix):
-        """it changes the bot prefix"""
-
-        if await self.utils.is_ban(ctx, self.filter_no_spam, self.robux):
-            return
-
-        self.mysql_connection.update_guild_data(ctx.guild.id, "prefix", new_prefix)
-        await ctx.send("new prefix sets")
-
-    @commands.has_permissions(manage_guild=True)
-    @commands.command()
-    async def setChannel(self, ctx, name_channel):
-        """it sets the channel in which all messages are read by the bot"""
-
-        channel = discord.utils.get(ctx.guild.text_channels, name=name_channel)
-
+    @app_commands.command(
+        name="set-channel",
+        description="it sets the channel in which all messages are read by the bot",
+    )
+    @app_commands.checks.has_permissions(manage_guild=True)
+    @app_commands.default_permissions(manage_guild=True)
+    @app_commands.describe(channel="the channel")
+    async def setChannel_slash(
+        self, interaction: discord.Interaction, channel: discord.TextChannel
+    ):
         try:
-            if await self.utils.is_ban(ctx, self.filter_no_spam, self.robux):
+            if await self.utils.is_ban(
+                await Utils.getCtx(self.bot, interaction),
+                self.filter_no_spam,
+                self.robux,
+            ):
                 return
-
-            if channel is None:
-                channel = await ctx.guild.create_text_channel(name_channel)
-
-            self.mysql_connection.update_guild_data(ctx.guild.id, "channel", channel.id)
-            await ctx.send("the channel has been set")
-        except Exception as e:
-            await ctx.reply(e)
-
-    @commands.has_permissions(manage_guild=True)
-    @commands.command()
-    async def removeChannel(self, ctx):
-        """it removes the channel in which all messages are read by the bot"""
-
-        if await self.utils.is_ban(ctx, self.filter_no_spam, self.robux):
-            return
-
-        if not self.mysql_connection.is_exist(
-            "guild_id", ctx.guild.id, "guilds", "channel"
-        ):
-            try:
-                channel_id = self.mysql_connection.get_guild_data(
-                    ctx.guild.id, "channel"
-                )
-                channel = discord.utils.get(ctx.guild.text_channels, id=int(channel_id))
-                await channel.delete()
-                self.mysql_connection.update_guild_data(ctx.guild.id, "channel", None)
-                await ctx.send("the channel has been deleted")
-            except Exception as e:
-                await ctx.reply(e)
-
-        else:
-            await ctx.send("you don't have a channel")
-
-    @commands.has_permissions(manage_guild=True)
-    @commands.command()
-    async def setAnnouncementsChannel(self, ctx, name_channel):
-        """it sets the channel in which the embed command sends the messages"""
-
-        channel = discord.utils.get(ctx.guild.text_channels, name=name_channel)
-
-        try:
-            if await self.utils.is_ban(ctx, self.filter_no_spam, self.robux):
-                return
-
-            if channel is None:
-                channel = await ctx.guild.create_text_channel(name_channel)
 
             self.mysql_connection.update_guild_data(
-                ctx.guild.id, "announcementsChannel", channel.id
+                interaction.guild_id, "channel", channel.id
             )
-            await ctx.send("channel has been set")
+            await interaction.response.send_message(
+                "the channel has been set", ephemeral=True
+            )
         except Exception as e:
-            await ctx.reply(e)
+            await interaction.response.send_message(e)
 
-    @commands.has_permissions(manage_guild=True)
-    @commands.command()
-    async def removeAnnouncementsChannel(self, ctx):
-        """it removes the channel in which the embed command sends the messages"""
-
-        if await self.utils.is_ban(ctx, self.filter_no_spam, self.robux):
+    @app_commands.command(
+        name="remove-channel",
+        description="it removes the channel in which all messages are read by the bot",
+    )
+    @app_commands.checks.has_permissions(manage_guild=True)
+    @app_commands.default_permissions(manage_guild=True)
+    async def removeChannel_slash(self, interaction: discord.Interaction):
+        if await self.utils.is_ban(
+            await Utils.getCtx(self.bot, interaction), self.filter_no_spam, self.robux
+        ):
             return
 
         if not self.mysql_connection.is_exist(
-            "guild_id", ctx.guild.id, "guilds", "announcementsChannel"
+            "guild_id", interaction.guild_id, "guilds", "channel"
         ):
             try:
-                channel_id = self.mysql_connection.get_guild_data(
-                    ctx.guild.id, "announcementsChannel"
-                )
-                channel = discord.utils.get(ctx.guild.text_channels, id=int(channel_id))
-
-                if channel is None:
-                    await ctx.reply("the channel doesn't exist")
-                    return
-
-                await channel.delete()
                 self.mysql_connection.update_guild_data(
-                    ctx.guild.id, "announcementsChannel", None
+                    interaction.guild_id, "channel", None
                 )
-                await ctx.send("channel has been deleted")
+                await interaction.response.send_message(
+                    "the channel has been removed", ephemeral=True
+                )
             except Exception as e:
-                await ctx.reply(e)
+                await interaction.response.send_message(e, ephemeral=True)
 
         else:
-            await ctx.send("you don't have a channel")
+            await interaction.response.send_message(
+                "you don't have a channel", ephemeral=True
+            )
 
-    @commands.has_permissions(manage_guild=True)
-    @commands.command()
-    async def setPrefixVC(self, ctx, prefixVC):
-        """it sets the prefix for the messages that are read by the bot"""
+    @app_commands.command(
+        name="set-announcements-channel",
+        description="it sets the channel in which the embed command sends the messages",
+    )
+    @app_commands.checks.has_permissions(manage_guild=True)
+    @app_commands.default_permissions(manage_guild=True)
+    @app_commands.describe(channel="the channel")
+    async def setAnnouncementsChannel_slash(
+        self, interaction: discord.Interaction, channel: discord.TextChannel
+    ):
+        try:
+            if await self.utils.is_ban(
+                await Utils.getCtx(self.bot, interaction),
+                self.filter_no_spam,
+                self.robux,
+            ):
+                return
 
-        if await self.utils.is_ban(ctx, self.filter_no_spam, self.robux):
-            return
+            self.mysql_connection.update_guild_data(
+                interaction.guild_id, "announcementsChannel", channel.id
+            )
+            await interaction.response.send_message(
+                "channel has been set", ephemeral=True
+            )
+        except Exception as e:
+            await interaction.response.send_message(e, ephemeral=True)
 
-        self.mysql_connection.update_guild_data(ctx.guild.id, "prefixVC", prefixVC)
-        await ctx.send("prefix vocal has been set")
-
-    @commands.has_permissions(manage_guild=True)
-    @commands.command()
-    async def removePrefixVC(self, ctx):
-        """it removes the prefix for the messages the are read by the bot"""
-
-        if await self.utils.is_ban(ctx, self.filter_no_spam, self.robux):
+    @app_commands.command(
+        name="remove-announcements-channel",
+        description="it removes the channel in which the embed command sends the messages",
+    )
+    @app_commands.checks.has_permissions(manage_guild=True)
+    @app_commands.default_permissions(manage_guild=True)
+    async def removeAnnouncementsChannel_slash(self, interaction: discord.Interaction):
+        if await self.utils.is_ban(
+            await Utils.getCtx(self.bot, interaction), self.filter_no_spam, self.robux
+        ):
             return
 
         if not self.mysql_connection.is_exist(
-            "guild_id", ctx.guild.id, "guilds", "prefixVC"
+            "guild_id", interaction.guild_id, "guilds", "announcementsChannel"
         ):
-            self.mysql_connection.update_guild_data(ctx.guild.id, "prefixVC", None)
-            await ctx.send("prefix vocal has been deleted")
+            try:
+                self.mysql_connection.update_guild_data(
+                    interaction.guild_id, "announcementsChannel", None
+                )
+                await interaction.response.send_message(
+                    "channel has been removed", ephemeral=True
+                )
+            except Exception as e:
+                await interaction.response.send_message(e, ephemeral=True)
+
         else:
-            await ctx.send("you don't have a prefixVC")
+            await interaction.response.send_message(
+                "you don't have a channel", ephemeral=True
+            )
 
-    @commands.command()
-    async def setLang(self, ctx, new_lang):
-        """it sets iso language code"""
-
-        if await self.utils.is_ban(ctx, self.filter_no_spam, self.robux):
+    @app_commands.command(
+        name="prefix-vc",
+        description="it sets the prefix for the messages that are read by the bot",
+    )
+    @app_commands.checks.has_permissions(manage_guild=True)
+    @app_commands.default_permissions(manage_guild=True)
+    @app_commands.describe(prefixvc="the prefix vc")
+    async def setPrefixVC_slash(self, interaction: discord.Interaction, prefixvc: str):
+        if await self.utils.is_ban(
+            await Utils.getCtx(self.bot, interaction), self.filter_no_spam, self.robux
+        ):
             return
 
-        self.mysql_connection.update_guild_data(ctx.guild.id, "lang", new_lang)
-        await ctx.send("new lang was set")
+        self.mysql_connection.update_guild_data(
+            interaction.guild_id, "prefixVC", prefixvc
+        )
+        await interaction.response.send_message(
+            "prefix vocal has been set", ephemeral=True
+        )
 
-    @commands.command()
-    async def setFirstLastName(self, ctx, firstName, lastName):
-        """it set your account's firstname and lastname"""
-
-        if await self.utils.is_ban(ctx, self.filter_no_spam, self.robux):
+    @app_commands.command(
+        name="remove-prefix-vc",
+        description="it removes the prefix for the messages the are read by the bot",
+    )
+    @app_commands.checks.has_permissions(manage_guild=True)
+    @app_commands.default_permissions(manage_guild=True)
+    async def removePrefixVC_slash(self, interaction: discord.Interaction):
+        if await self.utils.is_ban(
+            await Utils.getCtx(self.bot, interaction), self.filter_no_spam, self.robux
+        ):
             return
-        id = str(ctx.message.author.id)
+
+        if not self.mysql_connection.is_exist(
+            "guild_id", interaction.guild_id, "guilds", "prefixVC"
+        ):
+            self.mysql_connection.update_guild_data(
+                interaction.guild_id, "prefixVC", None
+            )
+            await interaction.response.send_message(
+                "prefix vocal has been deleted", ephemeral=True
+            )
+        else:
+            await interaction.response.send_message(
+                "you don't have a prefixVC", ephemeral=True
+            )
+
+    async def tts_langs(
+        self,
+        interaction: discord.Interaction,
+        current: str,
+    ) -> typing.List[app_commands.Choice[str]]:
+        choices = [
+            "af",
+            "ar",
+            "bg",
+            "bn",
+            "bs",
+            "ca",
+            "cs",
+            "cy",
+            "da",
+            "de",
+            "el",
+            "en",
+            "eo",
+            "es",
+            "et",
+            "fi",
+            "fr",
+            "gu",
+            "hi",
+            "hr",
+            "hu",
+            "hy",
+            "is",
+            "it",
+            "ja",
+        ]
+        return [
+            app_commands.Choice(name=choice, value=choice)
+            for choice in choices
+            if current.lower() in choice.lower()
+        ]
+
+    @app_commands.command(name="set-lang", description="it sets iso language code")
+    @app_commands.autocomplete(new_lang=tts_langs)
+    async def setLang_slash(self, interaction: discord.Interaction, new_lang: str):
+        if await self.utils.is_ban(
+            await Utils.getCtx(self.bot, interaction), self.filter_no_spam, self.robux
+        ):
+            return
+
+        self.mysql_connection.update_guild_data(interaction.guild_id, "lang", new_lang)
+        await interaction.response.send_message("new lang was set")
+
+    @app_commands.command(
+        name="set-first-last-name",
+        description="it set your account's firstname and lastname",
+    )
+    @app_commands.describe(first_name="your first name")
+    @app_commands.describe(last_name="tyour last name")
+    async def setFirstLastName_slash(
+        self, interaction: discord.Interaction, first_name: str, last_name: str
+    ):
+        if await self.utils.is_ban(
+            await Utils.getCtx(self.bot, interaction), self.filter_no_spam, self.robux
+        ):
+            return
+        id = str(interaction.user.id)
+
         if self.mysql_connection.is_exist("user_id", id, "users", "user_id"):
             self.mysql_connection.add_user(id)
-        self.mysql_connection.update_user_names(id, firstName, lastName)
-        await ctx.send("firstname and lastname was set")
+        self.mysql_connection.update_user_names(id, first_name, last_name)
+        await interaction.response.send_message(
+            "firstname and lastname was set", ephemeral=True
+        )
 
 
 async def setup(bot, utils, filter_no_spam, robux, mysql_connection):

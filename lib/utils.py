@@ -40,3 +40,7 @@ class Utils:
         for icon in icons:
             item_list.append(icon[0])
         return item_list
+
+    @staticmethod
+    async def getCtx(bot, interaction):
+        return await bot.get_context(interaction)
