@@ -1,6 +1,6 @@
 {
   "name": "paradise-bot",
-  "version": "7.2.6",
+  "version": "7.2.7",
   "scripts": {
     "prepare": "husky install"
   },
