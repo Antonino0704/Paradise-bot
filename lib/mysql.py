@@ -303,6 +303,42 @@ class Mysql:
         self.close(db, cursor)
         return " " if len(result) == 0 else result[0][0]
 
+    def get_names_item(self):
+        db = self.connection()
+        cursor = db.cursor()
+        query = "SELECT name FROM items"
+        item_list = []
+        cursor.execute(query)
+        result = cursor.fetchall()
+        self.close(db, cursor)
+        for item in result:
+            item_list.append(item[0])
+        return item_list
+
+    def get_names_badges(self):
+        db = self.connection()
+        cursor = db.cursor()
+        query = "SELECT name FROM badges"
+        item_list = []
+        cursor.execute(query)
+        result = cursor.fetchall()
+        self.close(db, cursor)
+        for item in result:
+            item_list.append(item[0])
+        return item_list
+
+    def get_names_jobs(self):
+        db = self.connection()
+        cursor = db.cursor()
+        query = "SELECT name FROM jobs"
+        item_list = []
+        cursor.execute(query)
+        result = cursor.fetchall()
+        self.close(db, cursor)
+        for item in result:
+            item_list.append(item[0])
+        return item_list
+
     def is_exist(self, pk, table_id, table, attribute):
         db = self.connection()
         cursor = db.cursor()

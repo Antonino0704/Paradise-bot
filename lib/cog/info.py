@@ -2,72 +2,100 @@ import discord
 from discord.ext import commands
 from discord import app_commands
 
-import json
+import typing
 
 from lib.utils import Utils
 from lib.spam_lib import Spam
 from lib.robux import Robux
 
+from lib.legacy_cog.info import Info as LegacyInfo
 
-class Info(commands.Cog, name="Information"):
+
+class Info(LegacyInfo, name="Information"):
     def __init__(self, bot, utils, filter_no_spam, robux, mysql_connection):
-        self.bot = bot
-        self.utils = utils
-        self.filter_no_spam = filter_no_spam
-        self.robux = robux
-        self.mysql_connection = mysql_connection
-        self.gets_item_icon()
+        super().__init__(bot, utils, filter_no_spam, robux, mysql_connection)
+        super().gets_item_icon()
 
-    def gets_item_icon(self):
-        self.item_list = self.utils.gets_item_icon()
+    async def items(
+        self,
+        interaction: discord.Interaction,
+        current: str,
+    ) -> typing.List[app_commands.Choice[str]]:
+        choices = self.mysql_connection.get_names_item()
+        return [
+            app_commands.Choice(name=choice, value=choice)
+            for choice in choices
+            if current.lower() in choice.lower()
+        ]
 
-    @commands.command()
-    async def helpLang(self, ctx):
-        """you get link for iso code language"""
-
-        if await self.utils.is_ban(ctx, self.filter_no_spam, self.robux):
-            return
-        await ctx.send(
-            "all languages code: https://developers.google.com/admin-sdk/directory/v1/languages"
-        )
-
-    @commands.command()
-    async def infoItem(self, ctx, item_name):
-        """shows item information"""
-
+    @app_commands.command(
+        name="info-item",
+        description="it shows item information",
+    )
+    @app_commands.autocomplete(item_name=items)
+    @app_commands.describe(item_name="item name")
+    async def infoItem_slash(self, interaction: discord.Interaction, item_name: str):
         data = self.mysql_connection.get_info("name", item_name, "items")
         if data:
             embed = discord.Embed(title=data[0][0], description=data[0][1])
-            return await ctx.reply(embed=embed)
-        await ctx.reply("item doesn't exist")
+            return await interaction.response.send_message(embed=embed)
+        await interaction.response.send_message("item doesn't exist")
 
-    @commands.command()
-    async def infoJob(self, ctx, work_type):
-        """shows job information
-        work type: criminal, banker, petSeller"""
+    async def badges(
+        self,
+        interaction: discord.Interaction,
+        current: str,
+    ) -> typing.List[app_commands.Choice[str]]:
+        choices = self.mysql_connection.get_names_badges()
+        return [
+            app_commands.Choice(name=choice, value=choice)
+            for choice in choices
+            if current.lower() in choice.lower()
+        ]
 
-        data = self.mysql_connection.get_info("name", work_type, "jobs")
-        if data:
-            embed = discord.Embed(title=data[0][0], description=data[0][1])
-            return await ctx.reply(embed=embed)
-        await ctx.reply("job doesn't exist")
-
-    @commands.command()
-    async def infoBadge(self, ctx, badge_name):
-        """shows badge information"""
-
+    @app_commands.command(
+        name="info-badge",
+        description="it shows badge information",
+    )
+    @app_commands.autocomplete(badge_name=badges)
+    @app_commands.describe(badge_name="badge name")
+    async def infoBadge_slash(self, interaction: discord.Interaction, badge_name: str):
         data = self.mysql_connection.get_info("name", badge_name, "badges")
         if data:
             embed = discord.Embed(title=data[0][0], description=data[0][1])
             embed.set_footer(
-                text=f"you got that: {self.mysql_connection.get_badge_date(ctx.message.author.id, badge_name)}"
+                text=f"you got that: {self.mysql_connection.get_badge_date(interaction.user.id, badge_name)}"
             )
-            return await ctx.reply(embed=embed)
-        await ctx.reply("badge doesn't exist")
+            return await interaction.response.send_message(embed=embed)
+        await interaction.response.send_message("badge doesn't exist")
 
-    # slash command
+    async def works(
+        self,
+        interaction: discord.Interaction,
+        current: str,
+    ) -> typing.List[app_commands.Choice[str]]:
+        choices = self.mysql_connection.get_names_jobs()
+        return [
+            app_commands.Choice(name=choice, value=choice)
+            for choice in choices
+            if current.lower() in choice.lower()
+        ]
+
+    @app_commands.command(
+        name="info-job",
+        description="it shows job information",
+    )
+    @app_commands.autocomplete(work_type=works)
+    @app_commands.describe(work_type="work type")
+    async def infoJob_slash(self, interaction: discord.Interaction, work_type: str):
+        data = self.mysql_connection.get_info("name", work_type, "jobs")
+        if data:
+            embed = discord.Embed(title=data[0][0], description=data[0][1])
+            return await interaction.response.send_message(embed=embed)
+        await interaction.response.send_message("job doesn't exist")
+
     @app_commands.command(name="contact-us")
-    async def contact_us(self, Interaction: discord.Interaction, problem: str):
+    async def contact_us(self, interaction: discord.Interaction, problem: str):
         for guild in self.bot.guilds:
             if (
                 guild.id == 1005889989315416094
@@ -75,19 +103,20 @@ class Info(commands.Cog, name="Information"):
                 user = guild.get_member(533014724569333770)  # your id
 
         await user.send(problem)
-        await Interaction.response.send_message(
+        await interaction.response.send_message(
             f"message sent, we will let you know as soon as possible"
         )
 
-    @commands.command()
-    async def info(self, ctx):
-        """it shows your warns, robux, inventory and job"""
-
-        id_s = str(ctx.message.author.id)
+    @app_commands.command(
+        name="info",
+        description="it shows your warns, robux, inventory and job",
+    )
+    async def info_slash(self, interaction: discord.Interaction):
+        id_s = str(interaction.user.id)
         items = self.mysql_connection.get_pokedex_all(id_s)
-        badges = self.getBadge(id_s)
+        badges = super().getBadge(id_s)
         job = self.mysql_connection.get_user_job(id_s)
-        title = str(ctx.message.author) + badges
+        title = str(interaction.user) + badges
 
         names = self.mysql_connection.get_user_names(id_s, "firstname, lastname")
         names = names[0][0] + " " + names[0][1] if names else "no firstname no lastname"
@@ -102,17 +131,9 @@ class Info(commands.Cog, name="Information"):
         """
 
         embed = discord.Embed(title=title, description=description)
-        embed.set_image(url=ctx.message.author.avatar)
-        # embed.set_image(url=ctx.message.author.avatar_url)
+        embed.set_image(url=interaction.user.avatar)
         embed.set_footer(text=names)
-        await ctx.reply(embed=embed)
-
-    def getBadge(self, id):
-        badge_str = " "
-        badges = self.mysql_connection.get_badge_icon_all(id)
-        for i in badges:
-            badge_str += i[0] + " "
-        return badge_str
+        await interaction.response.send_message(embed=embed, ephemeral=True)
 
 
 async def setup(bot, utils, filter_no_spam, robux, mysql_connection):
