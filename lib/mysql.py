@@ -214,7 +214,7 @@ class Mysql:
         result = cursor.fetchall()
         self.close(db, cursor)
         return False if len(result) == 0 else result[0][0]
-    
+
     def get_item_price(self, item_name):
         db = self.connection()
         cursor = db.cursor()
@@ -227,12 +227,12 @@ class Mysql:
                     WHERE name = %s
                 )
                 """
-        data = (item_name, )
+        data = (item_name,)
         cursor.execute(query, data)
         result = cursor.fetchall()
         self.close(db, cursor)
         return False if len(result) == 0 else result[0]
-    
+
     def get_item_shop(self):
         db = self.connection()
         cursor = db.cursor()

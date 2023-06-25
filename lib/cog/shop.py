@@ -11,14 +11,13 @@ from lib.utils import Utils
 
 from lib.legacy_cog.shop import Shop as LegacyShop
 
+
 class Shop(LegacyShop, name="Shop"):
     def __init__(self, bot, utils, filter_no_spam, robux, inventory, mysql_connection):
         super().__init__(bot, utils, filter_no_spam, robux, inventory, mysql_connection)
         super().gets_item_icon()
 
-    @app_commands.command(
-        name="shop", description="it shown the shop"
-    )
+    @app_commands.command(name="shop", description="it shown the shop")
     async def shop_slash(self, interaction: discord.Interaction):
         arrow = "<:4596froggyarrow:1011296133131292692>"
         title = f"{interaction.user.name} welcome at shop"
@@ -41,7 +40,7 @@ class Shop(LegacyShop, name="Shop"):
             str_output += f"**Get a {item[0].replace('_', ' ')}: {self.item_list[0]} {item[2]}** {arrow} `/Buy`\n"
             str_output += f"**description: {item[1]}**\n\n"
         return str_output
-    
+
     def roles_shop_slash(self, interaction, arrow):
         data = self.mysql_connection.get_role_id_price(interaction.guild_id)
         string = ""
@@ -50,15 +49,15 @@ class Shop(LegacyShop, name="Shop"):
                 string += f"<@&{role[0]}> : {self.item_list[0]} {role[1]} {arrow}  /buy-role\n"
             return string
         return None
-    
-    
+
     @app_commands.command(
-        name="share",
-        description="you can share your robux with your friends"    
+        name="share", description="you can share your robux with your friends"
     )
     @app_commands.describe(user="user who recived robux")
     @app_commands.describe(robux_number="number of robux to give")
-    async def share_slash(self, interaction: discord.Interaction, user: discord.Member, robux_number: int):
+    async def share_slash(
+        self, interaction: discord.Interaction, user: discord.Member, robux_number: int
+    ):
         ctx = await Utils.getCtx(self.bot, interaction)
         robux_number = robux_number if robux_number >= 0 else -robux_number
 
@@ -71,9 +70,10 @@ class Shop(LegacyShop, name="Shop"):
             await self.robux.robux(ctx, user.id, robux_number)
             await self.robux.robux(ctx, id, -price)
         else:
-            await interaction.response.send_message(f"<@{id}> doesn't have enough <:robux:1010974169552404551>")
+            await interaction.response.send_message(
+                f"<@{id}> doesn't have enough <:robux:1010974169552404551>"
+            )
 
-        
     @app_commands.command(
         name="rban", description="payment 40 robux to remove from blacklist"
     )
@@ -87,10 +87,13 @@ class Shop(LegacyShop, name="Shop"):
             if await self.filter_no_spam.remove_black_list(ctx, id):
                 await self.robux.payment(ctx, id, price)
         else:
-            await interaction.response.send_message(f"<@{id}> doesn't have enough <:robux:1010974169552404551>")
+            await interaction.response.send_message(
+                f"<@{id}> doesn't have enough <:robux:1010974169552404551>"
+            )
 
     @app_commands.command(
-        name="change-activity", description="payment 10 robux to change activity of the bot"
+        name="change-activity",
+        description="payment 10 robux to change activity of the bot",
     )
     @app_commands.describe(game="the game that will be shown in the state")
     async def ChangeActivity_slash(self, interaction: discord.Interaction, game: str):
@@ -100,10 +103,14 @@ class Shop(LegacyShop, name="Shop"):
         game = self.filter_no_spam.censured(game)
         if pokedex >= price:
             await self.bot.change_presence(activity=discord.Game(name=game))
-            await self.robux.payment(await Utils.getCtx(self.bot, interaction), id, price)
+            await self.robux.payment(
+                await Utils.getCtx(self.bot, interaction), id, price
+            )
         else:
-            await interaction.response.send_message(f"<@{id}> doesn't have enough <:robux:1010974169552404551>")
-    
+            await interaction.response.send_message(
+                f"<@{id}> doesn't have enough <:robux:1010974169552404551>"
+            )
+
     async def items(
         self,
         interaction: discord.Interaction,
@@ -117,9 +124,7 @@ class Shop(LegacyShop, name="Shop"):
             if current.lower() in choice.lower()
         ]
 
-    @app_commands.command(
-        name="buy", description="you can buy an item"
-    )
+    @app_commands.command(name="buy", description="you can buy an item")
     @app_commands.autocomplete(item_name=items)
     @app_commands.describe(item_name="item name")
     async def buy(self, interaction: discord.Interaction, item_name: str):
@@ -127,52 +132,58 @@ class Shop(LegacyShop, name="Shop"):
         id = str(interaction.user.id)
 
         if self.mysql_connection.is_exist("name", item_name, "items", "item_id"):
-            await interaction.response.send_message("sorry we don't have this article yet")
+            await interaction.response.send_message(
+                "sorry we don't have this article yet"
+            )
             return
-        
+
         pokedex = self.mysql_connection.get_pokedex(id, 1)
         price = self.mysql_connection.get_item_price(item_name)[0]
 
         if item_name == "wallet" and not self.mysql_connection.is_exist_composite(
-                "user_id", "item_id", id, 5, "pokedex", "amount"
-            ):
-                await interaction.response.send_messag("you already have a wallet")
-                return
-        
+            "user_id", "item_id", id, 5, "pokedex", "amount"
+        ):
+            await interaction.response.send_messag("you already have a wallet")
+            return
+
         if pokedex >= price:
             await self.inventory.buy_object(ctx, id, item_name, 1)
             await self.robux.payment(ctx, id, price)
             return True
         else:
-            await interaction.response.send_message(f"<@{id}> doesn't have enough <:robux:1010974169552404551>")
+            await interaction.response.send_message(
+                f"<@{id}> doesn't have enough <:robux:1010974169552404551>"
+            )
             return False
-        
-    
-    #roles
+
+    # roles
     @app_commands.checks.has_permissions(manage_guild=True)
     @app_commands.default_permissions(manage_guild=True)
-    @app_commands.command(
-        name="role-forsale", description="you add role for sale"
-    )
+    @app_commands.command(name="role-forsale", description="you add role for sale")
     @app_commands.describe(role="role for sale")
     @app_commands.describe(price="the price of role")
-    async def addRoleForSale_slash(self, interaction: discord.Interaction, role: discord.Role, price: int):
+    async def addRoleForSale_slash(
+        self, interaction: discord.Interaction, role: discord.Role, price: int
+    ):
         try:
             self.mysql_connection.add_role(
                 str(role.id), role.name, int(price), interaction.guild_id
             )
-            await interaction.response.send_message(f"role added for <:robux:1010974169552404551> {price}")
+            await interaction.response.send_message(
+                f"role added for <:robux:1010974169552404551> {price}"
+            )
         except Exception as e:
             await interaction.response.send_message(e)
 
-    
-    @app_commands.checks.has_permissions(manage_guild=True) #remove-role-forsale
+    @app_commands.checks.has_permissions(manage_guild=True)  # remove-role-forsale
     @app_commands.default_permissions(manage_guild=True)
     @app_commands.command(
         name="remove-rolesale", description="you remove role for sale"
     )
     @app_commands.describe(role="role for sale")
-    async def removeRoleForSale_slash(self, interaction: discord.Interaction, role: discord.Role):
+    async def removeRoleForSale_slash(
+        self, interaction: discord.Interaction, role: discord.Role
+    ):
         role_id = str(role.id)
 
         if not self.mysql_connection.is_exist("role_id", role_id, "roles", "name"):
@@ -184,11 +195,13 @@ class Shop(LegacyShop, name="Shop"):
                 await interaction.response.send_message(e)
                 return
 
-        await interaction.response.send_message("the role has not been added to the roles for sale")
-
+        await interaction.response.send_message(
+            "the role has not been added to the roles for sale"
+        )
 
     @app_commands.command(
-        name="buy-role", description="payment of tot robux chosen by the guild owner to buy roles"
+        name="buy-role",
+        description="payment of tot robux chosen by the guild owner to buy roles",
     )
     @app_commands.describe(role="the role you want to buy")
     async def BuyRole_slash(self, interaction: discord.Interaction, role: discord.Role):
@@ -213,7 +226,9 @@ class Shop(LegacyShop, name="Shop"):
                     f"<@{id}> doesn't have enough <:robux:1010974169552404551>"
                 )
         else:
-            await interaction.response.send_message(f"<@&{role.id}> isn't on role for sale")
+            await interaction.response.send_message(
+                f"<@&{role.id}> isn't on role for sale"
+            )
 
 
 async def setup(bot, utils, filter_no_spam, robux, inventory, mysql_connection):

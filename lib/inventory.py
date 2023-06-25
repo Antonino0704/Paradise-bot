@@ -11,7 +11,7 @@ class Inventory:
         if self.mysql_connection.is_exist("name", type_object, "items", "item_id"):
             await ctx.resply("sorry we don't have this article yet")
             return
-        
+
         await self.type_object(ctx, id, type_object, num)
 
     def is_not_exist(self, id, type_object):
@@ -24,7 +24,7 @@ class Inventory:
             self.mysql_connection.add_item_to_user(id, type_object)
 
         return self.mysql_connection.get_pokedex(id, type_object)
-    
+
     async def type_object(self, ctx, id, type_object, num):
         id_object = self.mysql_connection.get_item_price(type_object)[1]
         emoji = self.mysql_connection.get_emoji_icon(id_object)
