@@ -207,13 +207,44 @@ class Mysql:
         query = """
                 SELECT amount
                 FROM pokedex
-                WHERE user_id = %s and item_id = %s
+                WHERE user_id = %s AND item_id = %s
                 """
         data = (user_id, item_id)
         cursor.execute(query, data)
         result = cursor.fetchall()
         self.close(db, cursor)
         return False if len(result) == 0 else result[0][0]
+    
+    def get_item_price(self, item_name):
+        db = self.connection()
+        cursor = db.cursor()
+        query = """
+                SELECT price, item_id
+                FROM items
+                WHERE item_id = (
+                    SELECT item_id 
+                    FROM items
+                    WHERE name = %s
+                )
+                """
+        data = (item_name, )
+        cursor.execute(query, data)
+        result = cursor.fetchall()
+        self.close(db, cursor)
+        return False if len(result) == 0 else result[0]
+    
+    def get_item_shop(self):
+        db = self.connection()
+        cursor = db.cursor()
+        query = """
+                SELECT name, description, price
+                FROM items
+                WHERE item_id != 1
+                """
+        cursor.execute(query)
+        result = cursor.fetchall()
+        self.close(db, cursor)
+        return False if len(result) == 0 else result
 
     def get_pokedex_all(self, user_id):
         db = self.connection()
