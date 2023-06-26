@@ -370,6 +370,21 @@ class Mysql:
             item_list.append(item[0])
         return item_list
 
+    def get_events(self):
+        db = self.connection()
+        cursor = db.cursor()
+        query = """
+                SELECT icon, events.name, events.start, events.end, events.limit
+                FROM `events`
+                    INNER JOIN users ON users.user_id = events.user_id
+                    INNER JOIN badges ON badges.badge_id = events.badge_id
+                WHERE DATEDIFF(CURDATE(), finish_at) < 0
+                """
+        cursor.execute(query)
+        result = cursor.fetchall()
+        self.close(db, cursor)
+        return " " if len(result) == 0 else result
+
     def is_exist(self, pk, table_id, table, attribute):
         db = self.connection()
         cursor = db.cursor()

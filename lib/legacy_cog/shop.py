@@ -200,7 +200,7 @@ class Shop(commands.Cog, name="Shop"):
     @commands.has_permissions(manage_guild=True)
     @commands.command()
     async def addRoleForSale(self, ctx, name_role, price, hex_color="0x00ff00"):
-        """ "⚠ This command is deprecated, instead use /role-forsale ⚠
+        """⚠ This command is deprecated, instead use /role-forsale ⚠
         you add role for sale, the bot must have permissions to add the role and for every purchase a commission equal to 10%
         with an approximation of an amount equal to or greater than 10 robux to borne by owner
         """
