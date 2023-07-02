@@ -51,52 +51,18 @@ class Events(commands.Cog, name="events"):
             msg = await channel.fetch_message(payload.message_id)
             ctx = await self.bot.get_context(msg)
 
-            # halloween
-            if (
-                msg.content
-                == f"{self.halloween_emoji}Happy Halloween{self.halloween_emoji}"
-                and msg.author == self.bot.user
-            ):
-                await self.event_award(
-                    ctx,
-                    str(payload.user_id),
-                    str(payload.emoji),
-                    msg,
-                    "halloween",
-                    "halloweenAward",
-                )
-
-            # christmas
-            if (
-                msg.content == f"{self.christmas}Happy christmas{self.christmas}"
-                and msg.author == self.bot.user
-            ):
-                await self.event_award(
-                    ctx,
-                    str(payload.user_id),
-                    str(payload.emoji),
-                    msg,
-                    "christmas",
-                    "christmas",
-                )
-
-            # 2023year
-            if (
-                msg.content == f"{self.new_year2023}Happy new year{self.new_year2023}"
-                and msg.author == self.bot.user
-            ):
-                await self.event_award(
-                    ctx,
-                    str(payload.user_id),
-                    str(payload.emoji),
-                    msg,
-                    "new year",
-                    "2023",
-                )
+            for event in self.mysql_connection.get_events():
+                if (
+                    msg.content == f"{event[0]}Happy {event[1]}{event[0]}"
+                    and msg.author == self.bot.user
+                ):
+                    await self.event_award(
+                        ctx, str(payload.user_id), str(payload.emoji), msg, event[1]
+                    )
 
         await points()
 
-    async def event_award(self, ctx, id, badge_icon, msg, name_event, badge_name):
+    async def event_award(self, ctx, id, badge_icon, msg, name_event):
         if await self.utils.is_ban(ctx, self.filter_no_spam, self.robux):
             return
 

@@ -6,7 +6,6 @@ from gtts import gTTS
 from dotenv import load_dotenv
 import json
 import os
-import datetime
 import asyncio
 
 from lib.utils import Utils
@@ -23,6 +22,8 @@ from lib.cog.info import Info
 from lib.cog.managerVC import ManagerVC
 from lib.cog.work import Work
 from lib.cog.events import Events
+from lib.cog.noCategory import noCategory
+from lib.cog.developer import Developer
 
 
 load_dotenv()
@@ -70,67 +71,6 @@ async def on_guild_update(before, after):
         queue_init(after.name)
 
 
-@bot.event
-async def on_raw_reaction_add(payload):
-    emj = mysql_connection.get_emoji_icon(1)
-    if bot.get_user(payload.user_id) == bot.user or str(payload.emoji) != emj:
-        return
-
-    async def points():
-        channel = bot.get_channel(payload.channel_id)
-        msg = await channel.fetch_message(payload.message_id)
-        ctx = await bot.get_context(msg)
-        if (
-            msg.content
-            == f"{emj} oh! a wild robux appeared, use the reaction to win it!!"
-            and msg.author == bot.user
-        ):
-            if await utils.is_ban(ctx, filter_no_spam, robux):
-                return
-
-            await msg.clear_reactions()
-            await msg.edit(content=f"<@{payload.user_id}> you win!")
-            try:
-                await robux.robux(ctx, str(payload.user_id), 1)
-            except Exception:
-                await asyncio.sleep(10)
-                await robux.robux(ctx, str(payload.user_id), 1)
-
-    try:
-        await points()
-    except Exception:
-        await bot.get_channel(payload.channel_id).send(
-            f"<@{payload.user_id}> sorry, something went wrong"
-        )
-
-
-@bot.command()
-async def Embed(ctx, description, image):
-    """you send an embed on Announcements Channel"""
-
-    if await utils.is_ban(ctx, filter_no_spam, robux):
-        return
-
-    if mysql_connection.is_exist(
-        "guild_id", ctx.guild.id, "guilds", "announcementsChannel"
-    ):
-        prefix = mysql_connection.get_guild_data(ctx.guild.id, "prefix")
-        await ctx.send(f"set an announcements channel, {prefix}setAnnouncementsChannel")
-        return
-
-    channel = discord.utils.get(
-        ctx.guild.text_channels,
-        id=int(mysql_connection.get_guild_data(ctx.guild.id, "announcementsChannel")),
-    )
-    embed = discord.Embed(description=description, timestamp=datetime.datetime.utcnow())
-    embed.set_image(url=image)
-
-    await channel.send(embed=embed)
-
-
-# bot.run(token)
-
-
 async def load_cogs():
     # cog
     await bot.add_cog(Admin(bot, filter_no_spam, robux, inventory, mysql_connection))
@@ -159,6 +99,10 @@ async def load_cogs():
     await bot.add_cog(Work(bot, utils, filter_no_spam, robux, mysql_connection))
 
     await bot.add_cog(Events(bot, utils, filter_no_spam, robux, mysql_connection))
+
+    await bot.add_cog(noCategory(bot, utils, filter_no_spam, robux, mysql_connection))
+
+    await bot.add_cog(Developer(bot, mysql_connection))
 
 
 async def main():

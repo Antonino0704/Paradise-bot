@@ -24,11 +24,19 @@
    type $help to learn all commands
     
 # News
-## Fixed bugs
-   Updated discord py version and now voice commands work again
+## All slash commands
+   * All commands will be with the new discord slash mode
 
-## New slash command
-   New slash command to report a problem /contact-us
+   * ### Can I use the old commands?
+      >yes you can use them, but you consider they might not work
+
+   * ### Will the old commands receive updates?
+      >No, they won't no longer be supported and they won't receive updates
+
+## For Developers
+   * We maintained compatibility with the old commands, the old classes have been moved to the legacy_cog folder. The new classes inherit all the old methods + the new slash commands. The old commands will no longer receive support and they will be exposed to possible breakage. Not all methods of old classes are deprecated, to find out if a method will no longer be supported you check if the PendingDeprecationWarning comment is present
+
+   * we also improved events and shop management and we created special commands developers only
     
  
 # Known bugs
