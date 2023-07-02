@@ -201,6 +201,20 @@ class Mysql:
         self.close(db, cursor)
         return False if len(result) == 0 else result[0][0]
 
+    def get_item_by_icon(self, icon):
+        db = self.connection()
+        cursor = db.cursor()
+        query = """
+                SELECT item_id
+                FROM items
+                WHERE icon = %s
+                """
+        data = (icon,)
+        cursor.execute(query, data)
+        result = cursor.fetchall()
+        self.close(db, cursor)
+        return False if len(result) == 0 else result[0][0]
+
     def get_pokedex(self, user_id, item_id):
         db = self.connection()
         cursor = db.cursor()
@@ -383,7 +397,7 @@ class Mysql:
         cursor.execute(query)
         result = cursor.fetchall()
         self.close(db, cursor)
-        return " " if len(result) == 0 else result
+        return False if len(result) == 0 else result
 
     def is_exist(self, pk, table_id, table, attribute):
         db = self.connection()
@@ -412,6 +426,21 @@ class Mysql:
         result = cursor.fetchall()
         self.close(db, cursor)
         return True if len(result) == 0 else result[0][0]
+
+    def check_privileges(self, user_id, privilege_id):
+        db = self.connection()
+        cursor = db.cursor()
+        query = f"""
+                SELECT badges.badge_id
+                FROM badges
+                    INNER JOIN inventories ON inventories.badge_id = badges.badge_id
+                WHERE user_id = %s AND inventories.badge_id = %s
+                """
+        data = (user_id, privilege_id)
+        cursor.execute(query, data)
+        result = cursor.fetchall()
+        self.close(db, cursor)
+        return False if len(result) == 0 else result[0][0]
 
     def add_noWords(self, word):
         db = self.connection()
@@ -594,6 +623,44 @@ class Mysql:
                 VALUES (%s, %s)
                 """
         data = (str(user_id), item_id)
+        cursor.execute(query, data)
+        db.commit()
+        self.close(db, cursor)
+
+    def add_event(
+        self, name, description, user_id, badge_id, finish_at, start, end, limit
+    ):
+        db = self.connection()
+        cursor = db.cursor()
+        query = """
+            INSERT INTO events(name, description, user_id, badge_id, create_at, finish_at, start, end, `limit`)
+            VALUES (%s, %s, %s, %s, NOW(), %s, %s, %s, %s)
+            """
+        data = (name, description, str(user_id), badge_id, finish_at, start, end, limit)
+        cursor.execute(query, data)
+        db.commit()
+        self.close(db, cursor)
+
+    def add_item(self, name, description, icon, price):
+        db = self.connection()
+        cursor = db.cursor()
+        query = """
+                INSERT INTO items(name, description, icon, price)
+                VALUES (%s, %s, %s, %s)
+                """
+        data = (name, description, icon, price)
+        cursor.execute(query, data)
+        db.commit()
+        self.close(db, cursor)
+
+    def remove_items(self, item_id):
+        db = self.connection()
+        cursor = db.cursor()
+        query = f"""
+                DELETE FROM items
+                WHERE item_id = %s
+                """
+        data = (item_id,)
         cursor.execute(query, data)
         db.commit()
         self.close(db, cursor)

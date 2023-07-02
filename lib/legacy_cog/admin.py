@@ -18,11 +18,10 @@ class Admin(commands.Cog, name="Owner"):
         self.mysql_connection = mysql_connection
 
     async def passAdminCheck(self, ctx):
-        id = self.mysql_connection.get_user_data(
-            str(ctx.message.author.id), "privilege"
+        ADMIN_PRIVILEGE = self.mysql_connection.check_privileges(
+            str(ctx.message.author.id), 7
         )
-        ADMIN_PRIVILEGE = 1
-        if id != ADMIN_PRIVILEGE:
+        if not ADMIN_PRIVILEGE:
             await ctx.reply("You don't have permission to use this command")
             return False
         return True

@@ -275,6 +275,116 @@ class Admin(LegacyAdmin, name="Owner"):
                     "error guild not found or already disconnected"
                 )
 
+    @app_commands.command(
+        name="event",
+        description="it starts an event",
+    )
+    @app_commands.describe(name="event name")
+    @app_commands.describe(description="event description")
+    @app_commands.describe(emoji="event badge")
+    @app_commands.describe(finish_at="when the event finishes")
+    @app_commands.describe(start="start number range obtaining")
+    @app_commands.describe(end="end number range obtaining")
+    @app_commands.describe(limit="max range 1 to limit")
+    async def event(
+        self,
+        interaction: discord.Interaction,
+        name: str,
+        emoji: str,
+        finish_at: str,
+        start: int,
+        end: int,
+        limit: int,
+        description: str = "No Description",
+    ):
+        if await super().passAdminCheck(await Utils.getCtx(self.bot, interaction)):
+            badge_id = self.mysql_connection.get_badge_by_icon(emoji)
+
+            if not self.mysql_connection.is_exist(
+                "badge_id", badge_id, "badges", "badge_id"
+            ):
+                self.mysql_connection.add_event(
+                    name,
+                    description,
+                    interaction.user.id,
+                    badge_id,
+                    finish_at,
+                    start,
+                    end,
+                    limit,
+                )
+                await interaction.response.send_message(
+                    f"<@{interaction.user.id}> created {emoji}{name} event"
+                )
+            else:
+                await interaction.response.send_message("badge doesn't exist")
+
+    @app_commands.command(
+        name="add-item",
+        description="it adds items to database",
+    )
+    @app_commands.describe(name="item name")
+    @app_commands.describe(description="item description")
+    @app_commands.describe(emoji="emoji associated")
+    @app_commands.describe(price="item price")
+    async def addItem(
+        self,
+        interaction: discord.Interaction,
+        name: str,
+        description: str,
+        emoji: str,
+        price: int,
+    ):
+        if await super().passAdminCheck(await Utils.getCtx(self.bot, interaction)):
+            self.mysql_connection.add_item(name, description, emoji, price)
+            await interaction.response.send_message("item added")
+
+    @app_commands.command(
+        name="remove-item",
+        description="it removes item from database",
+    )
+    @app_commands.describe(emoji="item emoji")
+    async def removeItem(self, interaction: discord.Interaction, emoji: str):
+        if await super().passAdminCheck(await Utils.getCtx(self.bot, interaction)):
+            item_id = self.mysql_connection.get_item_by_icon(emoji)
+            if not self.mysql_connection.is_exist(
+                "item_id", item_id, "items", "item_id"
+            ):
+                self.mysql_connection.remove_items(item_id)
+                await interaction.response.send_message("item deleted")
+            else:
+                await interaction.response.send_message("item doesn't exist")
+
+    @app_commands.command(
+        name="item-user",
+        description="it adds item to user",
+    )
+    @app_commands.describe(id="user id")
+    @app_commands.describe(emoji="item emoji")
+    @app_commands.describe(number="quantity")
+    async def addItemUser(
+        self, interaction: discord.Interaction, id: str, emoji: str, number: int
+    ):
+        if await super().passAdminCheck(await Utils.getCtx(self.bot, interaction)):
+            item_id = self.mysql_connection.get_item_by_icon(emoji)
+
+            if not self.mysql_connection.is_exist(
+                "item_id", item_id, "items", "item_id"
+            ):
+                if self.mysql_connection.is_exist("user_id", id, "users", "user_id"):
+                    self.mysql_connection.add_user(id)
+
+                if self.mysql_connection.is_exist_composite(
+                    "user_id", "item_id", id, item_id, "pokedex", "amount"
+                ):
+                    self.mysql_connection.add_item_to_user(id, item_id)
+
+                amount = self.mysql_connection.get_pokedex(id, item_id)
+                self.mysql_connection.update_pokedex(id, item_id, amount + number)
+                await interaction.response.send_message(f"{number} {emoji} to <@{id}>")
+            else:
+                await interaction.response.send_message("item doesn't exist")
+
 
 async def setup(bot, filter_no_spam, robux, inventory, mysql_connection):
     await bot.add_cog(Admin(bot, filter_no_spam, robux, inventory, mysql_connection))
