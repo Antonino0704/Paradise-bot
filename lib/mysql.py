@@ -664,3 +664,46 @@ class Mysql:
         cursor.execute(query, data)
         db.commit()
         self.close(db, cursor)
+
+    # for developer
+    def users_badges_list(self):
+        db = self.connection()
+        cursor = db.cursor()
+        query = f"""
+                SELECT icon, COUNT(user_id)
+                FROM inventories
+                    INNER JOIN badges ON badges.badge_id = inventories.badge_id
+                GROUP BY inventories.badge_id
+                """
+        cursor.execute(query)
+        result = cursor.fetchall()
+        self.close(db, cursor)
+        return result
+
+    def users_items_list(self):
+        db = self.connection()
+        cursor = db.cursor()
+        query = f"""
+                SELECT icon, COUNT(user_id)
+                FROM pokedex
+                    INNER JOIN items ON items.item_id = pokedex.item_id
+                GROUP BY pokedex.item_id 
+                """
+        cursor.execute(query)
+        result = cursor.fetchall()
+        self.close(db, cursor)
+        return result
+
+    def how_items_list(self):
+        db = self.connection()
+        cursor = db.cursor()
+        query = f"""
+                SELECT icon, SUM(amount)
+                FROM pokedex
+                    INNER JOIN items ON items.item_id = pokedex.item_id
+                GROUP BY pokedex.item_id
+                """
+        cursor.execute(query)
+        result = cursor.fetchall()
+        self.close(db, cursor)
+        return result

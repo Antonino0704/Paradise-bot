@@ -23,6 +23,7 @@ from lib.cog.managerVC import ManagerVC
 from lib.cog.work import Work
 from lib.cog.events import Events
 from lib.cog.noCategory import noCategory
+from lib.cog.developer import Developer
 
 
 load_dotenv()
@@ -100,6 +101,8 @@ async def load_cogs():
     await bot.add_cog(Events(bot, utils, filter_no_spam, robux, mysql_connection))
 
     await bot.add_cog(noCategory(bot, utils, filter_no_spam, robux, mysql_connection))
+
+    await bot.add_cog(Developer(bot, mysql_connection))
 
 
 async def main():
