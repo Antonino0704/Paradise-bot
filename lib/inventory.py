@@ -35,7 +35,7 @@ class Inventory:
             await ctx.reply(f"you don't have enough {item_name}s!! {emoji}")
             return
 
-        self.mysql_connection.update_pokedex(id, 2, amount + num)
+        self.mysql_connection.update_pokedex(id, id_object, amount + num)
         await ctx.reply(f"you have got {type_object.replace('_', ' ')} {emoji}")
 
     @DeprecationWarning

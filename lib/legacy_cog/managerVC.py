@@ -80,10 +80,12 @@ class ManagerVC(commands.Cog, name="Manager commands for bot's speech synthesis"
 
     async def events(self, ctx):
         await self.robux.catch(ctx)
-        for event in self.mysql_connection.get_events():
-            await Events.event_message(
-                ctx, event[0], event[1], event[2], event[3], event[4]
-            )
+        events = self.mysql_connection.get_events()
+        if events:
+            for event in events:
+                await Events.event_message(
+                    ctx, event[0], event[1], event[2], event[3], event[4]
+                )
 
     def finish(self, msg):
         try:
