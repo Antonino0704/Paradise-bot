@@ -88,6 +88,4 @@
    }
 </style>
 # Author
-   <p class="socials"> 
-      <a href="https://beacons.ai/_hikki_"> Antonino Buscarino </a>
-   </p>
+   [Antonino Buscarino](https://beacons.ai/_hikki_)
