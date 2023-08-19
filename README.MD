@@ -79,13 +79,7 @@
   >ffmpeg=PathFFmpegFolder
   
   run the bot:  ```python Paradise.py```
-  
-<style>
-   .socials {
-      border: 4mm ridge grey;  
-      width: 200px; 
-      text-align: center;
-   }
-</style>
+
+
 # Author
    [Antonino Buscarino](https://beacons.ai/_hikki_)
