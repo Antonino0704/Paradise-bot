@@ -28,6 +28,11 @@ class Utils:
         return False
 
     async def disconnection_for_inactivity(self, guild, n):
+        channel_id = self.mysql_connection.get_guild_data(guild.id, "channel")
+        if channel_id is not None:
+            channel = discord.utils.get(guild.channels, id=int(channel_id))
+            await channel.send("disconnection for inactivity")
+            return
         try:
             channel = guild.text_channels[n]
             await channel.send("disconnection for inactivity")
