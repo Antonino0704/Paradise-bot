@@ -80,10 +80,14 @@
   
   run the bot:  ```python Paradise.py```
   
-  
+<style>
+   .socials {
+      border: 4mm ridge grey;  
+      width: 200px; 
+      text-align: center;
+   }
+</style>
 # Author
-    Antonino Buscarino
-    https://twitter.com/Hikki0704
-    https://t.me/han_ako0
-    https://notbeenoughsocial.pythonanywhere.com/profile/hikki/
-    https://techhub.social/@Hikki
+   <p class="socials"> 
+      <a href="https://beacons.ai/_hikki_"> Antonino Buscarino </a>
+   </p>
