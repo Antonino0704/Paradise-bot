@@ -59,7 +59,7 @@ class Admin(LegacyAdmin, name="Owner"):
     async def removeBlackList_slash(self, interaction: discord.Interaction, id: str):
         ctx = await Utils.getCtx(self.bot, interaction)
         if await super().passAdminCheck(ctx):
-            await self.filter_no_spam.remove_black_list(interaction, id)
+            await self.filter_no_spam.remove_black_list(ctx, id)
 
     @app_commands.command(
         name="add-nowords", description="it adds word or words in prohibited words list"
