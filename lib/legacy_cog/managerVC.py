@@ -108,8 +108,13 @@ class ManagerVC(commands.Cog, name="Manager commands for bot's speech synthesis"
                 if (
                     self.queue[msg.guild.name]["content"][0][1:25]
                     != "https://www.youtube.com/"
+                    and self.queue[msg.guild.name]["content"][0][1:18]
+                    != "https://youtu.be/"
                     and self.queue[msg.guild.name]["content"][0][1:24]
                     != "ttps://www.youtube.com/"
+                    and self.queue[msg.guild.name]["content"][0][1:17]
+                    != "ttps://youtu.be/"
+
                 ):
                     if data[0] == "no":
                         self.queue[msg.guild.name]["content"][
@@ -126,7 +131,6 @@ class ManagerVC(commands.Cog, name="Manager commands for bot's speech synthesis"
                     tts.save(f"{path}/{msg.guild.name}.mp3")
 
                 else:
-                    # not work
                     YouTube(
                         self.queue[msg.guild.name]["content"][0][1:]
                     ).streams.filter(only_audio=True).first().download(
