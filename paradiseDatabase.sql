@@ -74,7 +74,7 @@ CREATE TABLE `events` (
   KEY `badge_id` (`badge_id`),
   CONSTRAINT `events_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`),
   CONSTRAINT `events_ibfk_2` FOREIGN KEY (`badge_id`) REFERENCES `badges` (`badge_id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -83,7 +83,7 @@ CREATE TABLE `events` (
 
 LOCK TABLES `events` WRITE;
 /*!40000 ALTER TABLE `events` DISABLE KEYS */;
-INSERT INTO `events` VALUES (1,'helluva boss','helluva boss period event','533014724569333770',8,'2023-07-11','2023-07-16',30,50,100);
+INSERT INTO `events` VALUES (1,'helluva boss','helluva boss period event','533014724569333770',8,'2023-07-11','2023-07-16',30,50,100),(2,'halloween_2023','halloween2023 event','533014724569333770',3,'2023-10-14','2023-11-01',1,30,100);
 /*!40000 ALTER TABLE `events` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -319,4 +319,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2023-10-08 23:50:01
+-- Dump completed on 2023-10-15 23:50:01
