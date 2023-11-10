@@ -44,10 +44,10 @@ queue = {}
 bot = commands.Bot(command_prefix=(utils.get_prefix), intents=intents)
 
 
-def queue_init(name):
-    queue[name] = {}
-    queue[name]["content"] = []
-    queue[name]["status"] = False
+def queue_init(id):
+    queue[id] = {}
+    queue[id]["content"] = []
+    queue[id]["status"] = False
 
 
 @bot.event
@@ -55,20 +55,21 @@ async def on_ready():
     print("I'm ready")
     await bot.tree.sync()
     for guild in bot.guilds:
-        queue_init(guild.name)
+        queue_init(guild.id)
 
 
 @bot.event
 async def on_guild_join(guild):
-    mysql_connection.guild_join(guild.id, guild.name)
-    queue_init(guild.name)
+    mysql_connection.guild_join(guild.id, utils.remove_emoji(guild.name))
+    queue_init(guild.id)
 
 
 @bot.event
 async def on_guild_update(before, after):
     if before.name != after.name:
-        del queue[before.name]
-        queue_init(after.name)
+        mysql_connection.update_guild_data(
+            before.id, "name", utils.remove_emoji(after.name)
+        )
 
 
 async def load_cogs():

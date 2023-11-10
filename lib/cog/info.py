@@ -1,6 +1,7 @@
 import discord
 from discord.ext import commands
 from discord import app_commands
+from discord.ui import Button, View
 
 import typing
 
@@ -130,10 +131,64 @@ class Info(LegacyInfo, name="Information"):
     Job: {job}    
         """
 
-        embed = discord.Embed(title=title, description=description)
+        self.start = 0
+        self.finish = 200
+        hop = 200
+
+        view = View(timeout=None)
+        next_button = Button(
+            style=discord.ButtonStyle.green,
+            emoji="<a:pinkarrow_right:1172587237628719158>",
+        )
+        previous_button = Button(
+            style=discord.ButtonStyle.green,
+            emoji="a:pinkarrow_left:1172587310425055273>",
+        )
+
+        def check():
+            if (
+                len(description) + self.start == len(description)
+                and len(description) - self.finish <= 0
+            ):
+                view.children[0].disabled = True
+                view.children[1].disabled = True
+            elif len(description) - self.finish <= 0:
+                view.children[1].disabled = True
+                view.children[0].disabled = False
+            elif len(description) + self.start == len(description):
+                view.children[0].disabled = True
+                view.children[1].disabled = False
+            else:
+                view.children[0].disabled = False
+                view.children[1].disabled = False
+
+        async def next(interaction: discord.Interaction):
+            self.start += hop
+            self.finish += hop
+            embed.description = f"{description[self.start : self.finish]}"
+
+            check()
+            await interaction.response.edit_message(embed=embed, view=view)
+
+        async def previous(interaction: discord.Interaction):
+            self.start -= hop
+            self.finish -= hop
+            embed.description = f"{description[self.start : self.finish]}"
+            check()
+            await interaction.response.edit_message(embed=embed, view=view)
+
+        next_button.callback = next
+        previous_button.callback = previous
+
+        view.add_item(previous_button)
+        view.add_item(next_button)
+        check()
+        embed = discord.Embed(
+            title=title, description=description[self.start : self.finish]
+        )
         embed.set_image(url=interaction.user.avatar)
         embed.set_footer(text=names)
-        await interaction.response.send_message(embed=embed, ephemeral=True)
+        await interaction.response.send_message(embed=embed, view=view, ephemeral=True)
 
 
 async def setup(bot, utils, filter_no_spam, robux, mysql_connection):

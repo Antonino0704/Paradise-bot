@@ -70,9 +70,9 @@ class ManagerVC(LegacyManagerVC, name="Manager commands for bot's speech synthes
         ):
             return
 
-        for index in range(0, len(self.queue[interaction.guild.name]["content"])):
+        for index in range(0, len(self.queue[interaction.guild.id]["content"])):
             if index != 0:
-                del self.queue[interaction.guild.name]["content"][index]
+                del self.queue[interaction.guild.id]["content"][index]
         voice = discord.utils.get(self.bot.voice_clients, guild=interaction.guild)
         voice.stop()
         await interaction.response.send_message("I stopped", ephemeral=True)

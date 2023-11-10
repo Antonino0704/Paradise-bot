@@ -71,11 +71,11 @@ class ManagerVC(commands.Cog, name="Manager commands for bot's speech synthesis"
         if await self.utils.is_ban(ctx, self.filter_no_spam, self.robux):
             return
 
-        self.queue[msg.guild.name]["content"].append(msg.content)
+        self.queue[msg.guild.id]["content"].append(msg.content)
         self.filter_no_spam.msg_stopped = len(msg.content)
         await self.events(ctx)
-        print(len(self.queue[msg.guild.name]["content"]))
-        if len(self.queue[msg.guild.name]["content"]) == 1:
+        print(len(self.queue[msg.guild.id]["content"]))
+        if len(self.queue[msg.guild.id]["content"]) == 1:
             await self.speak(msg)
 
     async def events(self, ctx):
@@ -89,8 +89,8 @@ class ManagerVC(commands.Cog, name="Manager commands for bot's speech synthesis"
 
     def finish(self, msg):
         try:
-            del self.queue[msg.guild.name]["content"][0]
-            self.queue[msg.guild.name]["status"] = False
+            del self.queue[msg.guild.id]["content"][0]
+            self.queue[msg.guild.id]["status"] = False
         except IndexError:
             print("index error")
 
@@ -98,57 +98,54 @@ class ManagerVC(commands.Cog, name="Manager commands for bot's speech synthesis"
         data = self.mysql_connection.get_guild_data_managerVC(
             msg.guild.id, "spam, lang"
         )[0]
-
-        while len(self.queue[msg.guild.name]["content"]) != 0:
+        while len(self.queue[msg.guild.id]["content"]) != 0:
             try:
-                if os.path.exists(msg.guild.name + ".mp3"):
-                    os.remove(msg.guild.name + ".mp3")
+                if os.path.exists(str(msg.guild.id) + ".mp3"):
+                    os.remove(str(msg.guild.id) + ".mp3")
 
                 path = self.songs
                 if (
-                    self.queue[msg.guild.name]["content"][0][1:25]
+                    self.queue[msg.guild.id]["content"][0][1:25]
                     != "https://www.youtube.com/"
-                    and self.queue[msg.guild.name]["content"][0][1:18]
+                    and self.queue[msg.guild.id]["content"][0][1:18]
                     != "https://youtu.be/"
-                    and self.queue[msg.guild.name]["content"][0][1:24]
+                    and self.queue[msg.guild.id]["content"][0][1:24]
                     != "ttps://www.youtube.com/"
-                    and self.queue[msg.guild.name]["content"][0][1:17]
+                    and self.queue[msg.guild.id]["content"][0][1:17]
                     != "ttps://youtu.be/"
                 ):
                     if data[0] == "no":
-                        self.queue[msg.guild.name]["content"][
+                        self.queue[msg.guild.id]["content"][
                             0
                         ] = self.filter_no_spam.censured(
-                            self.queue[msg.guild.name]["content"][0]
+                            self.queue[msg.guild.id]["content"][0]
                         )
 
                     tts = gTTS(
-                        self.queue[msg.guild.name]["content"][0],
+                        self.queue[msg.guild.id]["content"][0],
                         lang=data[1],
                         slow=False,
                     )
-                    tts.save(f"{path}/{msg.guild.name}.mp3")
+                    tts.save(f"{path}/{msg.guild.id}.mp3")
 
                 else:
-                    YouTube(
-                        self.queue[msg.guild.name]["content"][0][1:]
-                    ).streams.filter(only_audio=True).first().download(
-                        path, filename=msg.guild.name + ".mp3"
-                    )
+                    YouTube(self.queue[msg.guild.id]["content"][0][1:]).streams.filter(
+                        only_audio=True
+                    ).first().download(path, filename=str(msg.guild.id) + ".mp3")
                 if not msg.guild.voice_client in self.bot.voice_clients:
                     channel = msg.author.voice.channel
                     await channel.connect()
 
                 voice = discord.utils.get(self.bot.voice_clients, guild=msg.guild)
-                self.queue[msg.guild.name]["status"] = True
+                self.queue[msg.guild.id]["status"] = True
                 voice.play(
                     discord.FFmpegPCMAudio(
-                        executable=self.ffmpeg, source=path + msg.guild.name + ".mp3"
+                        executable=self.ffmpeg, source=path + str(msg.guild.id) + ".mp3"
                     ),
                     after=lambda e: self.finish(msg),
                 )
 
-                while self.queue[msg.guild.name]["status"]:
+                while self.queue[msg.guild.id]["status"]:
                     await asyncio.sleep(1)
 
             except AttributeError:
@@ -242,7 +239,7 @@ class ManagerVC(commands.Cog, name="Manager commands for bot's speech synthesis"
     @commands.command(hidden=True)
     async def clean(self, ctx):
         try:
-            for index in range(0, len(self.queue[ctx.guild.name]["content"])):
-                del self.queue[ctx.guild.name]["content"][index]
+            for index in range(0, len(self.queue[ctx.guild.id]["content"])):
+                del self.queue[ctx.guild.id]["content"][index]
         except:
             pass
