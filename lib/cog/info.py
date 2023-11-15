@@ -117,12 +117,12 @@ class Info(LegacyInfo, name="Information"):
         items = self.mysql_connection.get_pokedex_all(id_s)
         badges = super().getBadge(id_s)
         job = self.mysql_connection.get_user_job(id_s)
-        title = str(interaction.user) + badges
+        title = str(interaction.user)
 
         names = self.mysql_connection.get_user_names(id_s, "firstname, lastname")
         names = names[0][0] + " " + names[0][1] if names else "no firstname no lastname"
 
-        description = ""
+        description = f"**Badges:** {badges}\n\n"
         for icon, amount in items:
             description += f"""
     {icon}: {amount}\n
@@ -132,8 +132,8 @@ class Info(LegacyInfo, name="Information"):
         """
 
         self.start = 0
-        self.finish = 200
-        hop = 200
+        self.finish = 4000
+        hop = 4000
 
         view = View(timeout=None)
         next_button = Button(
