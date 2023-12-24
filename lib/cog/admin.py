@@ -385,6 +385,24 @@ class Admin(LegacyAdmin, name="Owner"):
             else:
                 await interaction.response.send_message("item doesn't exist")
 
+    @app_commands.command(
+        name="leave-guild",
+        description="bot leaves guild",
+    )
+    @app_commands.describe(id_guild="user id")
+    async def leaveGuild(self, interaction: discord.Interaction, id_guild: str):
+        if await super().passAdminCheck(await Utils.getCtx(self.bot, interaction)):
+            try:
+                guild = self.bot.get_guild(int(id_guild))
+                if guild is None:
+                    raise Exception("error guild not fund")
+                if guild.owner_id == self.bot.user.id:
+                    raise Exception("the owner is the bot")
+                await guild.leave()
+                await interaction.response.send_message(f"{guild.name} left")
+            except Exception as e:
+                await interaction.response.send_message(e)
+
 
 async def setup(bot, filter_no_spam, robux, inventory, mysql_connection):
     await bot.add_cog(Admin(bot, filter_no_spam, robux, inventory, mysql_connection))

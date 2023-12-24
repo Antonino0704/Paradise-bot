@@ -143,7 +143,7 @@ class Shop(LegacyShop, name="Shop"):
         if item_name == "wallet" and not self.mysql_connection.is_exist_composite(
             "user_id", "item_id", id, 5, "pokedex", "amount"
         ):
-            await interaction.response.send_messag("you already have a wallet")
+            await interaction.response.send_message("you already have a wallet")
             return
 
         if pokedex >= price:
