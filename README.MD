@@ -1,4 +1,4 @@
-# Paradise server's official bot
+# Paradise bot
 
    A bot whose main function is to speak instead of someone who can't speak
 
@@ -7,11 +7,6 @@
    Default prefix = $
    
     
-# Development Status
-   I created this bot because not everyone can talk in voice chat but I'm alone in development and between high school final exam, driving license exam and college tests 
-   I don't have enough time. This is not my job and not get any salary 
-    so at moment the bot will not receive any updates and development status is suspended.
-
 # Start:
    Don't waste time with permissions, the bot is safe:
 

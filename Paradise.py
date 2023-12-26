@@ -56,6 +56,7 @@ async def on_ready():
     await bot.tree.sync()
     for guild in bot.guilds:
         queue_init(guild.id)
+        print(f"guild's name: {guild.name}, owner: {guild.owner}")
 
 
 @bot.event
