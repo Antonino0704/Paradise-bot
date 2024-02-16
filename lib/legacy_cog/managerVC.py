@@ -115,10 +115,10 @@ class ManagerVC(commands.Cog, name="Manager commands for bot's speech synthesis"
                     != "ttps://youtu.be/"
                 ):
                     if data[0] == "no":
-                        self.queue[msg.guild.id]["content"][
-                            0
-                        ] = self.filter_no_spam.censured(
-                            self.queue[msg.guild.id]["content"][0]
+                        self.queue[msg.guild.id]["content"][0] = (
+                            self.filter_no_spam.censured(
+                                self.queue[msg.guild.id]["content"][0]
+                            )
                         )
 
                     tts = gTTS(
