@@ -2,7 +2,7 @@
 
    A bot whose main function is to speak instead of someone who can't speak
 
-   It also has other features like a dummy system of game coins, sending embed messages or play music
+   It also has other features like a dummy system of game coins, sending embed messages or [play music](#known-bugs) &#x2612;
 
    Default prefix = $
    
@@ -31,7 +31,8 @@
     
  
 # Known bugs
-   if the bot doesn't connect to your server use the $clean command and try again (it may be necessary to try several times)
+   - third party service has problems, songs on youtube are temporarily suspended 
+   - if the bot doesn't connect to your server use the $clean command and try again (it may be necessary to try several times)
     
 # Bugs
    if you find a bug open a new issue on github
